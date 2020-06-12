@@ -23,7 +23,7 @@ export default {
       type: String,
       default: ""
     },
-    id: {
+    userId: {
       type: [Number, String]
     },
     type: {
@@ -76,7 +76,7 @@ export default {
   methods: {
     save() {
       this.$emit("save", {
-        id: this.id,
+        id: this.userId,
         type: this.type,
         value: this.innerValue
       });

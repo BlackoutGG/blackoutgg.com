@@ -18,22 +18,27 @@
       </v-toolbar>
     </template>
     <template v-slot:item.username="{ item }">
-      <user-table-input :id="item.id" :value="item.username" :large="true" @save="changeUsername"></user-table-input>
+      <user-table-input
+        :userId="item.id"
+        :value="item.username"
+        :large="true"
+        @save="changeUserInfo"
+      ></user-table-input>
     </template>
     <template v-slot:item.email="{ item }">
       <user-table-input
         :type="'email'"
-        :id="item.id"
+        :userId="item.id"
         :value="item.email"
         :large="true"
-        @save="changeEmail"
+        @save="changeUserInfo"
       ></user-table-input>
     </template>
     <template v-slot:item.avatar="{ item }">
       <user-table-avatar :item="item"></user-table-avatar>
     </template>
     <template v-slot:item.roles="{ item }">
-      <user-table-roles :roles="item.roles"></user-table-roles>
+      <user-table-roles :userId="item.id" :roles="item.roles"></user-table-roles>
     </template>
     <template v-slot:item.actions="{ item }">
       <table-actions :item="item"></table-actions>
@@ -45,7 +50,7 @@
 import { createNamespacedHelpers } from "vuex";
 import types from "~/utilities/types/users.js";
 import UserTableAvatar from "~/components/table/UserTableAvatar.vue";
-import UserTableRoles from "~/components/table/UserTableRoles.vue";
+import UserTableRoles from "~/components/table/UserTableRoles2.vue";
 import UserTableInput from "~/components/table/UserTableInputDialog.vue";
 import TableActions from "~/components/table/TableActions.vue";
 import CreateUserDialog from "~/components/dialogs/CreateUserDialog.vue";
@@ -65,7 +70,7 @@ export default {
   },
   methods: {
     ...mapMutations(["setParam", "setSelected"]),
-    ...mapActions(["changeUsername", "changeEmail"])
+    ...mapActions(["changeUserInfo"])
   },
   computed: {
     ...mapGetters(["users", "queryParams"]),

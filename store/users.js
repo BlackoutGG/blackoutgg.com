@@ -47,23 +47,23 @@ const mutations = {
     }
   },
   [USERS.mutations.ADD_ROLE](state, { userId, role }) {
-    const user = state.users.find(id => id === userId);
+    const user = state.users.find(u => u.id === userId);
     if (user) user.roles.push(role);
   },
-  [USERS.mutations.REMOVE_ROLE](state, { userId, roleId }) {
-    const user = state.users.find(u => u.id === userId);
+  [USERS.mutations.REMOVE_ROLE](state, { user_id, role_id }) {
+    const user = state.users.find(u => u.id === user_id);
     if (user) {
-      const idx = user.roles.findIndex(role => role.id === roleId);
+      const idx = user.roles.findIndex(role => role.id === role_id);
       if (idx !== -1) user.roles.splice(idx, 1);
     }
   },
   [USERS.mutations.SET_USERNAME](state, { id, value }) {
     const user = state.users.find(u => u.id === id);
-    if (user) users.username = value;
+    if (user) user.username = value;
   },
   [USERS.mutations.SET_EMAIL](state, { id, value }) {
     const user = state.users.find(u => u.id === id);
-    if (user) users.email = value;
+    if (user) user.email = value;
   }
 };
 
@@ -95,10 +95,14 @@ const actions = {
   },
   async [USERS.actions.ADD_ROLE]({ commit, dispatch }, { userId, roleId }) {
     try {
-      const user = await this.$axios.put(`/api/users/${userId}/role`, {
-        data: { roleId }
-      }).data;
-      console.log(user);
+      const { data } = await this.$axios.put(`/api/users/${userId}/role`, {
+        roleId
+      });
+      console.log(data);
+      commit(USERS.mutations.ADD_ROLE, {
+        userId: data.user.id,
+        role: data.user.role
+      });
     } catch (err) {
       console.log(err);
       dispatch(
@@ -111,14 +115,13 @@ const actions = {
   async [USERS.actions.REMOVE_ROLE]({ commit, dispatch }, { userId, roleId }) {
     const url = `/api/users/${userId}/role`;
     try {
-      const user = await this.$axios.delete(url, {
+      const { data } = await this.$axios.delete(url, {
         data: { roleId }
-      }).data;
-      console.log(user);
-      commit(USERS.mutations.REMOVE_ROLE, {
-        userId: user.user_id,
-        roleId: user.role_id
       });
+
+      console.log(data);
+
+      commit(USERS.mutations.REMOVE_ROLE, data.user);
     } catch (err) {}
   },
   async [USERS.actions.DISABLE_USER]({ commit, dispatach }) {},
@@ -127,20 +130,21 @@ const actions = {
     { id, type, value }
   ) {
     try {
-      const {
-        data: { user }
-      } = this.$axios.put(`/api/users/${id}/edit`, {
-        data: { [type]: value }
+      const { data } = await this.$axios.put(`/api/users/${id}/edit`, {
+        [type]: value,
+        type
       });
+
+      console.log(data);
 
       // const mutation =
       //   "set" + user.type.charAt(0).toUpperCase() + user.type.slice(1);
 
-      const mutation = "SET_" + user.type.toUpperCase();
+      const mutation = "SET_" + data.user.type.toUpperCase();
 
-      commit(USERS.mutation[mutation], {
-        id: user.id,
-        value: user.value
+      commit(USERS.mutations[mutation], {
+        id: data.user.id,
+        value: data.user.value
       });
     } catch (err) {
       dispatch(

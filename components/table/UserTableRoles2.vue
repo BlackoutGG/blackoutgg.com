@@ -42,11 +42,13 @@ export default {
   methods: {
     ...mapActions(["addRoleToUser", "removeRoleFromUser"]),
     remove(role) {
+      console.log(this.userId);
       this.removeRoleFromUser({ userId: this.userId, roleId: role.id });
     },
     add(role) {
       const idx = this.roles.findIndex(r => r.name === role.name);
       // if (idx === -1) this.roles.push(item);
+      console.log(this.userId);
       this.addRoleToUser({ userId: this.userId, roleId: role.id });
     }
   },
