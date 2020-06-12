@@ -11,11 +11,32 @@
     @update:page="page"
     @update:sort="sortBy"
   >
+    <template v-slot:top>
+      <v-toolbar>
+        <v-spacer></v-spacer>
+        <create-user-dialog></create-user-dialog>
+      </v-toolbar>
+    </template>
+    <template v-slot:item.username="{ item }">
+      <user-table-input :id="item.id" :value="item.username" :large="true" @save="changeUsername"></user-table-input>
+    </template>
+    <template v-slot:item.email="{ item }">
+      <user-table-input
+        :type="'email'"
+        :id="item.id"
+        :value="item.email"
+        :large="true"
+        @save="changeEmail"
+      ></user-table-input>
+    </template>
     <template v-slot:item.avatar="{ item }">
       <user-table-avatar :item="item"></user-table-avatar>
     </template>
     <template v-slot:item.roles="{ item }">
       <user-table-roles :roles="item.roles"></user-table-roles>
+    </template>
+    <template v-slot:item.actions="{ item }">
+      <table-actions :item="item"></table-actions>
     </template>
   </v-data-table>
 </template>
@@ -25,14 +46,26 @@ import { createNamespacedHelpers } from "vuex";
 import types from "~/utilities/types/users.js";
 import UserTableAvatar from "~/components/table/UserTableAvatar.vue";
 import UserTableRoles from "~/components/table/UserTableRoles.vue";
+import UserTableInput from "~/components/table/UserTableInputDialog.vue";
+import TableActions from "~/components/table/TableActions.vue";
+import CreateUserDialog from "~/components/dialogs/CreateUserDialog.vue";
 
-const { mapGetters, mapMutations } = createNamespacedHelpers("users");
+const { mapGetters, mapMutations, mapActions } = createNamespacedHelpers(
+  "users"
+);
 
 export default {
   name: "DataTable",
-  components: { UserTableAvatar, UserTableRoles },
+  components: {
+    UserTableAvatar,
+    UserTableRoles,
+    UserTableInput,
+    TableActions,
+    CreateUserDialog
+  },
   methods: {
-    ...mapMutations(["setParam", "setSelected"])
+    ...mapMutations(["setParam", "setSelected"]),
+    ...mapActions(["changeUsername", "changeEmail"])
   },
   computed: {
     ...mapGetters(["users", "queryParams"]),
@@ -42,8 +75,10 @@ export default {
         { text: "id", sortable: true, value: "id" },
         { text: "", sortable: false, value: "avatar" },
         { text: "username", sortable: true, value: "username" },
+        { text: "email", sortable: true, value: "email" },
         { text: "roles", sortable: false, value: "roles" },
-        { text: "joined_on", sortable: true, value: "joined_on" }
+        { text: "joined_on", sortable: true, value: "joined_on" },
+        { text: "", sortable: false, value: "actions", align: "end" }
       ];
     },
     selected: {
@@ -51,7 +86,6 @@ export default {
         return this.$store.getters[types.getters.SELECTED];
       },
       set(value) {
-        // this.$store.commit(types.mutations.SET_SELECTED, value);
         this.setSelected(value);
       }
     },
@@ -60,7 +94,6 @@ export default {
         return this.queryParams("page");
       },
       set(value) {
-        // this.$store.commit(types.mutations.SET_PARAM, { param: "page", value });
         this.setParam({ param: "page", value });
       }
     },
@@ -69,10 +102,6 @@ export default {
         return this.queryParams("sortBy");
       },
       set(value) {
-        // this.$store.commit(types.mutations.SET_PARAM, {
-        //   param: "sortBy",
-        //   value
-        // });
         this.setParam({ param: "sortBy", value });
       }
     },
@@ -87,6 +116,9 @@ export default {
 #users {
   tr {
     height: 60px;
+  }
+  .text-end {
+    text-align: right;
   }
 }
 </style>

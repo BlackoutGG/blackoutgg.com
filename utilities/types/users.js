@@ -11,6 +11,8 @@ export default {
     SET_ROLE_LIST: "users/setRoleList",
     SET_SELECTED: "users/setSelected",
     SET_PARAM: "users/setParam",
+    SET_USERNAME: "users/setUsername",
+    SET_EMAIL: "users/setEmail",
     ADD_ROLE: "users/addRole",
     REMOVE_ROLE: "users/removeRole"
   },
@@ -19,8 +21,8 @@ export default {
     ADD_ROLE: "users/addRoleToUser",
     REMOVE_ROLE: "users/removeRoleFromUser",
     DISABLE_USER: "users/disableUser",
-    CHANGE_USERNAME: "users/changeUsername",
-    CHANGE_EMAIL: "users/changeEmail",
+    CHANGE_USER_INFO: "users/changeUserInfo",
+    CREATE_USER: "users/createUser",
     RESET_PASSWORD: "users/resetPassword"
   }
 };

@@ -50,9 +50,20 @@ const mutations = {
     const user = state.users.find(id => id === userId);
     if (user) user.roles.push(role);
   },
-  [USERS.mutations.REMOVE_ROLE](state, { userId, role }) {
-    const user = state.users.find(id => id == userId);
-    if (user) user.roles.splice(user.roles.indexOf(role), 1);
+  [USERS.mutations.REMOVE_ROLE](state, { userId, roleId }) {
+    const user = state.users.find(u => u.id === userId);
+    if (user) {
+      const idx = user.roles.findIndex(role => role.id === roleId);
+      if (idx !== -1) user.roles.splice(idx, 1);
+    }
+  },
+  [USERS.mutations.SET_USERNAME](state, { id, value }) {
+    const user = state.users.find(u => u.id === id);
+    if (user) users.username = value;
+  },
+  [USERS.mutations.SET_EMAIL](state, { id, value }) {
+    const user = state.users.find(u => u.id === id);
+    if (user) users.email = value;
   }
 };
 
@@ -84,7 +95,7 @@ const actions = {
   },
   async [USERS.actions.ADD_ROLE]({ commit, dispatch }, { userId, roleId }) {
     try {
-      const user = await this.$axios.put(`/users/${userId}/role`, {
+      const user = await this.$axios.put(`/api/users/${userId}/role`, {
         data: { roleId }
       }).data;
       console.log(user);
@@ -97,11 +108,70 @@ const actions = {
       );
     }
   },
-  async [USERS.actions.REMOVE_ROLE]({ commit, dispatach }) {},
+  async [USERS.actions.REMOVE_ROLE]({ commit, dispatch }, { userId, roleId }) {
+    const url = `/api/users/${userId}/role`;
+    try {
+      const user = await this.$axios.delete(url, {
+        data: { roleId }
+      }).data;
+      console.log(user);
+      commit(USERS.mutations.REMOVE_ROLE, {
+        userId: user.user_id,
+        roleId: user.role_id
+      });
+    } catch (err) {}
+  },
   async [USERS.actions.DISABLE_USER]({ commit, dispatach }) {},
-  async [USERS.actions.CHANGE_USERNAME]({ commit, dispatach }) {},
-  async [USERS.actions.CHANGE_EMAIL]({ commit, dispatach }) {},
-  async [USERS.actions.RESET_PASSWORD]({ commit, dispatach }) {}
+  async [USERS.actions.CHANGE_USER_INFO](
+    { commit, dispatch },
+    { id, type, value }
+  ) {
+    try {
+      const {
+        data: { user }
+      } = this.$axios.put(`/api/users/${id}/edit`, {
+        data: { [type]: value }
+      });
+
+      // const mutation =
+      //   "set" + user.type.charAt(0).toUpperCase() + user.type.slice(1);
+
+      const mutation = "SET_" + user.type.toUpperCase();
+
+      commit(USERS.mutation[mutation], {
+        id: user.id,
+        value: user.value
+      });
+    } catch (err) {
+      dispatch(
+        SNACKBAR.actions.TOGGLE_BAR,
+        { text: err.message },
+        { root: true }
+      );
+    }
+  },
+  async [USERS.actions.RESET_PASSWORD]({ commit, dispatch }) {},
+  async [USERS.actions.CREATE_USER]({ state, commit, dispatch }, payload) {
+    try {
+      payload = { page, limit } = state.queryParams;
+      const { data } = await this.$axios.post(
+        "/api/admin/users/create",
+        payload
+      );
+      const text = `Created user: ${data.user.username}`;
+
+      dispatch(SNACKBAR.actions.TOGGLE_BAR, { text }, { root: true });
+
+      commit(USERS.mutations.SET_PARAM, {
+        param: "total",
+        value: data.users.total
+      });
+      commit(USERS.mutations.SET_USERS, data.users.results);
+    } catch (err) {
+      const text = err.message;
+      dispatch(SNACKBAR.actions.TOGGLE_BAR, { text }, { root: true });
+    }
+  }
 };
 
 export default { state, getters, mutations, actions };

@@ -73,7 +73,8 @@ export default {
         logout: false,
         user: { url: "/auth/user", method: "get", propertyName: "user" }
       }
-    }
+    },
+    plugins: [{ src: "~/plugins/axios.js" }]
   },
   /*
    ** Axios module configuration

@@ -16,8 +16,13 @@
 </template>
 
 <script>
+import vuex from "vuex";
 import AddRoleMenu from "./AddRoleMenu.vue";
 import TruncatedRoleMenu from "./TruncatedRoleMenu.vue";
+
+import { createNamespacedHelpers } from "vuex";
+const { mapActions } = createNamespacedHelpers("users");
+
 export default {
   name: "RoleChipGroup",
   components: { AddRoleMenu, TruncatedRoleMenu },
@@ -34,38 +39,29 @@ export default {
     }
   },
 
-  data() {
-    return {
-      // items: [...this.roles, "curator", "agent", "member"]
-      items: [
-        { id: 1, name: "admin" },
-        { id: 2, name: "curator" },
-        { id: 3, name: "agent" }
-      ]
-    };
-  },
-
   methods: {
-    remove(item) {
-      this.items.splice(this.items.indexOf(item), 1);
+    ...mapActions(["addRoleToUser", "removeRoleFromUser"]),
+    remove(role) {
+      this.removeRoleFromUser({ userId: this.userId, roleId: role.id });
     },
-    add(item) {
-      const idx = this.items.findIndex(i => i.name === item.name);
-      if (idx === -1) this.items.push(item);
+    add(role) {
+      const idx = this.roles.findIndex(r => r.name === role.name);
+      // if (idx === -1) this.roles.push(item);
+      this.addRoleToUser({ userId: this.userId, roleId: role.id });
     }
   },
 
   computed: {
     end() {
-      return this.display > this.items.length
-        ? this.items.length
+      return this.display > this.roles.length
+        ? this.roles.length
         : this.display;
     },
     displayedRoles() {
-      return this.items.length > 1 ? this.items.slice(0, this.end) : this.items;
+      return this.roles.length > 1 ? this.roles.slice(0, this.end) : this.roles;
     },
     truncated() {
-      return this.items.slice(this.end, this.items.length);
+      return this.roles.slice(this.end, this.roles.length);
     }
   }
 };
