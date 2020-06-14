@@ -14,7 +14,11 @@
     <template v-slot:top>
       <v-toolbar>
         <v-spacer></v-spacer>
-        <create-user-dialog></create-user-dialog>
+        <v-btn>
+          <v-icon left>mdi-refresh</v-icon>
+          <span>Refresh</span>
+        </v-btn>
+        <create-dialog @open="setRoles"></create-dialog>
       </v-toolbar>
     </template>
     <template v-slot:item.username="{ item }">
@@ -41,19 +45,22 @@
       <user-table-roles :userId="item.id" :roles="item.roles"></user-table-roles>
     </template>
     <template v-slot:item.actions="{ item }">
-      <table-actions :item="item"></table-actions>
+      <table-actions @edit="$refs.dialog.setEditableContent(item)" :item="item"></table-actions>
     </template>
+    <edit-dialog ref="dialog" @open="setRoles"></edit-dialog>
   </v-data-table>
 </template>
 
 <script>
 import { createNamespacedHelpers } from "vuex";
-import types from "~/utilities/types/users.js";
+import { users } from "~/utilities/types/users.js";
+import { roles } from "~/utilities/types/roles.js";
 import UserTableAvatar from "~/components/table/UserTableAvatar.vue";
-import UserTableRoles from "~/components/table/UserTableRoles2.vue";
+import UserTableRoles from "~/components/table/UserRoles.vue";
 import UserTableInput from "~/components/table/UserTableInputDialog.vue";
 import TableActions from "~/components/table/TableActions.vue";
-import CreateUserDialog from "~/components/dialogs/CreateUserDialog.vue";
+import CreateDialog from "~/components/dialogs/CreateUserDialog.vue";
+import EditDialog from "~/components/dialogs/EditUserDialog.vue";
 
 const { mapGetters, mapMutations, mapActions } = createNamespacedHelpers(
   "users"
@@ -66,17 +73,14 @@ export default {
     UserTableRoles,
     UserTableInput,
     TableActions,
-    CreateUserDialog
+    CreateDialog,
+    EditDialog
   },
-  methods: {
-    ...mapMutations(["setParam", "setSelected"]),
-    ...mapActions(["changeUserInfo"])
-  },
-  computed: {
-    ...mapGetters(["users", "queryParams"]),
 
-    headers() {
-      return [
+  data() {
+    return {
+      dialog: "create",
+      headers: [
         { text: "id", sortable: true, value: "id" },
         { text: "", sortable: false, value: "avatar" },
         { text: "username", sortable: true, value: "username" },
@@ -84,11 +88,25 @@ export default {
         { text: "roles", sortable: false, value: "roles" },
         { text: "joined_on", sortable: true, value: "joined_on" },
         { text: "", sortable: false, value: "actions", align: "end" }
-      ];
-    },
+      ]
+    };
+  },
+
+  methods: {
+    ...mapMutations(["setParam", "setSelected"]),
+    ...mapActions(["changeUserInfo"]),
+    setRoles() {
+      const roles = this.$store.getters(roles.getters.ROLES);
+      if (roles.length) return;
+      this.$store.dispatch(roles.actions.FETCH, false);
+    }
+  },
+  computed: {
+    ...mapGetters(["users", "queryParams"]),
+
     selected: {
       get() {
-        return this.$store.getters[types.getters.SELECTED];
+        return this.$store.getters[users.getters.SELECTED];
       },
       set(value) {
         this.setSelected(value);

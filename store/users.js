@@ -1,8 +1,5 @@
-import userTypes from "~/utilities/types/users.js";
-import SNACKBAR from "~/utilities/types/snackbar.js";
-import removeNamespace from "~/utilities/removeNamespace.js";
-
-const USERS = removeNamespace("users/", userTypes);
+import { _users as types } from "~/utilities/types/users.js";
+import { snackbar } from "~/utilities/types/snackbar.js";
 
 const state = () => ({
   users: [],
@@ -19,113 +16,107 @@ const state = () => ({
 });
 
 const getters = {
-  [USERS.getters.USERS]: state => state.users,
-  [USERS.getters.SELECTED]: state => state.selected,
-  [USERS.getters.GET_USER]: state => id =>
+  [types.getters.USERS]: state => state.users,
+  [types.getters.SELECTED]: state => state.selected,
+  [types.getters.GET_USER]: state => id =>
     state.users.find(user => user.id === id),
-  [USERS.getters.ROLE_LIST]: state => state.roles,
-  [USERS.getters.QUERY_PARAMS]: state => key =>
+  [types.getters.ROLE_LIST]: state => state.roles,
+  [types.getters.QUERY_PARAMS]: state => key =>
     typeof key !== undefined ? state.queryParams[key] : state.queryParams
 };
 
 const mutations = {
-  [USERS.mutations.SET_USERS](state, users) {
+  [types.mutations.SET_USERS](state, users) {
     state.users = users;
   },
-  [USERS.mutations.SET_ROLE_LIST](state, roles) {
+  [types.mutations.SET_ROLE_LIST](state, roles) {
     state.roles = roles;
   },
-  [USERS.mutations.SET_SELECTED](state, value) {
-    // const idx = state.selected.indexOf(value);
-    // if (idx !== -1) state.selected.splice(idx, 1);
-    // else state.selected.push(value);
+  [types.mutations.SET_SELECTED](state, value) {
     state.selected = value;
   },
-  [USERS.mutations.SET_PARAM](state, { param, value }) {
+  [types.mutations.SET_PARAM](state, { param, value }) {
     if (typeof state.queryParams[param] !== undefined) {
       state.queryParams[param] = value;
     }
   },
-  [USERS.mutations.ADD_ROLE](state, { userId, role }) {
+  [types.mutations.ADD_ROLE](state, { userId, role }) {
     const user = state.users.find(u => u.id === userId);
     if (user) user.roles.push(role);
   },
-  [USERS.mutations.REMOVE_ROLE](state, { user_id, role_id }) {
+  [types.mutations.REMOVE_ROLE](state, { user_id, role_id }) {
     const user = state.users.find(u => u.id === user_id);
     if (user) {
       const idx = user.roles.findIndex(role => role.id === role_id);
       if (idx !== -1) user.roles.splice(idx, 1);
     }
   },
-  [USERS.mutations.SET_USERNAME](state, { id, value }) {
+  [types.mutations.SET_USERNAME](state, { id, value }) {
     const user = state.users.find(u => u.id === id);
     if (user) user.username = value;
   },
-  [USERS.mutations.SET_EMAIL](state, { id, value }) {
+  [types.mutations.SET_EMAIL](state, { id, value }) {
     const user = state.users.find(u => u.id === id);
     if (user) user.email = value;
   }
 };
 
 const actions = {
-  async [USERS.actions.FETCH]({ state, commit, dispatch }) {
+  async [types.actions.FETCH]({ state, commit, dispatch }) {
     try {
-      const { data } = await this.$axios.get("/api/admin/users", {
+      const { data } = await this.$axios.get("/api/users", {
         params: { ...state.queryParams }
       });
 
-      commit(USERS.mutations.SET_USERS, data.users.results);
-      commit(USERS.mutations.SET_PARAM, {
+      commit(types.mutations.SET_USERS, data.users.results);
+      commit(types.mutations.SET_PARAM, {
         param: "total",
         value: data.users.total
       });
-      commit(USERS.mutations.SET_ROLE_LIST, data.roles);
+      commit(types.mutations.SET_ROLE_LIST, data.roles);
       dispatch(
-        SNACKBAR.actions.TOGGLE_BAR,
+        snackbar.actions.TOGGLE_BAR,
         { text: "Content Loaded." },
         { root: true }
       );
     } catch (err) {
       dispatch(
-        SNACKBAR.actions.TOGGLE_BAR,
+        snackbar.actions.TOGGLE_BAR,
         { text: err.message },
         { root: true }
       );
     }
   },
-  async [USERS.actions.ADD_ROLE]({ commit, dispatch }, { userId, roleId }) {
+  async [types.actions.ADD_ROLE]({ commit, dispatch }, { userId, roleId }) {
     try {
       const { data } = await this.$axios.put(`/api/users/${userId}/role`, {
         roleId
       });
-      console.log(data);
-      commit(USERS.mutations.ADD_ROLE, {
+      commit(types.mutations.ADD_ROLE, {
         userId: data.user.id,
         role: data.user.role
       });
     } catch (err) {
       console.log(err);
       dispatch(
-        SNACKBAR.actions.TOGGLE_BAR,
+        snackbar.actions.TOGGLE_BAR,
         { text: err.message },
         { root: true }
       );
     }
   },
-  async [USERS.actions.REMOVE_ROLE]({ commit, dispatch }, { userId, roleId }) {
+  async [types.actions.REMOVE_ROLE]({ commit, dispatch }, { userId, roleId }) {
     const url = `/api/users/${userId}/role`;
     try {
       const { data } = await this.$axios.delete(url, {
         data: { roleId }
       });
 
-      console.log(data);
-
-      commit(USERS.mutations.REMOVE_ROLE, data.user);
+      commit(types.mutations.REMOVE_ROLE, data.user);
     } catch (err) {}
   },
-  async [USERS.actions.DISABLE_USER]({ commit, dispatach }) {},
-  async [USERS.actions.CHANGE_USER_INFO](
+  async [types.actions.DISABLE_USER]({ commit, dispatach }) {},
+  async [types.actions.CHANGE_USER_INFO](
     { commit, dispatch },
     { id, type, value }
   ) {
@@ -135,27 +126,22 @@ const actions = {
         type
       });
 
-      console.log(data);
-
-      // const mutation =
-      //   "set" + user.type.charAt(0).toUpperCase() + user.type.slice(1);
-
       const mutation = "SET_" + data.user.type.toUpperCase();
 
-      commit(USERS.mutations[mutation], {
+      commit(types.mutations[mutation], {
         id: data.user.id,
         value: data.user.value
       });
     } catch (err) {
       dispatch(
-        SNACKBAR.actions.TOGGLE_BAR,
+        snackbar.actions.TOGGLE_BAR,
         { text: err.message },
         { root: true }
       );
     }
   },
-  async [USERS.actions.RESET_PASSWORD]({ commit, dispatch }) {},
-  async [USERS.actions.CREATE_USER]({ state, commit, dispatch }, payload) {
+  async [types.actions.RESET_PASSWORD]({ commit, dispatch }) {},
+  async [types.actions.CREATE_USER]({ state, commit, dispatch }, payload) {
     try {
       payload = { page, limit } = state.queryParams;
       const { data } = await this.$axios.post(
@@ -164,16 +150,16 @@ const actions = {
       );
       const text = `Created user: ${data.user.username}`;
 
-      dispatch(SNACKBAR.actions.TOGGLE_BAR, { text }, { root: true });
+      dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
 
-      commit(USERS.mutations.SET_PARAM, {
+      commit(types.mutations.SET_PARAM, {
         param: "total",
         value: data.users.total
       });
-      commit(USERS.mutations.SET_USERS, data.users.results);
+      commit(types.mutations.SETtypes, data.users.results);
     } catch (err) {
       const text = err.message;
-      dispatch(SNACKBAR.actions.TOGGLE_BAR, { text }, { root: true });
+      dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
     }
   }
 };

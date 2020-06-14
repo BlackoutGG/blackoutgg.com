@@ -1,4 +1,6 @@
-export default {
+import removeNamespace from "../removeNamespace.js";
+
+export const users = {
   getters: {
     USERS: "users/users",
     GET_USER: "users/getUser",
@@ -26,3 +28,7 @@ export default {
     RESET_PASSWORD: "users/resetPassword"
   }
 };
+
+export const _users = removeNamespace("users/", users);
+
+export default { users };

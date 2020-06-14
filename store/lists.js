@@ -1,11 +1,8 @@
-import { LISTS, SNACKBAR } from "~/utilities/types.js";
-import removeNamespace from "~/utilities/removeNamespace.js";
-
-const Types = removeNamespace("lists/", LISTS);
+import { _lists as types } from "~/utilities/types/lists.js";
+import { snackbar } from "~/utilities/types/snackbar.js";
 
 const state = () => ({
   items: {
-    users: [],
     roles: [],
     posts: []
   },
@@ -22,51 +19,48 @@ const state = () => ({
 });
 
 const getters = {
-  [Types.getters.ITEMS]: state => type => state.items[type],
-  [Types.getters.LIST_TYPE]: state => state.listType,
-  [Types.getters.SELECTED]: state => state.selected,
-  [Types.getters.QUERY_PARAMS]: state => key =>
+  [types.getters.ITEMS]: state => type => state.items[type],
+  [types.getters.LIST_TYPE]: state => state.listType,
+  [types.getters.SELECTED]: state => state.selected,
+  [types.getters.QUERY_PARAMS]: state => key =>
     typeof key !== undefined ? state.queryParams[key] : state.queryParams
 };
 
 const mutations = {
-  [Types.mutations.SET_LIST](state, payload) {
+  [types.mutations.SET_LIST](state, payload) {
     state.items[state.listType] = payload;
   },
-  [Types.mutations.SET_TYPE](state, type) {
+  [types.mutations.SET_TYPE](state, type) {
     state.listType = type;
   },
-  [Types.mutations.SET_SELECTED](state, selected) {
-    const idx = state.selected.indexOf(selected);
-    if (idx !== -1) state.selected.splice(idx, 1);
-    else state.selected.push(selected);
+  [types.mutations.SET_SELECTED](state, selected) {
+    state.selected = selected;
   },
-  [Types.mutations.SET_PAGE](state, page) {
+  [types.mutations.SET_PAGE](state, page) {
     state.queryParams.page = page;
   },
-  [Types.mutations.SET_SORT](state, sortBy) {
+  [types.mutations.SET_SORT](state, sortBy) {
     state.queryParams.sortByh = sortBy;
   },
-  [Types.mutations.SET_TOTAL](state, total) {
+  [types.mutations.SET_TOTAL](state, total) {
     state.queryParams.total = total;
   },
-  [Types.mutations.REMOVE_ROLE](state, { userId, role }) {
+  [types.mutations.REMOVE_ROLE](state, { userId, role }) {
     const user = state.lists.users.find(id => id === userId);
     if (user) user.roles.splice(user.roles.indexOf(role), 1);
   }
 };
 
 const actions = {
-  async [Types.actions.FETCH]({ commit, dispatch, state }, type) {
-    commit(Types.mutations.SET_TYPE, type);
+  async [types.actions.FETCH]({ commit, dispatch, state }, type) {
     try {
-      const { data } = await this.$axios.get(`/api/${state.listType}`, {
+      const { data } = await this.$axios.get(`/api/${type}`, {
         params: { ...state.queryParams }
       });
-      commit(Types.mutations.SET_LIST, data[`${state.listType}`].results);
-      commit(Types.mutations.SET_TOTAL, data[`${state.listType}`].total);
+      commit(types.mutations.SET_LIST, data[type].results);
+      commit(types.mutations.SET_TOTAL, data[type].total);
       dispatch(
-        SNACKBAR.actions.TOGGLE_BAR,
+        snackbar.actions.TOGGLE_BAR,
         {
           text: "Content Loaded.",
           color: "#000"
@@ -75,7 +69,7 @@ const actions = {
       );
     } catch (err) {
       dispatch(
-        SNACKBAR.actions.TOGGLE_BAR,
+        snackbar.actions.TOGGLE_BAR,
         {
           text: err.message,
           color: "#000"

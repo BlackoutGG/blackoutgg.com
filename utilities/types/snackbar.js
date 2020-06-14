@@ -1,4 +1,6 @@
-export default {
+import removeNamespace from "../removeNamespace";
+
+export const snackbar = {
   getters: {
     TEXT: "snackbar/text",
     DISPLAY: "snackbar/displayBar",
@@ -13,3 +15,7 @@ export default {
     TOGGLE_BAR: "snackbar/toggleBar"
   }
 };
+
+export const _snackbar = removeNamespace("snackbar/", snackbar);
+
+export default { snackbar };

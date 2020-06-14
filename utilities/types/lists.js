@@ -1,4 +1,6 @@
-export default {
+import removeNamespace from "../removeNamespace";
+
+export const lists = {
   getters: {
     ITEMS: "lists/getItems",
     LIST_TYPE: "lists/type",
@@ -18,3 +20,7 @@ export default {
     FETCH: "lists/fetchList"
   }
 };
+
+export const _lists = removeNamespace("lists/", lists);
+
+export default { lists };

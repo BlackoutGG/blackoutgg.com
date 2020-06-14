@@ -1,12 +1,12 @@
 <template>
   <v-menu absolute>
     <template v-slot:activator="{ on }">
-      <v-chip small pill v-on="on">
+      <v-chip small pill v-on="on" @click.stop="setRoles">
         <v-icon small>mdi-plus</v-icon>
       </v-chip>
     </template>
     <v-list>
-      <v-list-item v-for="(role, idx) in roles" :key="idx" @click="addRole(role)">
+      <v-list-item v-for="(role, idx) in roles" :key="idx" @click.stop="addRole(role)">
         <span>{{role.name}}</span>
       </v-list-item>
     </v-list>
@@ -14,24 +14,23 @@
 </template>
 
 <script>
-import types from "~/utilities/types/users.js";
+import { roles } from "~/utilities/types/roles.js";
 export default {
   name: "AddRoleMenu",
-  // data() {
-  //   return {
-  //     list: ["admin", "member", "guest", "super agent"]
-  //   };
-  // },
 
   methods: {
     addRole(role) {
       this.$emit("add", role);
+    },
+    setRoles() {
+      if (this.roles.length) return;
+      this.$store.dispatch(roles.actions.FETCH, false);
     }
   },
 
   computed: {
     roles() {
-      return this.$store.getters[types.getters.ROLE_LIST];
+      return this.$store.getters[roles.getters.ROLES];
     }
   }
 };

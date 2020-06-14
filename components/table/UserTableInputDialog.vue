@@ -1,5 +1,5 @@
 <template>
-  <v-edit-dialog :large="large" @save="save">
+  <v-edit-dialog :large="large" @save="save" @cancel="reset" @close="reset">
     {{computedValue}}
     <template v-slot:input>
       <v-text-field
@@ -80,6 +80,9 @@ export default {
         type: this.type,
         value: this.innerValue
       });
+    },
+    reset() {
+      this.computedValue = this.originalValue;
     }
   },
   watch: {

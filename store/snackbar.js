@@ -1,7 +1,4 @@
-import { SNACKBAR } from "~/utilities/types";
-import removeNamespace from "~/utilities/removeNamespace";
-
-const Types = removeNamespace("snackbar/", SNACKBAR);
+import { _snackbar as types } from "~/utilities/types/snackbar.js";
 
 const defaultOptions = {
   x: null,
@@ -24,13 +21,13 @@ const state = () => ({
 });
 
 const getters = {
-  [Types.getters.TEXT]: state => state.text,
-  [Types.getters.DISPLAY]: state => !!state.text,
-  [Types.getters.OPTIONS]: state => state.options
+  [types.getters.TEXT]: state => state.text,
+  [types.getters.DISPLAY]: state => !!state.text,
+  [types.getters.OPTIONS]: state => state.options
 };
 
 const mutations = {
-  [Types.mutations.SET_OPTIONS](state, options) {
+  [types.mutations.SET_OPTIONS](state, options) {
     if (options) {
       for (let key in options) {
         if (typeof state.options[key] !== undefined) {
@@ -39,28 +36,28 @@ const mutations = {
       }
     }
   },
-  [Types.mutations.RESET_OPTIONS](state) {
+  [types.mutations.RESET_OPTIONS](state) {
     for (let key in defaultOptions) {
       if (typeof state.options[key] !== undefined) {
         state.options[key] = defaultOptions[key];
       }
     }
   },
-  [Types.mutations.SET_TEXT](state, text) {
+  [types.mutations.SET_TEXT](state, text) {
     state.text = text;
   }
 };
 
 const actions = {
-  [Types.actions.TOGGLE_BAR]({ commit }, { text, options }) {
+  [types.actions.TOGGLE_BAR]({ commit }, { text, options }) {
     console.log(text);
     if (text) {
-      commit(Types.mutations.SET_OPTIONS, options);
-      commit(Types.mutations.SET_TEXT, text);
+      commit(types.mutations.SET_OPTIONS, options);
+      commit(types.mutations.SET_TEXT, text);
       console.log("toggling bar...");
     } else {
-      commit(Types.mutations.RESET_OPTIONS);
-      commit(Types.mutations.SET_TEXT, "");
+      commit(types.mutations.RESET_OPTIONS);
+      commit(types.mutations.SET_TEXT, "");
       console.log("resetting bar...");
     }
   }
