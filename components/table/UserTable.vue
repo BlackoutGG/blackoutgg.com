@@ -19,6 +19,7 @@
           <span>Refresh</span>
         </v-btn>
         <create-dialog @open="setRoles"></create-dialog>
+        <edit-dialog ref="edit" @open="setRoles"></edit-dialog>
       </v-toolbar>
     </template>
     <template v-slot:item.username="{ item }">
@@ -45,9 +46,8 @@
       <user-table-roles :userId="item.id" :roles="item.roles"></user-table-roles>
     </template>
     <template v-slot:item.actions="{ item }">
-      <table-actions @edit="$refs.dialog.setEditableContent(item)" :item="item"></table-actions>
+      <table-actions @edit="setEditableContent(item)" :item="item"></table-actions>
     </template>
-    <edit-dialog ref="dialog" @open="setRoles"></edit-dialog>
   </v-data-table>
 </template>
 
@@ -95,15 +95,22 @@ export default {
   methods: {
     ...mapMutations(["setParam", "setSelected"]),
     ...mapActions(["changeUserInfo"]),
+    setEditableContent(item) {
+      const inputs = { username: item.username, email: item.email };
+      const roles = item.roles;
+      const avatar = item.avatar;
+      this.$refs.edit.setEditableContent({ inputs, roles, avatar });
+    },
     setRoles() {
-      const roles = this.$store.getters(roles.getters.ROLES);
-      if (roles.length) return;
+      if (this.isRolesPopulated) return;
       this.$store.dispatch(roles.actions.FETCH, false);
     }
   },
   computed: {
     ...mapGetters(["users", "queryParams"]),
-
+    isRolesPopulated() {
+      return this.$store.getters[roles.getters.ROLES].length;
+    },
     selected: {
       get() {
         return this.$store.getters[users.getters.SELECTED];

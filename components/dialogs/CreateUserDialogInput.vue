@@ -103,7 +103,7 @@ export default {
     },
     computedValue: {
       get() {
-        return this.innerValue;
+        return this.value;
       },
       set(value) {
         this.innerValue = value;

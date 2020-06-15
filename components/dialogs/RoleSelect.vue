@@ -4,7 +4,6 @@
     :items="roles"
     :item-text="'name'"
     :item-value="'id'"
-    :error-messages="errorMessages"
     :search-input.sync="search"
     multiple
     deletable-chips
@@ -14,12 +13,16 @@
 </template>
 
 <script>
-import types from "~/utilities/types/users.js";
+import { roles } from "~/utilities/types/roles.js";
 export default {
-  name: "CreateUserDialogRoleSelect",
+  name: "RoleSelect",
 
   props: {
-    items: {
+    value: {
+      type: Array,
+      default: () => []
+    },
+    startingValues: {
       type: Array,
       default: () => []
     }
@@ -28,15 +31,14 @@ export default {
   data() {
     return {
       search: "",
-      internalItems: this.items,
-      errorMessages: []
+      internalItems: this.value
     };
   },
 
   computed: {
     selectedRoles: {
       get() {
-        return this.internalItems;
+        return this.value;
       },
       set(val) {
         this.internalItems = val;
@@ -44,16 +46,14 @@ export default {
       }
     },
 
+    // markedForDeletion() {
+    //   return this.startingValues.filter(item => {
+    //     return this.value.indexOf(item) === -1;
+    //   });
+    // },
+
     roles() {
-      return this.$store.getters[types.getters.ROLE_LIST];
-    },
-    roleNames() {
-      return this.roles.map(({ name }) => name);
-    },
-    userRoles() {
-      return this.items.map(item =>
-        this.roles.find(role => role.name === item)
-      );
+      return this.$store.getters[roles.getters.ROLES];
     }
   }
 };

@@ -144,10 +144,8 @@ const actions = {
   async [types.actions.CREATE_USER]({ state, commit, dispatch }, payload) {
     try {
       payload = { page, limit } = state.queryParams;
-      const { data } = await this.$axios.post(
-        "/api/admin/users/create",
-        payload
-      );
+      const url = "/api/admin/users/create";
+      const { data } = await this.$axios.post(url, payload);
       const text = `Created user: ${data.user.username}`;
 
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
@@ -161,6 +159,12 @@ const actions = {
       const text = err.message;
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
     }
+  },
+  async [types.actions.EDIT_USER]({ commit, dispatch }, { id, data }) {
+    try {
+      const url = `/api/admin/users/${id}/edit`;
+      const { data } = await this.$axios.put(url, data);
+    } catch (err) {}
   }
 };
 

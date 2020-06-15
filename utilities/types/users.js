@@ -25,6 +25,7 @@ export const users = {
     DISABLE_USER: "users/disableUser",
     CHANGE_USER_INFO: "users/changeUserInfo",
     CREATE_USER: "users/createUser",
+    EDIT_USER: "users/editUser",
     RESET_PASSWORD: "users/resetPassword"
   }
 };

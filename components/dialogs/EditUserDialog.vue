@@ -1,27 +1,27 @@
 <template>
-  <v-dialog v-model="show" max-width="600px">
+  <v-dialog id="edit" v-model="show" max-width="600px">
     <v-card>
       <v-card-title>
-        <v-btn flat>
-          <v-icon left>mdi-close</v-icon>
+        <v-btn small rounded text @click="show = false">
+          <v-icon>mdi-close</v-icon>
         </v-btn>
         <span class="headline">{{title}}</span>
-        <v-divider></v-divider>
       </v-card-title>
+      <v-divider></v-divider>
       <v-card-text>
         <v-form v-model="valid" ref="form">
           <v-container>
-            <v-row align="center" justify="center">
-              <v-col cols="12">
+            <v-row>
+              <v-col cols="12" class="text-center">
                 <v-badge avatar bordered overlap>
                   <template v-slot:badge>
-                    <v-avatar>
-                      <v-btn flat>
+                    <v-avatar size="32">
+                      <v-btn text>
                         <v-icon>mdi-image-edit-outline</v-icon>
                       </v-btn>
                     </v-avatar>
                   </template>
-                  <v-avatar size="62">
+                  <v-avatar size="80" color="primary">
                     <img :src="avatar.url" alt v-if="avatar.url" />
                     <span class="white--text headline" v-else>{{initials}}</span>
                   </v-avatar>
@@ -39,7 +39,7 @@
                 />
               </v-col>
               <v-col cols="12">
-                <role-select v-model="roles"></role-select>
+                <role-select v-model="roles" :startingValues="startingValues"></role-select>
               </v-col>
             </v-row>
           </v-container>
@@ -48,7 +48,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn text @click="save" :disabled="!valid">Save</v-btn>
-        <v-btn text @click="reset">Clear</v-btn>
+        <v-btn text @click="clear">Clear</v-btn>
       </v-card-actions>
       <v-overlay absolute v-model="isSending">
         <v-progress-circular indeterminate size="64"></v-progress-circular>
@@ -68,10 +68,8 @@ import { createNamespacedHelpers } from "vuex";
 const { mapGetters } = createNamespacedHelpers("users");
 
 export default {
-  name: "CreateUserDialog",
+  name: "EditDialog",
   components: { UserInput, RoleSelect },
-
-  mixins: [avatar],
 
   props: {
     title: {
@@ -87,12 +85,19 @@ export default {
         email: { async: true, label: "Email", type: "text", value: "" }
       },
 
+      startingInputValues: {
+        username: "",
+        email: ""
+      },
+
       avatar: {
         url: null,
         preview: null
       },
 
       roles: [],
+      startingValues: [],
+
       valid: false,
       show: false,
       isSending: false
@@ -116,14 +121,23 @@ export default {
       try {
         const inputs = Object.values(this.inputs).reduce((obj, o) => {
           const k = o.label.toLowerCase();
-          obj[k] = o.value;
+          if (o.value !== this.startingInputValues[k]) obj[k] = o.value;
           return obj;
         }, {});
 
-        // await this.$store.dispatch(types.actions.EDIT_USER, {
-        //   inputs,
-        //   roles: this.roles
-        // });
+        const data = {
+          inputs
+        };
+
+        if (this.markedForDeletion.length) {
+          data.delete = this.markedForDeletion;
+        }
+
+        if (this.markedForSaving.length) {
+          data.roles = this.markedForSaving;
+        }
+
+        await this.$store.dispatch(types.actions.EDIT_USER, data);
       } finally {
         this.isSending = false;
       }
@@ -131,16 +145,62 @@ export default {
 
     setEditableContent(content) {
       const c = { ...content };
-      Object.keys(c.inputs).forEach(key => (this.input[key] = c.inputs[key]));
-      this.roles = [...c.roles];
+      Object.keys(this.inputs).forEach(key => {
+        this.inputs[key].value = c.inputs[key];
+        this.startingInputValues[key] = c.inputs[key];
+      });
+
+      const roles = c.roles.map(item => item.id);
+
+      this.roles = roles;
+      this.startingValues = roles;
+
       this.avatar.url = c.avatar;
-      this.show = true;
+
+      this.$nextTick(() => {
+        this.show = true;
+      });
+    },
+
+    clear() {
+      this.$refs.form.reset();
+      this.$refs.form.resetValidation();
+      this.roles = [];
     },
 
     reset() {
       this.$refs.form.reset();
       this.$refs.form.resetValidation();
       this.roles = [];
+      this.startingValues = [];
+      Object.keys(this.startingInputValues).forEach(
+        key => (this.startingInputValues[key] = "")
+      );
+    }
+  },
+
+  computed: {
+    username() {
+      return this.inputs.username.value;
+    },
+    initials() {
+      const username = this.username ? this.username.match(/\b\w/g) : null;
+      const initials = username
+        ? ((username.shift() || "") + (username.pop() || "")).toUpperCase()
+        : "";
+      return initials;
+    },
+
+    markedForSaving() {
+      return this.roles.filter(item => {
+        return this.startingValues.indexOf(item) === -1;
+      });
+    },
+
+    markedForDeletion() {
+      return this.startingValues.filter(item => {
+        return this.roles.indexOf(item) === -1;
+      });
     }
   }
 };
