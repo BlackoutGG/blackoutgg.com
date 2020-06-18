@@ -4,7 +4,6 @@ import { snackbar } from "~/utilities/types/snackbar.js";
 const state = () => ({
   users: [],
   selected: [],
-  roles: [],
 
   queryParams: {
     page: 1,
@@ -20,7 +19,6 @@ const getters = {
   [types.getters.SELECTED]: state => state.selected,
   [types.getters.GET_USER]: state => id =>
     state.users.find(user => user.id === id),
-  [types.getters.ROLE_LIST]: state => state.roles,
   [types.getters.QUERY_PARAMS]: state => key =>
     typeof key !== undefined ? state.queryParams[key] : state.queryParams
 };
@@ -154,17 +152,57 @@ const actions = {
         param: "total",
         value: data.users.total
       });
-      commit(types.mutations.SETtypes, data.users.results);
+      commit(types.mutations.SET_USERS, data.users.results);
     } catch (err) {
       const text = err.message;
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
     }
   },
-  async [types.actions.EDIT_USER]({ commit, dispatch }, { id, data }) {
+  async [types.actions.EDIT_USER]({ commit, dispatch }, payload) {
     try {
-      const url = `/api/admin/users/${id}/edit`;
-      const { data } = await this.$axios.put(url, data);
-    } catch (err) {}
+      const url = `/api/admin/users/${payload.id}/edit`;
+      const {
+        data: { user }
+      } = await this.$axios.put(url, payload.data);
+
+      if (user.inputs && Object.keys(user.inputs).length) {
+        Object.keys(user.inputs).forEach(key => {
+          commit(types.mutations[`SET_${key.toUpperCase()}`], {
+            id: user.id,
+            value: user.inputs[key]
+          });
+        });
+      }
+
+      console.log(user);
+
+      if (user.saved && user.saved.length) {
+        user.saved.forEach(role =>
+          commit(types.mutations.ADD_ROLE, {
+            userId: user.id,
+            role: role
+          })
+        );
+      }
+
+      if (user.deleted && user.deleted.length) {
+        user.deleted.forEach(({ role_id }) =>
+          commit(types.mutations.REMOVE_ROLE, {
+            user_id: user.id,
+            role_id
+          })
+        );
+      }
+
+      const text = "Your changes have saved.";
+
+      dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
+    } catch (err) {
+      console.log(err);
+      const text =
+        "Encountered an error. Please try again or contact the admin.";
+      dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
+    }
   }
 };
 

@@ -96,10 +96,11 @@ export default {
     ...mapMutations(["setParam", "setSelected"]),
     ...mapActions(["changeUserInfo"]),
     setEditableContent(item) {
-      const inputs = { username: item.username, email: item.email };
-      const roles = item.roles;
-      const avatar = item.avatar;
-      this.$refs.edit.setEditableContent({ inputs, roles, avatar });
+      // const inputs = { username: item.username, email: item.email };
+      // const roles = item.roles;
+      // const avatar = item.avatar;
+      // this.$refs.edit.setEditableContent({ inputs, roles, avatar }, item.id);
+      this.$refs.edit.setEditableContent(item.id);
     },
     setRoles() {
       if (this.isRolesPopulated) return;

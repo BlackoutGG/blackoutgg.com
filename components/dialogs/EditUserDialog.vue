@@ -60,10 +60,11 @@
 <script>
 import UserInput from "./CreateUserDialogInput.vue";
 import RoleSelect from "./RoleSelect.vue";
-import { USERS as types } from "~/utilities/types/users.js";
 import avatar from "~/mixins/avatar.js";
 
 import { createNamespacedHelpers } from "vuex";
+import { users as types } from "~/utilities/types/users.js";
+import pick from "lodash/pick";
 
 const { mapGetters } = createNamespacedHelpers("users");
 
@@ -100,7 +101,9 @@ export default {
 
       valid: false,
       show: false,
-      isSending: false
+      isSending: false,
+
+      userId: null
     };
   },
 
@@ -126,7 +129,7 @@ export default {
         }, {});
 
         const data = {
-          inputs
+          ...inputs
         };
 
         if (this.markedForDeletion.length) {
@@ -137,26 +140,40 @@ export default {
           data.roles = this.markedForSaving;
         }
 
-        await this.$store.dispatch(types.actions.EDIT_USER, data);
+        await this.$store.dispatch(types.actions.EDIT_USER, {
+          data,
+          id: this.userId
+        });
+
+        /**
+         * SET THE DEFAULT VALUES TO THE NEW VALUES WE CHANGED.
+         */
+        this.setEditableContent(this.userId, false);
       } finally {
         this.isSending = false;
       }
     },
 
-    setEditableContent(content) {
-      const c = { ...content };
-      Object.keys(this.inputs).forEach(key => {
-        this.inputs[key].value = c.inputs[key];
-        this.startingInputValues[key] = c.inputs[key];
+    setEditableContent(userId, toggle = true) {
+      let user = this.getUser(userId);
+
+      if (!user) return;
+      else user = { ...user };
+
+      const fields = pick(user, ["username", "email"]);
+      Object.keys(fields).forEach(key => {
+        this.inputs[key].value = fields[key];
+        this.startingInputValues[key] = fields[key];
       });
 
-      const roles = c.roles.map(item => item.id);
-
+      const roles = user.roles.map(item => item.id);
       this.roles = roles;
       this.startingValues = roles;
 
-      this.avatar.url = c.avatar;
+      this.avatar.url = user.avatar;
+      this.userId = userId;
 
+      if (!toggle) return;
       this.$nextTick(() => {
         this.show = true;
       });
@@ -173,6 +190,7 @@ export default {
       this.$refs.form.resetValidation();
       this.roles = [];
       this.startingValues = [];
+      this.userId = null;
       Object.keys(this.startingInputValues).forEach(
         key => (this.startingInputValues[key] = "")
       );
@@ -180,6 +198,7 @@ export default {
   },
 
   computed: {
+    ...mapGetters(["getUser"]),
     username() {
       return this.inputs.username.value;
     },
