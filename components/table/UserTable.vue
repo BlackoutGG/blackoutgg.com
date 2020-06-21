@@ -23,21 +23,24 @@
       </v-toolbar>
     </template>
     <template v-slot:item.username="{ item }">
-      <user-table-input
-        :userId="item.id"
+      <table-input
+        :endpoint="usernameEndpoint"
+        :id="item.id"
+        :type="'username'"
         :value="item.username"
         :large="true"
         @save="changeUserInfo"
-      ></user-table-input>
+      ></table-input>
     </template>
     <template v-slot:item.email="{ item }">
-      <user-table-input
+      <table-input
+        :endpoint="emailEndpoint"
+        :id="item.id"
         :type="'email'"
-        :userId="item.id"
         :value="item.email"
         :large="true"
         @save="changeUserInfo"
-      ></user-table-input>
+      ></table-input>
     </template>
     <template v-slot:item.avatar="{ item }">
       <user-table-avatar :item="item"></user-table-avatar>
@@ -46,7 +49,7 @@
       <user-table-roles :userId="item.id" :roles="item.roles"></user-table-roles>
     </template>
     <template v-slot:item.actions="{ item }">
-      <table-actions @edit="setEditableContent(item)" :item="item"></table-actions>
+      <table-actions @edit="setEditableContent(item)" :item="item" edit reset delete disable></table-actions>
     </template>
   </v-data-table>
 </template>
@@ -57,7 +60,7 @@ import { users } from "~/utilities/types/users.js";
 import { roles } from "~/utilities/types/roles.js";
 import UserTableAvatar from "~/components/table/UserTableAvatar.vue";
 import UserTableRoles from "~/components/table/UserRoles.vue";
-import UserTableInput from "~/components/table/UserTableInputDialog.vue";
+import TableInput from "~/components/table/TableInput.vue";
 import TableActions from "~/components/table/TableActions.vue";
 import CreateDialog from "~/components/dialogs/CreateUserDialog.vue";
 import EditDialog from "~/components/dialogs/EditUserDialog.vue";
@@ -71,7 +74,7 @@ export default {
   components: {
     UserTableAvatar,
     UserTableRoles,
-    UserTableInput,
+    TableInput,
     TableActions,
     CreateDialog,
     EditDialog
@@ -88,7 +91,10 @@ export default {
         { text: "roles", sortable: false, value: "roles" },
         { text: "joined_on", sortable: true, value: "joined_on" },
         { text: "", sortable: false, value: "actions", align: "end" }
-      ]
+      ],
+
+      emailEndpoint: "/api/users/validate/email",
+      usernameEndpoint: "/api/users/validate/username"
     };
   },
 
@@ -96,10 +102,6 @@ export default {
     ...mapMutations(["setParam", "setSelected"]),
     ...mapActions(["changeUserInfo"]),
     setEditableContent(item) {
-      // const inputs = { username: item.username, email: item.email };
-      // const roles = item.roles;
-      // const avatar = item.avatar;
-      // this.$refs.edit.setEditableContent({ inputs, roles, avatar }, item.id);
       this.$refs.edit.setEditableContent(item.id);
     },
     setRoles() {

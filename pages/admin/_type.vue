@@ -4,7 +4,7 @@
   </v-container>
 </template>
 <script>
-const types = /posts|roles|applications|forms/;
+const types = /posts|applications|forms/;
 
 import DataTable from "~/components/table/Table.vue";
 import capitalize from "lodash/capitalize";

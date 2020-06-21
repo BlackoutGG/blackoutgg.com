@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import UserInput from "./CreateUserDialogInput.vue";
+import UserInput from "./DialogInput.vue";
 import RoleSelect from "./RoleSelect.vue";
 import { users } from "~/utilities/types/users.js";
 import { createNamespacedHelpers } from "vuex";

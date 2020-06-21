@@ -17,18 +17,22 @@
 import debounce from "lodash/debounce";
 
 export default {
-  name: "UserTableDialogInput",
+  name: "TableInput",
   props: {
     value: {
       type: String,
       default: ""
     },
-    userId: {
+    id: {
       type: [Number, String]
+    },
+    endpoint: {
+      type: String,
+      default: "/api/users/validate/username"
     },
     type: {
       type: String,
-      default: "username"
+      default: ""
     },
     label: {
       type: String,
@@ -60,10 +64,7 @@ export default {
     this.inputCheck = debounce(async v => {
       const params = { value: v };
       try {
-        const result = await this.$axios.get(
-          `/api/users/validate/${this.type}`,
-          { params }
-        );
+        const result = await this.$axios.get(this.endpoint, { params });
         this.errorMessage = [];
       } catch (err) {
         this.errorMessage = err.response.data[0].msg
@@ -76,7 +77,7 @@ export default {
   methods: {
     save() {
       this.$emit("save", {
-        id: this.userId,
+        id: this.id,
         type: this.type,
         value: this.innerValue
       });

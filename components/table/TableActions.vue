@@ -1,4 +1,4 @@
-<template>
+false<template>
   <v-menu>
     <template v-slot:activator="{ on }">
       <v-icon v-on="on">mdi-dots-vertical</v-icon>
@@ -52,19 +52,19 @@ export default {
     item: Object,
     edit: {
       type: Boolean,
-      default: true
+      default: false
     },
     disable: {
       type: Boolean,
-      default: true
+      default: false
     },
     reset: {
       type: Boolean,
-      default: true
+      default: false
     },
     remove: {
       type: Boolean,
-      default: true
+      default: false
     }
   }
 };

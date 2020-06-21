@@ -45,12 +45,12 @@ export default {
         {
           icon: "mdi-account-group",
           title: "Users",
-          children: [{ icon: "", title: "View Users", to: "/admin/users" }]
+          to: "/admin/users"
         },
         {
           icon: "mdi-account-star",
           title: "Roles",
-          button: true
+          to: "/admin/roles"
         },
         {
           icon: "mdi-note",

@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import UserInput from "./CreateUserDialogInput.vue";
+import UserInput from "./DialogInput.vue";
 import RoleSelect from "./RoleSelect.vue";
 import avatar from "~/mixins/avatar.js";
 

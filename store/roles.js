@@ -5,7 +5,7 @@ const state = () => ({
   roles: [],
   selected: [],
 
-  lastLoaded: 0,
+  keys: [],
 
   queryParams: {
     page: 1,
@@ -18,11 +18,12 @@ const state = () => ({
 
 const getters = {
   [types.getters.ROLES]: state => state.roles,
-  [types.getters.SELECTED]: state => state.selected.map({ id }),
+  [types.getters.SELECTED]: state => state.selected,
   [types.getters.GET_ROLE]: state => id =>
     state.roles.find(role => role.id === id),
   [types.getters.QUERY_PARAMS]: state => key =>
-    typeof key !== undefined ? state.queryParams[key] : state.queryParams
+    typeof key !== undefined ? state.queryParams[key] : state.queryParams,
+  [types.getters.PERM_KEYS]: state => state.keys
 };
 
 const mutations = {
@@ -41,6 +42,15 @@ const mutations = {
   [types.mutations.SET_PERMISSIONS](state, { roleId, perms }) {
     const role = state.roles.find(role => role.id === roleId);
     if (role) role.permissions = perms;
+  },
+
+  [types.mutations.SET_KEYS](state, keys) {
+    state.keys = keys;
+  },
+
+  [types.mutations.SET_NAME](state, { roleId, name }) {
+    const role = state.roles.find(({ id }) => id === roleId);
+    if (role) role.name = name;
   }
 };
 
@@ -67,23 +77,27 @@ const actions = {
       console.log(err.response);
     }
   },
-  async [types.actions.FETCH_PERMS]({ commit, dispatch, state }, id) {
+
+  async [types.actions.FETCH_PERM_KEYS]({ commit }) {
     try {
-      const { data } = await this.$axios.get(`/api/roles/perms/${id}`);
+      const {
+        data: { keys }
+      } = await this.$axios.get("/api/roles/keys");
+
+      commit(types.mutations.SET_KEYS, keys);
+    } catch (err) {}
+  },
+
+  async [types.actions.FETCH_PERMS]({ commit, dispatch }, id) {
+    try {
+      const {
+        data: { permissions }
+      } = await this.$axios.get(`/api/roles/perms/${id}`);
 
       commit(types.mutations.SET_PERMISSIONS, {
-        roleId: data.role.id,
-        perms: data.role.permissions
+        roleId: id,
+        perms: permissions
       });
-
-      if (root) {
-        const text = `Permissions loaded for ${id}.`;
-        dispatch(
-          snackbar.actions.TOGGLE_BAR,
-          { text, timeout: 1500 },
-          { root: true }
-        );
-      }
     } catch (err) {
       const text = err.message;
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });

@@ -1,21 +1,24 @@
 <template>
   <v-text-field
     v-model="computedValue"
-    filled
+    :filled="filled"
+    :outlined="outlined"
     :error-messages="errorMessages"
     :label="label"
     v-if="async"
   ></v-text-field>
   <v-text-field
     v-model="computedValue"
-    filled
+    :filled="filled"
+    :outlined="outlined"
     :rules="rules"
     :label="label"
     v-else-if="rules.length"
   ></v-text-field>
   <v-text-field
     v-else-if="type === 'password'"
-    filled
+    :filled="filled"
+    :outlined="outlined"
     v-model="computedValue"
     @click:append="showPassword = !showPassword"
     :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
@@ -46,6 +49,10 @@ export default {
       type: Array,
       default: () => []
     },
+    endpoint: {
+      type: String,
+      default: ""
+    },
     type: {
       type: String,
       default: "input"
@@ -53,6 +60,15 @@ export default {
     delay: {
       type: Number,
       default: 500
+    },
+
+    filled: {
+      type: Boolean,
+      default: true
+    },
+    outlined: {
+      type: Boolean,
+      default: false
     }
   },
 
