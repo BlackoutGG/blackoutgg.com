@@ -103,6 +103,30 @@ const actions = {
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
       console.log(err.response);
     }
+  },
+
+  async [types.actions.EDIT_ROLE]({ commit, dispatch }, {id, payload}) {
+    try {
+      const {
+        data: { role } = await this.$axios.put(`/api/roles/${id}`, payload)
+      }
+  
+      if (role.name) {
+        commit(types.mutations.SET_NAME, { 
+          roleId: role.id, 
+          name: role.name 
+        });
+      }
+
+      if (role.permissions && Object.keys(role.permissions).length) {
+        commit(types.mutations.SET_PERMISSIONS, {
+          roleId: role.id,
+          permissions: role.permissions
+        });
+      }
+    } catch (err) {
+
+    }
   }
 };
 

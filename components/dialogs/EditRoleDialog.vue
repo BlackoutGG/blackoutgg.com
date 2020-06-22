@@ -43,11 +43,10 @@ export default {
     return {
       role: null,
       title: "",
+      startingTitle: "",
       startingValues: null,
-
       show: false,
       isSending: false,
-
       roleId: null
     };
   },
@@ -68,6 +67,16 @@ export default {
     async save() {
       this.isSending = true;
       try {
+        let data = {};
+
+        if (this.title !== this.startingTitle) {
+          data.title = this.title;
+        }
+
+        if (Object.keys(this.markedForSaving).length) {
+          data.update = this.markedForSaving;
+        }
+
         /**
          * SET THE DEFAULT VALUES TO THE NEW VALUES WE CHANGED.
          */
@@ -101,9 +110,14 @@ export default {
         {}
       );
 
-      this.title = role.name;
+      this.startingValues = Object.entries(role.permissions).map(
+        ([key, value]) => {
+          return { name: key, value };
+        }
+      );
 
-      this.startingValues = { ...this.role };
+      this.title = role.name;
+      this.startingTitle = role.name;
 
       this.roleId = roleId;
 
@@ -125,7 +139,23 @@ export default {
   },
 
   computed: {
-    ...mapGetters(["getRole"])
+    ...mapGetters(["getRole"]),
+
+    markedForSaving() {
+      let role = Object.values(this.role).reduce((arr, a) => {
+        return arr.concat(a);
+      }, []);
+
+      return role
+        .filter(r => {
+          const s = this.startingValues.find(_s => r.name === _s.name);
+          return s && r.value !== s.value;
+        })
+        .reduce((obj, r) => {
+          obj[r.name] = r.value;
+          return obj;
+        }, {});
+    }
   }
 };
 </script>

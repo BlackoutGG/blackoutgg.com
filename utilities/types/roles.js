@@ -15,7 +15,8 @@ export const roles = {
   },
   actions: {
     FETCH: "roles/fetchRoles",
-    FETCH_PERMS: "roles/fetchRolePerms"
+    FETCH_PERMS: "roles/fetchRolePerms",
+    EDIT_ROLE: "roles/editRole"
   }
 };
 
