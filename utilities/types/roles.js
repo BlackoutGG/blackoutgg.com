@@ -11,7 +11,8 @@ export const roles = {
     SET_ROLES: "roles/setRoles",
     SET_SELECTED: "roles/setSelected",
     SET_PERMISSIONS: "roles/setPermissions",
-    SET_PARAM: "roles/setParam"
+    SET_PARAM: "roles/setParam",
+    CHANGE_ROLE_PERMISSION: "roles/changeRolePermission"
   },
   actions: {
     FETCH: "roles/fetchRoles",

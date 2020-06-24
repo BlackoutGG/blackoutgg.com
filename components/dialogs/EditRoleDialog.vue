@@ -32,7 +32,7 @@ import DialogInput from "./DialogInput.vue";
 import RolePerms from "./RolePermList.vue";
 
 import { createNamespacedHelpers } from "vuex";
-import { roles as types } from "~/utilities/types/users.js";
+import { roles as types } from "~/utilities/types/roles.js";
 
 const { mapGetters, mapActions } = createNamespacedHelpers("roles");
 
@@ -133,7 +133,7 @@ export default {
         // });
 
         if (this.mode === "edit") {
-          this.$store.dispatch(role.actions.EDIT_ROLE, {
+          this.$store.dispatch(types.actions.EDIT_ROLE, {
             id: this.roleId,
             payload: data
           });
@@ -148,7 +148,9 @@ export default {
       const v = Array.isArray(val) ? val : Object.entries(val);
 
       return v.reduce((obj, elm) => {
-        const [key, value] = Array.isArray(elm) ? elm : [elm, false];
+        const [key, value] = Array.isArray(elm)
+          ? elm
+          : [elm.name || elm, elm.value || false];
 
         const k = key.split("_")[2];
 
@@ -165,7 +167,9 @@ export default {
       const v = Array.isArray(val) ? val : Object.entries(val);
 
       return v.map(elm => {
-        const [name, value] = Array.isArray(elm) ? elm : [elm, false];
+        const [name, value] = Array.isArray(elm)
+          ? elm
+          : [elm.name || elm, elm.value || false];
 
         return { name, value };
       });
@@ -180,26 +184,24 @@ export default {
 
     async setEditableContent(roleId, toggle = true, fetch = true) {
       this.mode = "edit";
-      let role = this.getRole(roleId);
+      this.roleId = roleId;
+      // let role = this.getRole(roleId);
+      let role;
 
-      if (!role.hasOwnProperty("permissions") && fetch) {
+      if (this._role && !this._role.hasOwnProperty("permissions") && fetch) {
         await this.fetchRolePerms(roleId);
       }
 
-      if (!role) return;
-      else role = { ...role };
+      if (!this._role) return;
+      else role = { ...this._role };
 
       this.role = this.setContent(role.permissions);
       this.startingValues = this.setStartingValues(role.permissions);
       this.title = role.name;
       this.startingTitle = role.name;
-      this.roleId = roleId;
 
       if (!toggle) return;
       this.show = true;
-
-      // console.log(this.setContent(role.permissions));
-      // console.log(this.setStartingValues(role.permissions));
     },
 
     clear() {
@@ -217,6 +219,10 @@ export default {
 
   computed: {
     ...mapGetters(["getRole"]),
+
+    _role() {
+      return this.getRole(this.roleId) || null;
+    },
 
     markedForSaving() {
       let role = Object.values(this.role).reduce((arr, a) => {

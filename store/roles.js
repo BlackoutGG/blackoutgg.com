@@ -51,6 +51,14 @@ const mutations = {
   [types.mutations.SET_NAME](state, { roleId, name }) {
     const role = state.roles.find(({ id }) => id === roleId);
     if (role) role.name = name;
+  },
+
+  [types.mutations.CHANGE_ROLE_PERMISSION](state, { roleId, name, value }) {
+    const role = state.roles.find(role => role.id === roleId);
+    if (role && role.permissions) {
+      const perms = role.permissions.find(perm => perm.name === name);
+      if (perms) perms.value = value;
+    }
   }
 };
 
@@ -108,11 +116,14 @@ const actions = {
         });
       }
 
-      if (role.permissions && Object.keys(role.permissions).length) {
-        commit(types.mutations.SET_PERMISSIONS, {
-          roleId: role.id,
-          permissions: role.permissions
-        });
+      if (role.permissions && role.permissions.length) {
+        role.permissions.forEach(r =>
+          commit(types.mutations.CHANGE_ROLE_PERMISSION, {
+            roleId: role.id,
+            name: r.name,
+            value: r.value
+          })
+        );
       }
 
       console.log(role);
