@@ -5,6 +5,7 @@
     :outlined="outlined"
     :error-messages="errorMessages"
     :label="label"
+    :disabled="disabled"
     v-if="async"
   ></v-text-field>
   <v-text-field
@@ -13,6 +14,7 @@
     :outlined="outlined"
     :rules="rules"
     :label="label"
+    :disabled="disabled"
     v-else-if="rules.length"
   ></v-text-field>
   <v-text-field
@@ -24,6 +26,7 @@
     :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
     :label="input.label"
     :type="showPassword ? 'text' : 'password'"
+    :disabled="disabled"
     :rules="rules"
   ></v-text-field>
   <v-text-field v-model="computedValue" filled :label="label" v-else></v-text-field>
@@ -69,6 +72,10 @@ export default {
     outlined: {
       type: Boolean,
       default: false
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -97,20 +104,19 @@ export default {
   },
 
   created() {
-    this.inputCheck = debounce(async v => {
-      const params = { value: v };
-      try {
-        const result = await this.$axios.get(
-          `/api/users/validate/${this.normalizedLabel}`,
-          { params }
-        );
-        this.errorMessages = [];
-      } catch (err) {
-        this.errorMessages = err.response.data[0].msg
-          ? err.response.data[0].msg
-          : err.response.data;
-      }
-    }, this.delay);
+    if (this.async && this.endpoint) {
+      this.inputCheck = debounce(async v => {
+        const params = { value: v };
+        try {
+          const result = await this.$axios.get(this.endpoint, { params });
+          this.errorMessages = [];
+        } catch (err) {
+          this.errorMessages = err.response.data[0].msg
+            ? err.response.data[0].msg
+            : err.response.data;
+        }
+      }, this.delay);
+    }
   },
 
   computed: {

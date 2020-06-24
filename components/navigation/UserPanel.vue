@@ -1,7 +1,7 @@
 <template>
   <v-menu class="hidden-sm-and-down" v-model="menu" :close-on-content-click="false" offset-y>
     <template v-slot:activator="{ on }">
-      <v-avatar :color="avatarColor" v-on="on">
+      <v-avatar color="primary" v-on="on" class="hidden-sm-and-down">
         <span class="white--text headline">{{initials}}</span>
       </v-avatar>
     </template>
@@ -29,6 +29,7 @@
 
 <script>
 import NavLink from "./NavLink.vue";
+import avatar from "~/mixins/avatar.js";
 export default {
   name: "UserPanel",
   components: { NavLink },

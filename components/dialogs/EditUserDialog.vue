@@ -30,8 +30,9 @@
             </v-row>
             <v-row>
               <v-col cols="12" v-for="(input, idx) in inputs" :type="input.type" :key="idx">
-                <user-input
+                <dialog-input
                   :async="input.async"
+                  :endpoint="input.endpoint"
                   v-model="input.value"
                   :type="input.type"
                   :label="input.label"
@@ -58,7 +59,7 @@
 </template>
 
 <script>
-import UserInput from "./DialogInput.vue";
+import DialogInput from "./DialogInput.vue";
 import RoleSelect from "./RoleSelect.vue";
 import avatar from "~/mixins/avatar.js";
 
@@ -70,7 +71,7 @@ const { mapGetters } = createNamespacedHelpers("users");
 
 export default {
   name: "EditDialog",
-  components: { UserInput, RoleSelect },
+  components: { DialogInput, RoleSelect },
 
   props: {
     title: {
@@ -82,8 +83,20 @@ export default {
   data() {
     return {
       inputs: {
-        username: { async: true, label: "Username", type: "text", value: "" },
-        email: { async: true, label: "Email", type: "text", value: "" }
+        username: {
+          async: true,
+          label: "Username",
+          type: "text",
+          value: "",
+          endpoint: "/api/users/validate/username"
+        },
+        email: {
+          async: true,
+          label: "Email",
+          type: "text",
+          value: "",
+          endpoint: "/api/users/validate/email"
+        }
       },
 
       startingInputValues: {

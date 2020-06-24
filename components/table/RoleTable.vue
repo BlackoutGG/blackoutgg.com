@@ -14,6 +14,10 @@
     <template v-slot:top>
       <v-toolbar>
         <v-spacer></v-spacer>
+        <v-btn color="primary" @click="$refs.edit.setNewContent()">
+          <v-icon left>mdi-plus</v-icon>
+          <span>Add Role</span>
+        </v-btn>
         <edit-role ref="edit"></edit-role>
       </v-toolbar>
     </template>
@@ -27,7 +31,13 @@
       ></table-input>
     </template>
     <template v-slot:item.actions="{ item }">
-      <table-actions @edit="$refs.edit.setEditableContent(item.id)" edit disable remove></table-actions>
+      <table-actions
+        @edit="$refs.edit.setEditableContent(item.id)"
+        edit
+        disable
+        remove
+        :item="item"
+      ></table-actions>
     </template>
   </v-data-table>
 </template>

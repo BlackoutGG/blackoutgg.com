@@ -78,17 +78,7 @@ const actions = {
     }
   },
 
-  async [types.actions.FETCH_PERM_KEYS]({ commit }) {
-    try {
-      const {
-        data: { keys }
-      } = await this.$axios.get("/api/roles/keys");
-
-      commit(types.mutations.SET_KEYS, keys);
-    } catch (err) {}
-  },
-
-  async [types.actions.FETCH_PERMS]({ commit, dispatch }, id) {
+  async [types.actions.FETCH_PERMS]({ commit, getters, dispatch }, id) {
     try {
       const {
         data: { permissions }
@@ -105,16 +95,16 @@ const actions = {
     }
   },
 
-  async [types.actions.EDIT_ROLE]({ commit, dispatch }, {id, payload}) {
+  async [types.actions.EDIT_ROLE]({ commit, dispatch }, { id, payload }) {
     try {
       const {
-        data: { role } = await this.$axios.put(`/api/roles/${id}`, payload)
-      }
-  
+        data: { role }
+      } = await this.$axios.put(`/api/roles/${id}`, payload);
+
       if (role.name) {
-        commit(types.mutations.SET_NAME, { 
-          roleId: role.id, 
-          name: role.name 
+        commit(types.mutations.SET_NAME, {
+          roleId: role.id,
+          name: role.name
         });
       }
 
@@ -124,8 +114,10 @@ const actions = {
           permissions: role.permissions
         });
       }
-    } catch (err) {
 
+      console.log(role);
+    } catch (err) {
+      console.log(err);
     }
   }
 };

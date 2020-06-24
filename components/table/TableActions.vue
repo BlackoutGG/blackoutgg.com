@@ -1,4 +1,4 @@
-false<template>
+<template>
   <v-menu>
     <template v-slot:activator="{ on }">
       <v-icon v-on="on">mdi-dots-vertical</v-icon>
@@ -25,15 +25,15 @@ false<template>
           <span>Reset Password</span>
         </v-tooltip>
       </v-list-item>
-      <v-list-item link v-if="disable">
+      <v-list-item link v-if="disable" @click="$emit('disable')">
         <v-list-item-content>
           <v-list-item-title>
-            <v-icon left>mdi-account-off</v-icon>
-            <span>Disable</span>
+            <v-icon left>{{disabledIcon}}</v-icon>
+            <span>{{disabledText}}</span>
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-      <v-list-item link v-if="remove">
+      <v-list-item link v-if="remove" @click="$emit('remove')">
         <v-list-item-content>
           <v-list-item-title>
             <v-icon left>mdi-account-remove</v-icon>
@@ -65,6 +65,18 @@ export default {
     remove: {
       type: Boolean,
       default: false
+    }
+  },
+
+  computed: {
+    isDisabled() {
+      return this.item.is_disabled;
+    },
+    disabledIcon() {
+      return this.isDisabled ? "mdi-account-on" : "mdi-account-off";
+    },
+    disabledText() {
+      return this.isDisabled ? "Disable" : "Enable";
     }
   }
 };
