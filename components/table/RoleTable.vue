@@ -33,6 +33,8 @@
     <template v-slot:item.actions="{ item }">
       <table-actions
         @edit="$refs.edit.setEditableContent(item.id)"
+        @disable="toggleStatus(item.id, item.is_disabled)"
+        @remove="removeRole(item.id)"
         edit
         disable
         remove
@@ -70,7 +72,11 @@ export default {
   },
 
   methods: {
-    ...mapMutations(["setParam", "setSelected"])
+    ...mapMutations(["setParam", "setSelected"]),
+    ...mapActions(["editRole"]),
+    toggleStatus(id, is_disabled) {
+      this.editRole({ id, disable: is_disabled });
+    }
   },
 
   computed: {

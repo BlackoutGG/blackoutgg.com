@@ -84,7 +84,6 @@ export default {
     return {
       dialog: "create",
       headers: [
-        { text: "id", sortable: true, value: "id" },
         { text: "", sortable: false, value: "avatar" },
         { text: "username", sortable: true, value: "username" },
         { text: "email", sortable: true, value: "email" },

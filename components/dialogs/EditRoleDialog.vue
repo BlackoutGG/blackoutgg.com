@@ -2,10 +2,31 @@
   <v-dialog id="edit" v-model="show" max-width="600px">
     <v-card>
       <v-card-title>
-        <v-btn small rounded text @click="show = false">
+        <v-btn small icon @click="show = false">
           <v-icon>mdi-close</v-icon>
         </v-btn>
-        <span class="headline">Edit: {{title}}</span>
+        <v-spacer></v-spacer>
+        <div id="edit-input" v-if="!editName">
+          <span>Name: {{title}}</span>
+          <v-btn icon text @click="toggleNameInput">
+            <v-icon>mdi-pencil</v-icon>
+          </v-btn>
+        </div>
+        <div id="edit-input" v-else>
+          <dialog-input
+            :async="true"
+            :prefix="'Name:'"
+            :filled="false"
+            :endpoint="endpoint"
+            v-model="title"
+          ></dialog-input>
+          <v-btn icon @click="toggleNameInput">
+            <v-icon>mdi-check</v-icon>
+          </v-btn>
+          <v-btn icon @click="resetNameInput">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
         <v-spacer></v-spacer>
         <v-switch v-model="all"></v-switch>
       </v-card-title>
@@ -89,17 +110,15 @@ export default {
       isSending: false,
       roleId: null,
       all: false,
-      mode: "new"
+      editName: false,
+      mode: "new",
+      endpoint: "/api/roles/validate/name"
     };
   },
 
   watch: {
     all(v) {
-      let role = Object.values(this.role).reduce((arr, a) => {
-        return arr.concat(a);
-      }, []);
-
-      role.forEach(role => (role.value = v));
+      this.toggleSwitches(v);
     },
     show(v) {
       if (!v) {
@@ -114,30 +133,50 @@ export default {
   methods: {
     ...mapActions(["fetchRolePerms", "editRole"]),
 
+    toggleNameInput() {
+      this.editName = !this.editName;
+    },
+
+    resetNameInput() {
+      this.title = this.startingTitle;
+      this.toggleNameInput();
+    },
+
+    toggleSwitches(v) {
+      let role = Object.values(this.role).reduce((arr, a) => {
+        return arr.concat(a);
+      }, []);
+
+      role.forEach(role => (role.value = v));
+    },
+
     async save() {
       this.isSending = true;
       try {
         let data = {};
 
         if (this.title !== this.startingTitle) {
-          data.title = this.title;
+          data.name = this.title;
         }
 
         if (Object.keys(this.markedForSaving).length) {
           data.permissions = this.markedForSaving;
         }
 
-        // this[this.mode === "edit" ? "editRole" : "createRole"]({
-        //   id: this.roleId,
-        //   payload: data
-        // });
-
         if (this.mode === "edit") {
-          this.$store.dispatch(types.actions.EDIT_ROLE, {
+          await this.$store.dispatch(types.actions.EDIT_ROLE, {
             id: this.roleId,
             payload: data
           });
-          this.setEditableContent(this.roleId, false, false);
+
+          this.startingValues = this.setStartingValues(this._role.permissions);
+          this.startingTitle = this._role.name;
+        } else {
+          this.$store.dispatch(types.actions.ADD_ROLE, data);
+
+          this.title = "";
+          this.startingTitle = "";
+          this.toggleSwitches(false);
         }
       } finally {
         this.isSending = false;
@@ -179,6 +218,8 @@ export default {
       this.mode = "new";
       this.role = this.setContent(perms);
       this.startingValues = this.setStartingValues(perms);
+      this.startingTitle = "Enter Role Name";
+      this.title = "Enter Role Name";
       this.show = true;
     },
 
@@ -212,6 +253,7 @@ export default {
     reset() {
       this.role = null;
       this.title = "";
+      this.startingTitle = "";
       this.startingValues = null;
       this.roleId = null;
     }
@@ -242,3 +284,10 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+#edit-input {
+  display: flex;
+  align-items: center;
+}
+</style>

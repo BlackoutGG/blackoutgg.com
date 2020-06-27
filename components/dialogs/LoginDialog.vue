@@ -2,10 +2,11 @@
   <v-dialog v-model="show" :max-width="'600px'">
     <v-card>
       <v-card-title class="headline">
-        <v-btn text rounded color="dark darken-1" @click.stop.prevent="show = false">
+        <span>Login</span>
+        <v-spacer></v-spacer>
+        <v-btn icon color="dark darken-1" @click.stop.prevent="show = false">
           <v-icon>mdi-close</v-icon>
         </v-btn>
-        <span>Login</span>
       </v-card-title>
       <v-card-text>
         <v-form v-model="valid">

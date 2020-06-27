@@ -2,6 +2,7 @@
   <v-text-field
     v-model="computedValue"
     :filled="filled"
+    :prefix="prefix"
     :outlined="outlined"
     :error-messages="errorMessages"
     :label="label"
@@ -11,6 +12,7 @@
   <v-text-field
     v-model="computedValue"
     :filled="filled"
+    :prefix="prefix"
     :outlined="outlined"
     :rules="rules"
     :label="label"
@@ -20,6 +22,7 @@
   <v-text-field
     v-else-if="type === 'password'"
     :filled="filled"
+    :prefix="prefix"
     :outlined="outlined"
     v-model="computedValue"
     @click:append="showPassword = !showPassword"
@@ -76,6 +79,10 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    prefix: {
+      type: String,
+      default: ""
     }
   },
 
@@ -91,7 +98,7 @@ export default {
 
   watch: {
     innerValue(v) {
-      if (this.async) {
+      if (this.async && this.endpoint) {
         if (v) {
           if (v === this.originalValue) {
             this.errorMessage = [];

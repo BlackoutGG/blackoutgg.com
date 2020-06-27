@@ -76,7 +76,7 @@ export default {
       return this.isDisabled ? "mdi-account-on" : "mdi-account-off";
     },
     disabledText() {
-      return this.isDisabled ? "Disable" : "Enable";
+      return this.isDisabled ? "Enable" : "Disable";
     }
   }
 };

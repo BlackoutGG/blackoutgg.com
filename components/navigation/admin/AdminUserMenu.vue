@@ -1,7 +1,7 @@
 <template>
   <v-menu transition="slide-y-transition" offset-y>
     <template v-slot:activator="{ on }">
-      <v-btn text v-on="on">
+      <v-btn icon v-on="on">
         <v-icon>mdi-account-circle</v-icon>
       </v-btn>
     </template>

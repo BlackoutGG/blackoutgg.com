@@ -2,7 +2,7 @@
   <v-dialog id="edit" v-model="show" max-width="600px">
     <v-card>
       <v-card-title>
-        <v-btn small rounded text @click="show = false">
+        <v-btn small icon text @click="show = false">
           <v-icon>mdi-close</v-icon>
         </v-btn>
         <span class="headline">{{title}}</span>
