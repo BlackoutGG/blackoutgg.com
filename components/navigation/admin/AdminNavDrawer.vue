@@ -79,8 +79,8 @@ export default {
         },
         {
           icon: "mdi-calendar-range",
-          title: "Calender",
-          button: true
+          title: "Events",
+          to: "/admin/events"
         }
       ]
     };

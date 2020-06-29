@@ -61,6 +61,13 @@ export default {
 
   components: { TableActions, TableInput, EditRole },
 
+  // props: {
+  //   perms: {
+  //     type: Array,
+  //     default: () => []
+  //   }
+  // },
+
   data() {
     return {
       headers: [
@@ -86,6 +93,7 @@ export default {
     selected: {
       get() {
         return this.$store.getters[roles.getters.SELECTED];
+        // this.selected();
       },
       set(value) {
         this.setSelected(value);

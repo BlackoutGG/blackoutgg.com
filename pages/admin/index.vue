@@ -9,6 +9,6 @@ import hasScope from "~/middleware/auth.hasScope.js";
 export default {
   name: "AdminDashboard",
   layout: "admin",
-  middleware: ["auth", hasScope("admin:access"), setTitle("Dashboard")]
+  middleware: ["auth", hasScope("admin:view"), setTitle("Dashboard")]
 };
 </script>

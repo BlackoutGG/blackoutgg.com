@@ -67,14 +67,17 @@ const mutations = {
 const actions = {
   async [types.actions.FETCH]({ commit, dispatch, state }, msg) {
     try {
-      const { data } = await this.$axios.get(`/api/roles`, {
+      const {
+        data: { roles, perms }
+      } = await this.$axios.get(`/api/admin/roles`, {
         params: { ...state.queryParams }
       });
 
-      commit(types.mutations.SET_ROLES, data.roles.results);
+      commit(types.mutations.SET_ROLES, roles.results);
+      commit(types.mutations.SET_PERMS, perms);
       commit(types.mutations.SET_PARAM, {
         param: "total",
-        value: data.roles.total
+        value: roles.total
       });
 
       if (msg) {
