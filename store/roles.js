@@ -4,6 +4,7 @@ import { snackbar } from "~/utilities/types/snackbar.js";
 const state = () => ({
   roles: [],
   selected: [],
+  perms: [],
 
   queryParams: {
     page: 1,
@@ -16,6 +17,7 @@ const state = () => ({
 
 const getters = {
   [types.getters.ROLES]: state => state.roles,
+  [types.getters.PERM_LIST]: state => state.perms,
   [types.getters.SELECTED]: state => state.selected,
   [types.getters.SELECTED_IDS]: (state, getters) =>
     getters[types.getters.SELECTED].map(({ id }) => id),
@@ -36,6 +38,10 @@ const mutations = {
 
   [types.mutations.SET_PARAM](state, { param, value }) {
     state.queryParams[param] = value;
+  },
+
+  [types.mutations.SET_PERM_LIST](state, perms) {
+    state.perms = perms;
   },
 
   [types.mutations.SET_PERMISSIONS](state, { roleId, perms }) {
@@ -66,18 +72,20 @@ const mutations = {
 
 const actions = {
   async [types.actions.FETCH]({ commit, dispatch, state }, msg) {
+    const url = state.perms.length ? "/api/roles" : "/api/admin/roles";
     try {
-      const {
-        data: { roles, perms }
-      } = await this.$axios.get(`/api/admin/roles`, {
+      const { data } = await this.$axios.get(url, {
         params: { ...state.queryParams }
       });
 
-      commit(types.mutations.SET_ROLES, roles.results);
-      commit(types.mutations.SET_PERMS, perms);
+      if (data.perms && data.perms.length) {
+        commit(types.mutations.SET_PERM_LIST, data.perms);
+      }
+
+      commit(types.mutations.SET_ROLES, data.roles.results);
       commit(types.mutations.SET_PARAM, {
         param: "total",
-        value: roles.total
+        value: data.roles.total
       });
 
       if (msg) {

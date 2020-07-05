@@ -60,6 +60,10 @@ const actions = {
       commit(types.mutations.SET_TEXT, "");
       console.log("resetting bar...");
     }
+  },
+  [types.actions.DISPLAY_ERROR]({ dispatch }) {
+    const text = "Encountered an error. Please contact administration.";
+    dispatch(types.actions.TOGGLE_BAR, { text });
   }
 };
 

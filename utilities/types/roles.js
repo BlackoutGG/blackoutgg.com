@@ -4,7 +4,7 @@ export const roles = {
   getters: {
     ROLES: "roles/roles",
     SELECTED: "roles/selected",
-    PERMS: "roles/perms",
+    PERM_LIST: "roles/perms",
     SELECTED_IDS: "roles/selectedIds",
     GET_ROLE: "roles/getRole",
     QUERY_PARAMS: "roles/queryParams"
@@ -12,7 +12,7 @@ export const roles = {
   mutations: {
     SET_ROLES: "roles/setRoles",
     SET_NAME: "roles/setName",
-    SET_PERMS: "roles/setPerms",
+    SET_PERM_LIST: "roles/setPerms",
     SET_SELECTED: "roles/setSelected",
     SET_PERMISSIONS: "roles/setPermissions",
     SET_PARAM: "roles/setParam",

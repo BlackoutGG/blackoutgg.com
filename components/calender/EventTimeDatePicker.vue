@@ -13,36 +13,39 @@
       <v-text-field
         v-model="input"
         :label="label"
-        prepend-icon="event"
+        :prepend-icon="icon"
         readonly
         v-bind="attrs"
         v-on="on"
       ></v-text-field>
     </template>
-    <v-date-picker v-model="input" no-title scrolalble v-if="picker === 'date'">
+    <v-date-picker v-model="input" no-title scrolalble v-if="date && !time">
       <v-spacer></v-spacer>
       <v-btn text color="primary" @click="open = false">Cancel</v-btn>
       <v-btn text color="primary" @click="$refs.menu.save(input)">Save</v-btn>
     </v-date-picker>
-    <v-time-picker
-      v-model="input"
-      full-width
-      @click="$refs.menu.save(input)"
-      v-else-if="picker === 'time'"
-    ></v-time-picker>
+    <v-time-picker v-model="input" full-width v-else-if="time && !date">
+      <v-spacer></v-spacer>
+      <v-btn text color="primary" @click="open = false">Cancel</v-btn>
+      <v-btn text color="primary" @click="$refs.menu.save(input)">Save</v-btn>
+    </v-time-picker>
   </v-menu>
 </template>
 
 <script>
 export default {
-  name: "CalenderPicker",
+  name: "EventDateAndTime",
   props: {
     value: {
       type: String
     },
-    picker: {
-      type: String,
-      default: "date"
+    date: {
+      type: Boolean,
+      default: true
+    },
+    time: {
+      type: Boolean,
+      default: false
     },
     label: {
       type: String
@@ -64,6 +67,13 @@ export default {
         this._input = val;
         this.$emit("input", val);
       }
+    },
+    icon() {
+      return this.time && !this.date
+        ? "mdi-calendar-clock"
+        : this.date && !this.time
+        ? "mdi-calendar"
+        : "mdi-calendar-clock";
     }
   }
 };

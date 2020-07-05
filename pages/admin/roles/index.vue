@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <role-table :perms="perms"></role-table>
+    <role-table></role-table>
   </v-container>
 </template>
 
@@ -19,12 +19,5 @@ export default {
     "admin.roles.getList"
   ],
   components: { RoleTable }
-
-  // async asyncData({ $axios }) {
-  //   const {
-  //     data: { perms }
-  //   } = await $axios.get("/api/admin/role/perms");
-  //   return { perms };
-  // }
 };
 </script>

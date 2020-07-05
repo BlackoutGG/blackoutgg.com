@@ -12,7 +12,8 @@ export const snackbar = {
     SET_TEXT: "snackbar/setText"
   },
   actions: {
-    TOGGLE_BAR: "snackbar/toggleBar"
+    TOGGLE_BAR: "snackbar/toggleBar",
+    DISPLAY_ERROR: "snackbar/displayError"
   }
 };
 
