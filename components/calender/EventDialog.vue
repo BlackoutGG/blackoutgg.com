@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="open" max-width="600px">
+  <v-dialog v-model="open" max-width="600px" min-width="600px">
     <template #activator="{ on, attrs }">
       <v-tooltip bottom>
         <template #activator="tooltip">
@@ -10,19 +10,32 @@
         <span>Add Event</span>
       </v-tooltip>
     </template>
-    <v-card>
-      <v-card-title>
+    <v-card min-width="600px">
+      <v-toolbar dark>
         <v-btn icon @click="close">
           <v-icon small>mdi-close</v-icon>
         </v-btn>
-        <span>Add An Event</span>
+        <v-toolbar-title>
+          <span>{{title}}</span>
+        </v-toolbar-title>
         <v-spacer></v-spacer>
         <event-color v-model="details.color"></event-color>
-      </v-card-title>
-      <v-card-text>
-        <event-form v-model="valid" ref="form" :event="details"></event-form>
-      </v-card-text>
-
+      </v-toolbar>
+      <v-tabs fixed-tabs v-model="tab">
+        <v-tab v-for="(tab, i) in tabs" :key="i">{{tab}}</v-tab>
+      </v-tabs>
+      <v-tabs-items v-model="tab">
+        <v-tab-item>
+          <v-card-text>
+            <event-form v-model="valid" ref="form" :event="details"></event-form>
+          </v-card-text>
+        </v-tab-item>
+        <v-tab-item>
+          <v-card-text>
+            <event-options :rvsp.sync="details.rvsp"></event-options>
+          </v-card-text>
+        </v-tab-item>
+      </v-tabs-items>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn text @click="reset">Clear</v-btn>
@@ -35,48 +48,145 @@
 <script>
 import { events } from "~/utilities/types/events.js";
 import EventForm from "./EventForm.vue";
+import EventOptions from "./EventDialogOptions";
 import EventColor from "./EventColorPicker.vue";
 import CalendarEvent from "./Event.js";
 export default {
   name: "EventDialog",
-  components: { EventForm, EventColor },
+  components: { EventForm, EventColor, EventOptions },
 
   data() {
     return {
       open: false,
       valid: false,
+      mode: "new",
+      tabs: ["Form", "Options"],
+      tab: null,
+
+      eventId: 0,
 
       details: {
+        id: null,
+        category_id: 1,
         name: "",
         color: "",
         startDate: "",
         endDate: "",
         startTime: "",
         endTime: "",
-        description: ""
+        description: "",
+        rvsp: false
+      },
+
+      startingValues: {
+        id: null,
+        category_id: 1,
+        name: "",
+        color: "",
+        startDate: "",
+        endDate: "",
+        startTime: "",
+        endTime: "",
+        description: "",
+        rvsp: false
       }
     };
-  },
-
-  methods: {
-    save() {
-      this.$store.dispatch(
-        events.actions.ADD_EVENT,
-        new CalendarEvent(this.details)
-      );
-    },
-    reset() {
-      this.$refs.form.reset();
-    },
-    close() {
-      this.open = false;
-      this.reset();
-    }
   },
 
   watch: {
     open(v) {
       if (!v) this.reset();
+    }
+  },
+
+  methods: {
+    async save() {
+      if (this.mode === "edit") {
+        await this.$store.dispatch(
+          events.actions.EDIT_EVENT,
+          Object.assign(
+            {},
+            { ...this.markedForChange },
+            { id: this.details.id }
+          )
+        );
+        this.setStartingValues(this.event);
+      } else {
+        this.$store.dispatch(
+          events.actions.ADD_EVENT,
+          this.createEventObject(this.details)
+        );
+        this.$refs.form.reset();
+      }
+    },
+    reset() {
+      if (this.mode === "edit") {
+        Object.keys(this.startingValues).forEach(key => {
+          if (typeof this.details[key] === "boolean") {
+            this.startingValues[key] = false;
+          } else if (typeof this.details[key] === "object") {
+            this.startingValues[key] = null;
+          } else {
+            this.startingValues[key] = "";
+          }
+        });
+      }
+      this.$refs.form.reset();
+      this.$nextTick(() => {
+        this.mode = "new";
+      });
+    },
+    close() {
+      this.open = false;
+      this.reset();
+    },
+
+    createEventObject(e) {
+      const { category_id, ...details } = e;
+      return { category_id, event: new CalendarEvent(details) };
+    },
+
+    setStartingValues(obj) {
+      Object.keys(obj).forEach(key => {
+        if (typeof obj[key] !== undefined || typeof obj[key] !== "object") {
+          this.startingValues[key] = obj[key];
+        }
+      });
+    },
+
+    setEditableContent({ id }) {
+      this.eventId = id;
+      this.mode = "edit";
+      const { event } = this;
+      Object.keys(this.details).forEach(key => {
+        if (typeof event[key] !== undefined || typeof event[key] !== "object") {
+          this.details[key] = event[key];
+          this.startingValues[key] = event[key];
+        }
+      });
+
+      this.open = true;
+    }
+  },
+
+  computed: {
+    event() {
+      return (
+        this.$store.getters[events.getters.GET_EVENT](this.eventId) || null
+      );
+    },
+    markedForChange() {
+      return Object.entries(this.details)
+        .filter(([key, value]) => {
+          return this.startingValues[key] !== value;
+        })
+        .reduce((obj, [key, value]) => {
+          obj[key] = value;
+          return obj;
+        }, {});
+    },
+    title() {
+      return this.mode === "new" ? "Add Event" : "Edit Event";
     }
   }
 };

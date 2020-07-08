@@ -61,8 +61,12 @@ const actions = {
       console.log("resetting bar...");
     }
   },
-  [types.actions.DISPLAY_ERROR]({ dispatch }) {
+  [types.actions.ERROR]({ dispatch }) {
     const text = "Encountered an error. Please contact administration.";
+    dispatch(types.actions.TOGGLE_BAR, { text });
+  },
+  [types.actions.SUCCESS]({ dispatch }) {
+    const text = "Saved Changes.";
     dispatch(types.actions.TOGGLE_BAR, { text });
   }
 };

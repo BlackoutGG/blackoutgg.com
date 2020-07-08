@@ -1,20 +1,42 @@
+/**
+ * @property {Number|Object} id The events id. Defaults to null if no id is provided.
+ * @property {String} name The event name.
+ * @property {String} color The chosen color of the event.
+ * @property {Number} year The year of the event in number format.
+ * @property {Number} month The month of the event in number format.
+ * @property {Number} day The day of the event in number format.
+ * @property {Number} category The category id of the event.
+ * @property {String} startDate The start date in string format.
+ * @property {String} startTime The start time in string format.
+ * @property {String} endDate The optional end date of an event. Defaults to startDate.
+ * @property {String} endTime The optional end time of an event. Defaults to startTime.
+ * @property {String} description The description of the event.
+ * @property {Boolean} rvsp Enables or disables the privilage for users to register for an event. Defaults to false.
+ * @property {Object} organizer Object containing the id, avatar and username of the event submitter/organizer. Defaults to null.
+ * @property {Object} category Object containing the id, name and banner background source for the category the event is bound to. Defaults to null.
+ */
 export default class CalendarEvent {
   constructor({
     id,
     name,
     color,
+    year,
+    month,
+    day,
     startDate,
     startTime,
     endDate,
     endTime,
     description,
-    rvsp
+    rvsp,
+    organizer = null,
+    category = null
   }) {
     const dates = startDate.split("-");
     this.id = id || null;
-    this.year = parseInt(dates[0], 10);
-    this.month = parseInt(dates[1], 10);
-    this.day = parseInt(dates[2], 10);
+    this.year = year || parseInt(dates[0], 10);
+    this.month = month || parseInt(dates[1], 10);
+    this.day = day || parseInt(dates[2], 10);
     this.name = name;
     this.color = color || "#000000";
     this.startDate = startDate;
@@ -23,6 +45,8 @@ export default class CalendarEvent {
     this.endTime = endTime || startTime;
     this.description = description;
     this.rvsp = rvsp || false;
+    this.organizer = organizer;
+    this.category = category;
   }
 
   get start() {
@@ -35,5 +59,13 @@ export default class CalendarEvent {
     return this.endDate && this.endTime
       ? this.endDate + " " + this.endTime
       : null;
+  }
+
+  get category_id() {
+    return this.category.id || 1;
+  }
+
+  get categoryName() {
+    return this.category.name || "";
   }
 }

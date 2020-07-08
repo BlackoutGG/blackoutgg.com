@@ -22,7 +22,7 @@
             </template>
             <v-list>
               <event-list-item
-                v-for="(cat, idx) in eventCategories"
+                v-for="(cat, idx) in categories"
                 :key="idx"
                 v-model="category"
                 :item="cat"
@@ -54,13 +54,14 @@
           @click:date="viewDay"
           @change="fetch"
         ></v-calendar>
-        <event-popover ref="popover"></event-popover>
+        <event-popover ref="popover" @edit="setEditableContent"></event-popover>
       </v-sheet>
     </v-col>
   </v-row>
 </template>
 
 <script>
+import { lists } from "~/utilities/types/lists.js";
 import EventListItem from "./EventListItem.vue";
 import EventDialog from "./EventDialog.vue";
 import EventPopover from "./EventPopover.vue";
@@ -109,6 +110,11 @@ export default {
 
   methods: {
     ...mapActions(["fetchEvents"]),
+
+    setEditableContent(event) {
+      this.$refs.dialog.setEditableContent(event);
+    },
+
     showEvent({ nativeEvent, event }) {
       this.$refs.popover.toggle(event.id, nativeEvent.target);
       nativeEvent.stopPropagation();
@@ -139,7 +145,10 @@ export default {
   },
 
   computed: {
-    ...mapGetters(["events", "eventCategories"])
+    ...mapGetters(["events"]),
+    categories() {
+      return this.$store.getters[lists.getters.ITEMS]("categories");
+    }
   }
 };
 </script>

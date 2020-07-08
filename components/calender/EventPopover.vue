@@ -8,7 +8,7 @@
   >
     <v-card flat>
       <v-toolbar dark>
-        <v-btn icon>
+        <v-btn icon @click="editEvent">
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
         <v-toolbar-title>{{event.name}}</v-toolbar-title>
@@ -18,7 +18,7 @@
         </v-btn>
       </v-toolbar>
       <v-card-text>
-        <event-form readonly :event="event"></event-form>
+        <event-form preview :name="false" :event="event"></event-form>
       </v-card-text>
       <v-card-actions>
         <v-btn text color="primary">Join In</v-btn>
@@ -44,19 +44,30 @@ export default {
     };
   },
 
-  watch: {
-    open(v) {
-      if (!v) this.reset();
-    }
-  },
+  // watch: {
+  //   open(v) {
+  //     if (!v) this.reset();
+  //   }
+  // },
 
   methods: {
     toggle(id, element) {
-      this.element = element;
-      this.event = id;
-      this.$nextTick(() => {
-        this.open = true;
-      });
+      const open = () => {
+        this.event = id;
+        this.element = element;
+        setTimeout(() => (this.open = true), 10);
+      };
+
+      if (this.open) {
+        this.open = false;
+        setTimeout(open, 10);
+      } else {
+        open();
+      }
+    },
+    editEvent() {
+      this.open = false;
+      this.$nextTick(() => this.$emit("edit", this.event));
     },
     reset() {
       this.open = false;

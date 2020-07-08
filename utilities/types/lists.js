@@ -2,19 +2,13 @@ import removeNamespace from "../removeNamespace";
 
 export const lists = {
   getters: {
-    ITEMS: "lists/getItems",
-    LIST_TYPE: "lists/type",
+    ITEMS: "lists/items",
     SELECTED: "lists/selected",
     QUERY_PARAMS: "lists/queryParams"
   },
   mutations: {
     SET_LIST: "lists/SET_LIST",
-    SET_TYPE: "lists/SET_TYPE",
-    SET_SELECTED: "lists/SET_SELECTED",
-    SET_PAGE: "lists/SET_PAGE",
-    SET_SORT: "lists/SORT",
-    SET_TOTAL: "lists/SET_TOTAL",
-    REMOVE_ROLE: "lists/REMOVE_ROLE"
+    SET_SELECTED: "lists/SET_SELECTED"
   },
   actions: {
     FETCH: "lists/fetchList"

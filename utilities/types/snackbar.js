@@ -13,7 +13,8 @@ export const snackbar = {
   },
   actions: {
     TOGGLE_BAR: "snackbar/toggleBar",
-    DISPLAY_ERROR: "snackbar/displayError"
+    ERROR: "snackbar/displayError",
+    SUCCESS: "snackbar/displaySuccess"
   }
 };
 

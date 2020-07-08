@@ -39,6 +39,14 @@ export default {
     };
   },
 
+  watch: {
+    value(v) {
+      if (v !== this.innerValue.hex) {
+        this.innerValue.hex = v;
+      }
+    }
+  },
+
   computed: {
     color: {
       get() {

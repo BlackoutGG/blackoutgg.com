@@ -14,6 +14,7 @@
         v-model="input"
         :label="label"
         :prepend-icon="icon"
+        :rules="rules"
         readonly
         v-bind="attrs"
         v-on="on"
@@ -49,6 +50,9 @@ export default {
     },
     label: {
       type: String
+    },
+    rules: {
+      type: [Function, Object, Array, String]
     }
   },
   data() {

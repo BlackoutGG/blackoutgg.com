@@ -1,11 +1,14 @@
-import { _events as types } from "~/utilities/types/events.js";
 import CalendarEvent from "~/components/calender/Event.js";
 import pick from "lodash/pick";
 import { snackbar } from "~/utilities/types/snackbar.js";
+import { _events as types } from "~/utilities/types/events.js";
 
 const props = [
   "name",
   "color",
+  "month",
+  "year",
+  "day",
   "startTime",
   "startDate",
   "endTime",
@@ -15,13 +18,11 @@ const props = [
 ];
 
 const state = () => ({
-  events: [],
-  categories: ["all"]
+  events: []
 });
 
 const getters = {
   [types.getters.EVENTS]: state => state.events,
-  [types.getters.EVENT_CATEGORIES]: state => state.categories,
   [types.getters.GET_EVENT]: state => id =>
     state.events.find(evt => evt.id === id)
 };
@@ -30,17 +31,21 @@ const mutations = {
   [types.mutations.SET_EVENTS](state, events) {
     state.events = events;
   },
-  [types.mutations.SET_EVENT_CATEGORIES](state, cats) {
-    state.categories = state.categories.concat(cats);
-  },
   [types.mutations.ADD_EVENT](state, event) {
     const idx = state.events.findIndex(evt => evt.id === event.id);
     if (idx === -1) state.events.push(event);
-    // state.events.push(event);
   },
-  [types.mutations.EDIT_EVENT](state, event) {
-    const e = state.events.find(evt => evt.id === event.id);
-    if (e) e = event;
+  [types.mutations.EDIT_EVENT](state, { id, event }) {
+    let e = state.events.find(evt => evt.id === id);
+    Object.keys(event).forEach(key => {
+      if (typeof e[key] !== undefined) {
+        e[key] = event[key];
+      }
+    });
+  },
+  [types.mutations.EDIT_EVENT_CATEGORY](state, { id, category }) {
+    let event = state.events.find(event => event.id === id);
+    if (event && event.category) event.category = category;
   },
   [types.mutations.REMOVE_EVENT](state, event) {
     const idx = state.events.findIndex(evt => evt.id === event.id);
@@ -49,23 +54,15 @@ const mutations = {
 };
 
 const actions = {
-  async [types.actions.FETCH_EVENTS]({ state, commit, dispatch }, params) {
+  async [types.actions.FETCH_EVENTS]({ commit, dispatch }, params) {
     try {
-      const { data } = await this.$axios.get(
-        state.categories.length ? "/api/events" : "/api/admin/events",
-        { params }
-      );
-
-      // console.log(events);
-      if (!state.categories.length) {
-        commit(types.mutations.SET_EVENT_CATEGORIES, data.categories);
-      }
-
-      console.log(data);
+      const {
+        data: { events }
+      } = await this.$axios.get("/api/events", { params });
 
       commit(
         types.mutations.SET_EVENTS,
-        data.events.map(event => new CalendarEvent(event))
+        events.map(event => new CalendarEvent(event))
       );
     } catch (err) {
       console.log(err);
@@ -74,14 +71,17 @@ const actions = {
     }
   },
 
-  async [types.actions.ADD_EVENT]({ commit, dispatch }, event) {
+  async [types.actions.ADD_EVENT](
+    { commit, dispatch },
+    { category_id, event }
+  ) {
+    const params = pick(event, props);
+    params.category_id = category_id;
+    console.log(params);
+
     try {
-      const { data } = await this.$axios.post(
-        "/api/events",
-        pick(props, event)
-      );
-      const text = `Added Event ${data.event.name}`;
-      console.log(data);
+      const { data } = await this.$axios.post("/api/events", params);
+      const text = `Saved Event: ${data.event.name}`;
       commit(types.mutations.ADD_EVENT, new CalendarEvent(data.event));
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
     } catch (err) {
@@ -91,14 +91,31 @@ const actions = {
     }
   },
 
-  async [types.actions.EDIT_EVENT]({ commit, dispatch }, { id, _data }) {
+  async [types.actions.EDIT_EVENT]({ commit, dispatch }, evt) {
+    const { id, ...payload } = evt;
     try {
       const {
         data: { event }
-      } = this.$axios.put(`/api/events/${id}`, _data);
+      } = await this.$axios.put(`/api/events/${id}`, payload);
+      const e = pick(event, props);
 
-      commit(types.mutations.EDIT_EVENT, event);
-    } catch (err) {}
+      console.log(event);
+      console.log(e);
+
+      if (event.category) {
+        let { category, ...evt } = event;
+        commit(types.mutations.EDIT_EVENT_CATEGORY, category);
+      }
+
+      if (Object.keys(e).length) {
+        commit(types.mutations.EDIT_EVENT, { id, event: e });
+      }
+
+      dispatch(snackbar.actions.SUCCESS, null, { root: true });
+    } catch (err) {
+      console.log(err);
+      dispatch(snackbar.actions.ERROR, null, { root: true });
+    }
   }
 };
 
