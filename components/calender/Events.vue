@@ -3,7 +3,7 @@
     <v-col>
       <v-sheet height="64">
         <v-toolbar flat color="white">
-          <event-dialog ref="dialog"></event-dialog>
+          <event-dialog ref="dialog" v-if="$auth.hasScope('events:add')"></event-dialog>
           <v-btn outlined class="mr-4" color="grey darken-2">Today</v-btn>
           <v-btn fab text small color="grey darken-2" @click="prev">
             <v-icon small>mdi-chevron-left</v-icon>
@@ -106,6 +106,7 @@ export default {
 
   mounted() {
     this.$refs.event.checkChange();
+    this.$auth.hasScope("events:add");
   },
 
   methods: {

@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="open" max-width="600px" min-width="600px">
+  <v-dialog v-model="open" id="event-dialog" max-width="600px" :min-height="height">
     <template #activator="{ on, attrs }">
       <v-tooltip bottom>
         <template #activator="tooltip">
@@ -10,7 +10,7 @@
         <span>Add Event</span>
       </v-tooltip>
     </template>
-    <v-card min-width="600px">
+    <v-card :min-height="height">
       <v-toolbar dark>
         <v-btn icon @click="close">
           <v-icon small>mdi-close</v-icon>
@@ -36,6 +36,7 @@
           </v-card-text>
         </v-tab-item>
       </v-tabs-items>
+
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn text @click="reset">Clear</v-btn>
@@ -48,12 +49,13 @@
 <script>
 import { events } from "~/utilities/types/events.js";
 import EventForm from "./EventForm.vue";
-import EventOptions from "./EventDialogOptions";
+import EventOptions from "./EventDialogOptions.vue";
 import EventColor from "./EventColorPicker.vue";
+import VerticalSpacer from "~/components/VerticalSpacer.vue";
 import CalendarEvent from "./Event.js";
 export default {
   name: "EventDialog",
-  components: { EventForm, EventColor, EventOptions },
+  components: { EventForm, EventColor, EventOptions, VerticalSpacer },
 
   data() {
     return {
@@ -61,9 +63,11 @@ export default {
       valid: false,
       mode: "new",
       tabs: ["Form", "Options"],
-      tab: null,
+      tab: 0,
 
       eventId: 0,
+
+      minHeight: 827,
 
       details: {
         id: null,
@@ -91,6 +95,11 @@ export default {
         rvsp: false
       }
     };
+  },
+
+  mounted() {
+    const elm = document.getElementById("event-dialog");
+    console.log(elm);
   },
 
   watch: {
@@ -138,6 +147,7 @@ export default {
     },
     close() {
       this.open = false;
+      this.tab = 0;
       this.reset();
     },
 
@@ -184,6 +194,15 @@ export default {
           obj[key] = value;
           return obj;
         }, {});
+    },
+
+    height: {
+      get() {
+        return `${this.minHeight}px`;
+      },
+      set(val) {
+        this.minHeight = val;
+      }
     },
     title() {
       return this.mode === "new" ? "Add Event" : "Edit Event";

@@ -34,7 +34,7 @@ export default {
   /*
    ** Nuxt.js dev-modules
    */
-  buildModules: ["@nuxtjs/vuetify"],
+  buildModules: ["@nuxtjs/vuetify", "@nuxtjs/date-fns"],
   /*
    ** Nuxt.js modules
    */
@@ -74,7 +74,7 @@ export default {
         user: { url: "/auth/user", method: "get", propertyName: "user" }
       }
     },
-    plugins: [{ src: "~/plugins/axios.js" }]
+    plugins: [{ src: "~/plugins/axios.js" }, { src: "~/plugins/hasScope.js" }]
   },
   /*
    ** Axios module configuration

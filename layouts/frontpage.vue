@@ -3,9 +3,9 @@
     <user-navbar />
     <user-nav-mobile />
     <video-banner />
-    <v-content>
+    <v-main>
       <nuxt />
-    </v-content>
+    </v-main>
     <v-footer />
     <template v-if="!$auth.loggedIn">
       <login-dialog />

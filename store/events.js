@@ -99,21 +99,17 @@ const actions = {
       } = await this.$axios.put(`/api/events/${id}`, payload);
       const e = pick(event, props);
 
-      console.log(event);
-      console.log(e);
-
       if (event.category) {
         let { category, ...evt } = event;
         commit(types.mutations.EDIT_EVENT_CATEGORY, category);
       }
 
-      if (Object.keys(e).length) {
+      if (e && Object.keys(e).length) {
         commit(types.mutations.EDIT_EVENT, { id, event: e });
       }
 
       dispatch(snackbar.actions.SUCCESS, null, { root: true });
     } catch (err) {
-      console.log(err);
       dispatch(snackbar.actions.ERROR, null, { root: true });
     }
   }

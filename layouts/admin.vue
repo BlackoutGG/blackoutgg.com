@@ -2,9 +2,9 @@
   <v-app light>
     <admin-navbar />
     <admin-nav-drawer />
-    <v-content id="admin">
+    <v-main id="admin">
       <nuxt />
-    </v-content>
+    </v-main>
     <snackbar />
   </v-app>
 </template>

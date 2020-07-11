@@ -11,17 +11,20 @@
         <v-btn icon @click="editEvent">
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
-        <v-toolbar-title>{{event.name}}</v-toolbar-title>
+        <v-toolbar-title>{{ event.name }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn>
           <v-icon>mdi-dots-vertical</v-icon>
         </v-btn>
       </v-toolbar>
       <v-card-text>
-        <event-form preview :name="false" :event="event"></event-form>
+        <!-- <event-form preview :name="false" :event="event"></event-form> -->
+        <event-view :event="event"></event-view>
       </v-card-text>
       <v-card-actions>
-        <v-btn text color="primary">Join In</v-btn>
+        <v-icon>mdi-account-group</v-icon>
+        <v-spacer></v-spacer>
+        <v-btn text color="primary" v-if="event.rvsp">Join In</v-btn>
         <v-btn text color="primary" @click="open = false">Close</v-btn>
       </v-card-actions>
     </v-card>
@@ -30,11 +33,12 @@
 
 <script>
 import EventForm from "./EventForm.vue";
+import EventView from "./EventView.vue";
 import { events } from "~/utilities/types/events";
 export default {
   name: "EventPopover",
 
-  components: { EventForm },
+  components: { EventView },
 
   data() {
     return {
@@ -43,12 +47,6 @@ export default {
       id: null
     };
   },
-
-  // watch: {
-  //   open(v) {
-  //     if (!v) this.reset();
-  //   }
-  // },
 
   methods: {
     toggle(id, element) {

@@ -1,7 +1,13 @@
+import get from "lodash/get";
+
+const defaultOptions = {
+  permissionsProp: "scope"
+};
+
 const isString = val => typeof val === "string";
 const isArray = val => Array.isArray(val);
 
-const hasScope = required => {
+const hasScope = function(required, options) {
   if (required) {
     if (isString(required)) {
       required = [[required]];
@@ -10,7 +16,9 @@ const hasScope = required => {
     }
   }
 
-  let permissions = this.user.scope;
+  let _options = Object.assign({}, defaultOptions, options);
+
+  let permissions = get(this, _options.permissionsProp, undefined);
 
   if (!permissions) {
     throw new Error("User permissions are missing.");
@@ -25,14 +33,13 @@ const hasScope = required => {
   }
 
   const sufficient = required.some(req =>
-    req.every(perm => permission.indexOf(perm) !== -1)
+    req.every(perm => permissions.indexOf(perm) !== -1)
   );
 
   return sufficient;
 };
 
-export default scope => ({ $auth, redirect }) => {
-  if ($auth.loggedIn && $auth.user.scope.indexOf(scope) === -1) {
-    redirect("/");
-  }
+export default ({ $auth }) => {
+  $auth.hasScope = hasScope.bind($auth.user);
+  //   inject("hasScope", hasScope.bind($auth.user));
 };

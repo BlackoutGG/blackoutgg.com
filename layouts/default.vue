@@ -2,16 +2,21 @@
   <v-app dark>
     <user-navbar />
     <user-nav-mobile />
-    <v-parallax dark :src="defaultSrc" :class="parallaxClasses" :height="height">
+    <v-parallax
+      dark
+      :src="defaultSrc"
+      :class="parallaxClasses"
+      :height="height"
+    >
       <v-row align="center" justify="center">
         <v-col class="text-center" cols="12">
           <h1 class="display-1 font-weight-bold">{{ title }}</h1>
         </v-col>
       </v-row>
     </v-parallax>
-    <v-content>
+    <v-main>
       <nuxt />
-    </v-content>
+    </v-main>
     <v-footer></v-footer>
     <template v-if="!$auth.loggedIn">
       <login-dialog />

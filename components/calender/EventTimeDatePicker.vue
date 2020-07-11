@@ -38,7 +38,8 @@ export default {
   name: "EventDateAndTime",
   props: {
     value: {
-      type: String
+      type: String,
+      default: ""
     },
     date: {
       type: Boolean,
@@ -51,6 +52,10 @@ export default {
     label: {
       type: String
     },
+    modifier: {
+      type: String
+    },
+
     rules: {
       type: [Function, Object, Array, String]
     }
@@ -58,17 +63,16 @@ export default {
   data() {
     return {
       open: false,
-      _input: ""
+      innerValue: this.value
     };
   },
-
   computed: {
     input: {
       get() {
         return this.value;
       },
       set(val) {
-        this._input = val;
+        this.innerValue = val;
         this.$emit("input", val);
       }
     },
