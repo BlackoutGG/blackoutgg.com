@@ -1,71 +1,32 @@
 <template>
-  <v-virtual-scroll :items="items" height="300" :item-height="50">
+  <v-virtual-scroll :items="items" :height="height" :item-height="itemHeight">
     <template v-slot="{ item }">
-      <v-list-item>
-        <v-list-item-avatar>
-          <list-avatar :item="item" :size="56"></list-avatar>
-        </v-list-item-avatar>
-        <v-list-item-content>
-          <v-list-item-title>{{ item.username }}</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
+      <slot :item="item" />
     </template>
-    <infinite-loading @infinite="update"></infinite-loading>
+    <infinite-loading @infinite="(state) => $emit('update', state)"></infinite-loading>
   </v-virtual-scroll>
 </template>
 
 <script>
 import InfiniteLoading from "vue-infinite-loading";
-import ListAvatar from "~/components/ListAvatar.vue";
 export default {
   name: "Scroller",
 
-  components: { InfiniteLoading, ListAvatar },
+  components: { InfiniteLoading },
 
   props: {
-    endpoint: {
-      type: String,
-      default: "/api/events/participants"
-    }
-  },
-
-  data() {
-    return {
-      start: 1,
-      limit: 50,
-      items: []
-    };
-  },
-
-  async fetch() {
-    this.items = this.fetchItems();
-  },
-
-  methods: {
-    async update($state) {
-      this.start++;
-      try {
-        const items = this.fetchItems();
-        if (items && items.length) {
-          this.items.push(...items);
-          $state.loaded();
-        } else {
-          $state.completed();
-        }
-      } catch (err) {}
+    height: {
+      type: Number,
+      default: 300
     },
-
-    async fetchItems() {
-      const { start, limit } = this;
-      try {
-        const {
-          data: { participants }
-        } = await this.$axios.get(this.endpoint, { params: { start, limit } });
-
-        return participants;
-      } catch (err) {
-        console.log(err);
-      }
+    itemHeight: {
+      type: Number,
+      default: 50
+    },
+    items: {
+      type: Array,
+      required: true,
+      default: () => []
     }
   }
 };

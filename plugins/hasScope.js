@@ -1,45 +1,56 @@
 import get from "lodash/get";
 
 const defaultOptions = {
-  permissionsProp: "scope"
+  permissionsProp: "scope",
+  userObject: "user"
 };
 
 const isString = val => typeof val === "string";
 const isArray = val => Array.isArray(val);
 
-const hasScope = function(required, options) {
-  if (required) {
-    if (isString(required)) {
-      required = [[required]];
-    } else if (isArray(required) && required.every(isString)) {
-      required = [required];
+const hasScope = function(auth) {
+  return function(required, options) {
+    if (required) {
+      if (isString(required)) {
+        required = [[required]];
+      } else if (isArray(required) && required.every(isString)) {
+        required = [required];
+      }
     }
-  }
 
-  let _options = Object.assign({}, defaultOptions, options);
+    let _options = Object.assign({}, defaultOptions, options);
 
-  let permissions = get(this, _options.permissionsProp, undefined);
+    let user = get(auth, _options.userObject, undefined);
 
-  if (!permissions) {
-    throw new Error("User permissions are missing.");
-  }
+    if (!user) {
+      throw new Error(`userObject: ${_options.userObject} is invalid.`);
+    }
 
-  if (isString(permissions)) {
-    permissions = permissions.split(" ");
-  }
+    let permissions = get(user, _options.permissionsProp, undefined);
 
-  if (!isArray(permissions)) {
-    throw new Error("User permissions should be an array.");
-  }
+    if (!permissions) {
+      throw new Error(
+        `permissionProp: ${_options.permissionsProp} is invalid.`
+      );
+    }
 
-  const sufficient = required.some(req =>
-    req.every(perm => permissions.indexOf(perm) !== -1)
-  );
+    if (isString(permissions)) {
+      permissions = permissions.split(" ");
+    }
 
-  return sufficient;
+    if (!isArray(permissions)) {
+      throw new Error("User permissions should be an array.");
+    }
+
+    const sufficient = required.some(req =>
+      req.every(perm => permissions.indexOf(perm) !== -1)
+    );
+
+    return sufficient;
+  };
 };
 
 export default ({ $auth }) => {
-  $auth.hasScope = hasScope.bind($auth.user);
+  $auth.hasScope = hasScope($auth);
   //   inject("hasScope", hasScope.bind($auth.user));
 };

@@ -15,6 +15,7 @@
         :label="label"
         :prepend-icon="icon"
         :rules="rules"
+        :error-messages="errorMessages"
         readonly
         v-bind="attrs"
         v-on="on"
@@ -63,9 +64,32 @@ export default {
   data() {
     return {
       open: false,
-      innerValue: this.value
+      innerValue: this.value,
+      errorMessages: ""
     };
   },
+
+  watch: {
+    modifier(v) {
+      const parts = v.split(" ");
+
+      if (parts.length > 1) {
+        console.log(parts);
+        if (this.date) this.input = parts[0];
+        else this.input = parts[1];
+      } else {
+        this.input = parts[0];
+      }
+    },
+    parsed(v) {
+      if (this.$dateFns.isPast(v)) {
+        this.errorMessages = `${this.label} cannot be in the past.`;
+      } else {
+        this.errorMessages = "";
+      }
+    }
+  },
+
   computed: {
     input: {
       get() {
@@ -82,6 +106,10 @@ export default {
         : this.date && !this.time
         ? "mdi-calendar"
         : "mdi-calendar-clock";
+    },
+
+    parsed() {
+      return this.$dateFns.parseISO(this.modifier);
     }
   }
 };

@@ -8,7 +8,6 @@ const props = [
   "color",
   "month",
   "year",
-  "day",
   "startTime",
   "startDate",
   "endTime",
@@ -18,11 +17,13 @@ const props = [
 ];
 
 const state = () => ({
-  events: []
+  events: [],
+  colors: ["#FF9AA2", "#FFB7B2", "#FFDAC1", "E2F0CB", "#B5EAD7", "C7CEEA"]
 });
 
 const getters = {
   [types.getters.EVENTS]: state => state.events,
+  [types.getters.EVENT_COLORS]: state => state.colors,
   [types.getters.GET_EVENT]: state => id =>
     state.events.find(evt => evt.id === id)
 };
@@ -60,6 +61,8 @@ const actions = {
         data: { events }
       } = await this.$axios.get("/api/events", { params });
 
+      console.log(events);
+
       commit(
         types.mutations.SET_EVENTS,
         events.map(event => new CalendarEvent(event))
@@ -80,9 +83,11 @@ const actions = {
     console.log(params);
 
     try {
-      const { data } = await this.$axios.post("/api/events", params);
-      const text = `Saved Event: ${data.event.name}`;
-      commit(types.mutations.ADD_EVENT, new CalendarEvent(data.event));
+      const {
+        data: { event }
+      } = await this.$axios.post("/api/events", params);
+      const text = `Saved Event: ${event.name}`;
+      commit(types.mutations.ADD_EVENT, new CalendarEvent(event));
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
     } catch (err) {
       console.log(err);

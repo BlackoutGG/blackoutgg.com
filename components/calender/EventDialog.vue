@@ -19,7 +19,6 @@
           <span>{{title}}</span>
         </v-toolbar-title>
         <v-spacer></v-spacer>
-        <event-color v-model="details.color"></event-color>
       </v-toolbar>
       <v-tabs fixed-tabs v-model="tab">
         <v-tab v-for="(tab, i) in tabs" :key="i">{{tab}}</v-tab>
@@ -32,7 +31,7 @@
         </v-tab-item>
         <v-tab-item>
           <v-card-text>
-            <event-options :rvsp.sync="details.rvsp"></event-options>
+            <event-options :roles="roles" :rvsp.sync="details.rvsp"></event-options>
           </v-card-text>
         </v-tab-item>
       </v-tabs-items>
@@ -49,13 +48,13 @@
 <script>
 import { events } from "~/utilities/types/events.js";
 import EventForm from "./EventForm.vue";
+
 import EventOptions from "./EventDialogOptions.vue";
-import EventColor from "./EventColorPicker.vue";
 import VerticalSpacer from "~/components/VerticalSpacer.vue";
 import CalendarEvent from "./Event.js";
 export default {
   name: "EventDialog",
-  components: { EventForm, EventColor, EventOptions, VerticalSpacer },
+  components: { EventForm, EventOptions, VerticalSpacer },
 
   data() {
     return {
@@ -68,6 +67,9 @@ export default {
       eventId: 0,
 
       minHeight: 827,
+
+      roles: [],
+      startingRoles: [],
 
       details: {
         id: null,
@@ -95,11 +97,6 @@ export default {
         rvsp: false
       }
     };
-  },
-
-  mounted() {
-    const elm = document.getElementById("event-dialog");
-    console.log(elm);
   },
 
   watch: {
@@ -152,8 +149,9 @@ export default {
     },
 
     createEventObject(e) {
-      const { category_id, ...details } = e;
-      return { category_id, event: new CalendarEvent(details) };
+      const { category_id, ...event } = e;
+      event.roles = this.rolesMarkedForChange;
+      return { category_id, event };
     },
 
     setStartingValues(obj) {
@@ -194,6 +192,10 @@ export default {
           obj[key] = value;
           return obj;
         }, {});
+    },
+
+    rolesMarkedForChange() {
+      return this.roles.filter(role => this.startingRoles.indexOf(role) === -1);
     },
 
     height: {

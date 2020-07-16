@@ -8,7 +8,7 @@
           <v-btn fab text small color="grey darken-2" @click="prev">
             <v-icon small>mdi-chevron-left</v-icon>
           </v-btn>
-          <v-toolbar-title>{{title}}</v-toolbar-title>
+          <v-toolbar-title v-if="$refs.event">{{$refs.event.title}}</v-toolbar-title>
           <v-btn fab text small color="grey darken-2" @click="next">
             <v-icon small>mdi-chevron-right</v-icon>
           </v-btn>
@@ -48,6 +48,7 @@
           v-model="focus"
           color="primary"
           :events="events"
+          :event-colors="getEventColor"
           :type="type"
           @click:event="showEvent"
           @click:more="viewDay"
@@ -85,22 +86,7 @@ export default {
         week: "Week",
         day: "Day",
         "4day": "4 Days"
-      },
-      months: [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December"
-      ],
-      title: ""
+      }
     };
   },
 
@@ -111,6 +97,10 @@ export default {
 
   methods: {
     ...mapActions(["fetchEvents"]),
+
+    getEventColor(event) {
+      return event.color;
+    },
 
     setEditableContent(event) {
       this.$refs.dialog.setEditableContent(event);
@@ -135,18 +125,20 @@ export default {
     },
 
     fetch({ start, end }) {
-      this.title = `${this.months[start.month - 1]} ${start.year}`;
+      console.log(start, end);
       this.month = start.month;
       this.year = start.year;
       this.fetchEvents({
         month: start.month,
-        year: start.year
+        year: start.year,
+        start: start.date,
+        end: end.date
       });
     }
   },
 
   computed: {
-    ...mapGetters(["events"]),
+    ...mapGetters(["events", "eventColors"]),
     categories() {
       return this.$store.getters[lists.getters.ITEMS]("categories");
     }

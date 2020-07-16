@@ -29,6 +29,7 @@ export default class CalendarEvent {
     endTime,
     description,
     rvsp,
+    roles = null,
     organizer = null,
     category = null
   }) {
@@ -47,6 +48,7 @@ export default class CalendarEvent {
     this.rvsp = rvsp || false;
     this.organizer = organizer;
     this.category = category;
+    this.roles = roles;
   }
 
   get start() {

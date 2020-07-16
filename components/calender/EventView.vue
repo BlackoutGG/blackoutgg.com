@@ -52,13 +52,14 @@ export default {
   },
 
   start() {
-    return this.$dateFns.format(
-      this.$dateFns.parseISO(event.start),
-      "PPPPpppp"
+    return this.$dateFns.parseISO(
+      event.start || event.startDate + " " + event.startTime
     );
   },
   end() {
-    return this.$dateFns.format(this.$dateFns.parseISO(event.end), "PPPPpppp");
+    return this.$dateFns.parseISO(
+      event.end || event.endDate + " " + event.endTime
+    );
   }
 };
 </script>

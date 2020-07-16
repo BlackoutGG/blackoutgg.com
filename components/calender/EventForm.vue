@@ -2,13 +2,27 @@
   <v-form v-model="isValid" ref="form">
     <v-container>
       <v-row>
-        <v-col md="12" sm="12" v-if="!dontShow('name')">
+        <v-col md="10" sm="10" v-if="!dontShow('name')">
           <v-text-field
             :readonly="preview"
             :rules="nameRules"
             label="Event Name"
             v-model="event.name"
           ></v-text-field>
+        </v-col>
+        <v-col md="2" sm="2" v-if="!dontShow('color')">
+          <v-select :items="colors" v-model="event.color">
+            <template #selection="{ item }">
+              <v-icon :color="item" small>mdi-checkbox-blank-circle</v-icon>
+            </template>
+            <template #item="{ item, on, attrs }">
+              <v-list-item v-bind="attrs" v-on="on">
+                <v-list-item-content>
+                  <v-icon small :color="item">mdi-checkbox-blank-circle</v-icon>
+                </v-list-item-content>
+              </v-list-item>
+            </template>
+          </v-select>
         </v-col>
         <v-col md="12" sm="12" v-if="!dontShow('category')">
           <v-select
@@ -26,6 +40,7 @@
             v-if="!preview"
             label="Start Date"
             :rules="startDateRules"
+            :modifier="start"
             v-model="event.startDate"
           ></event-time-date>
           <v-text-field
@@ -42,6 +57,7 @@
             label="Start Time"
             v-model="event.startTime"
             time
+            :modifier="start"
             :rules="startTimeRules"
             :date="false"
           ></event-time-date>
@@ -95,13 +111,13 @@
 
 <script>
 import { lists } from "~/utilities/types/lists.js";
+import { events } from "~/utilities/types/events.js";
 import isAlphanumeric from "~/utilities/isAlphanumeric.js";
 import EventTimeDate from "./EventTimeDatePicker.vue";
-import EventColor from "./EventColorPicker.vue";
 
 export default {
   name: "EventForm",
-  components: { EventTimeDate, EventColor },
+  components: { EventTimeDate },
   props: {
     value: {
       type: Boolean,
@@ -131,18 +147,8 @@ export default {
         v => !!v || "Name is required.",
         v => (v && isAlphanumeric(v)) || "Name can only be alphanumeric."
       ],
-      startDateRules: [
-        v => !!v || "Start date is required.",
-        v =>
-          !this.$dateFns.isPast(this.$dateFns.parseISO(v + " " + "23:00")) ||
-          "Start date cannot be in the past."
-      ],
-      startTimeRules: [
-        v => !!v || "Start time is required.",
-        v =>
-          !this.$dateFns.isPast(this.parseStart) ||
-          "Start time cannot be in the past."
-      ],
+      startDateRules: [v => !!v || "Start date is required."],
+      startTimeRules: [v => !!v || "Start time is required."],
       endDateRules: [
         v =>
           (v &&
@@ -177,30 +183,44 @@ export default {
 
     start: {
       get() {
-        return this.event.start || this.event.startDate
-          ? this.event.startDate +
-              " " +
-              (this.event.startTime ? this.event.startTime : "00:00")
-          : "";
+        const startDate = this.event.startDate || this.now;
+        const startTime = this.event.startTime || "00:00";
+
+        return this.event.start || startDate + " " + startTime;
+
+        // return this.event.start || this.event.startDate
+        //   ? this.event.startDate +
+        //       " " +
+        //       (this.event.startTime ? this.event.startTime : "00:00")
+        //   : this.$dateFns.format(Date.now(), "yyyy/MM/dd");
       }
     },
 
     end: {
       get() {
-        return this.event.end || this.event.endDate
-          ? this.event.endDate +
-              " " +
-              (this.event.endTime ? this.event.endTime : "00:00")
-          : this.start;
+        const endDate = this.event.endDate || this.event.startDate;
+        const endTime = this.event.endTime || this.event.startTime;
+
+        return this.event.end || endDate + " " + endTime;
+
+        // return this.event.end || this.event.endDate
+        //   ? this.event.endDate +
+        //       " " +
+        //       (this.event.endTime ? this.event.endTime : "00:00")
+        //   : this.start;
       }
     },
 
-    parseStart() {
-      return this.start ? this.$dateFns.parseISO(this.start) : undefined;
+    now() {
+      return this.$dateFns.format(Date.now(), "yyyy-MM-dd");
     },
 
-    parseEnd() {
-      return this.end ? this.$dateFns.parseISO(this.end) : undefined;
+    parsedStart() {
+      return this.$dateFns.parseISO(this.start || this.now);
+    },
+
+    colors() {
+      return this.$store.getters[events.getters.EVENT_COLORS];
     },
 
     categories() {

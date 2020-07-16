@@ -3,6 +3,7 @@ import removeNamespace from "../removeNamespace";
 export const events = {
   getters: {
     EVENTS: "events/events",
+    EVENT_COLORS: "events/eventColors",
     GET_EVENT: "events/getEvent"
   },
   mutations: {
