@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import { events } from "~/utilities/types/events.js";
+import { events } from "~/utilities/ns/events.js";
 import EventForm from "./EventForm.vue";
 
 import EventOptions from "./EventDialogOptions.vue";

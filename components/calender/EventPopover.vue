@@ -34,7 +34,7 @@
 <script>
 import EventForm from "./EventForm.vue";
 import EventView from "./EventView.vue";
-import { events } from "~/utilities/types/events";
+import { events } from "~/utilities/ns/events.js";
 export default {
   name: "EventPopover",
 
@@ -44,14 +44,18 @@ export default {
     return {
       open: false,
       element: null,
-      id: null
+      event: {}
     };
   },
 
   methods: {
-    toggle(id, element) {
+    closeOnUpdate() {
+      this.open = false;
+    },
+
+    toggle(event, element) {
       const open = () => {
-        this.event = id;
+        this.event = event;
         this.element = element;
         setTimeout(() => (this.open = true), 10);
       };
@@ -72,19 +76,19 @@ export default {
       this.event = null;
       this.element = null;
     }
-  },
-
-  computed: {
-    event: {
-      get() {
-        return this.id
-          ? this.$store.getters[events.getters.GET_EVENT](this.id)
-          : {};
-      },
-      set(val) {
-        this.id = val;
-      }
-    }
   }
+
+  // computed: {
+  //   event: {
+  //     get() {
+  //       return this.id
+  //         ? this.$store.getters[events.getters.GET_EVENT](this.id)
+  //         : {};
+  //     },
+  //     set(val) {
+  //       this.id = val;
+  //     }
+  //   }
+  // }
 };
 </script>

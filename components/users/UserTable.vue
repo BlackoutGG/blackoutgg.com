@@ -56,14 +56,14 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex";
-import { users } from "~/utilities/types/users.js";
-import { roles } from "~/utilities/types/roles.js";
-import UserTableAvatar from "~/components/table/UserTableAvatar.vue";
-import UserTableRoles from "~/components/table/UserRoles.vue";
+import { users } from "~/utilities/ns/users.js";
+import { roles } from "~/utilities/ns/roles.js";
+import UserTableAvatar from "./UserTableAvatar.vue";
+import UserTableRoles from "./UserRoles.vue";
 import TableInput from "~/components/table/TableInput.vue";
 import TableActions from "~/components/table/TableActions.vue";
-import CreateDialog from "~/components/dialogs/CreateUserDialog.vue";
-import EditDialog from "~/components/dialogs/EditUserDialog.vue";
+import CreateDialog from "./CreateUserDialog.vue";
+import EditDialog from "./EditUserDialog.vue";
 
 const { mapGetters, mapMutations, mapActions } = createNamespacedHelpers(
   "users"

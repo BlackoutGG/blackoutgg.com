@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import UserTable from "~/components/table/UserTable.vue";
+import UserTable from "~/components/users/UserTable.vue";
 import hasScope from "~/middleware/auth.hasScope.js";
 import setPageTitle from "~/middleware/setPageTitle.js";
 

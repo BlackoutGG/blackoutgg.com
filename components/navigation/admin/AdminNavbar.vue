@@ -10,22 +10,22 @@
 </template>
 
 <script>
-import { PAGE } from "~/utilities/types.js";
+import { page } from "~/utilities/ns/page.js";
 import AdminUserMenu from "./AdminUserMenu";
 export default {
   name: "AdminNavbar",
   components: { AdminUserMenu },
   computed: {
     showDrawer() {
-      return this.$store.getters[PAGE.getters.ACPANEL];
+      return this.$store.getters[page.getters.ACPANEL];
     },
     title() {
-      return this.$store.getters[PAGE.getters.TITLE];
+      return this.$store.getters[page.getters.TITLE];
     }
   },
   methods: {
     toggleNav() {
-      this.$store.commit(PAGE.mutations.TOGGLE_ACPANEL, !this.showDrawer);
+      this.$store.commit(page.mutations.TOGGLE_ACPANEL, !this.showDrawer);
     }
   }
 };

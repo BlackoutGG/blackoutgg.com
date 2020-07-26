@@ -15,23 +15,23 @@
 </template>
 
 <script>
-import { SNACKBAR } from "~/utilities/types";
+import { snackbar } from "~/utilities/ns/snackbar.js";
 export default {
-  name: "SnackBar",
+  name: "snackbar",
   computed: {
     showBar: {
       get() {
-        return this.$store.getters[SNACKBAR.getters.DISPLAY];
+        return this.$store.getters[snackbar.getters.DISPLAY];
       },
       set(value) {
-        this.$store.dispatch(SNACKBAR.actions.TOGGLE_BAR, value);
+        this.$store.dispatch(snackbar.actions.TOGGLE_BAR, value);
       }
     },
     text() {
-      return this.$store.getters[SNACKBAR.getters.TEXT];
+      return this.$store.getters[snackbar.getters.TEXT];
     },
     options() {
-      const _options = this.$store.getters[SNACKBAR.getters.OPTIONS];
+      const _options = this.$store.getters[snackbar.getters.OPTIONS];
       return {
         color: _options.color ? _options.color : "#000",
         multiLine: _options.mode === "multi-line",

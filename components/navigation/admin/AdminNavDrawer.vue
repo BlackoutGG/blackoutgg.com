@@ -1,7 +1,7 @@
 <template>
   <v-navigation-drawer app v-model="show">
     <template v-if="$auth.loggedIn">
-      <large-avatar></large-avatar>
+      <user-avatar></user-avatar>
       <v-divider />
     </template>
     <v-list nav>
@@ -28,12 +28,12 @@
 </template>
 
 <script>
-import { PAGE } from "~/utilities/types.js";
-import LargeAvatar from "~/components/LargeAvatar.vue";
+import { page } from "~/utilities/ns/page.js";
+import UserAvatar from "~/components/avatar/UserAvatar.vue";
 import NavLink from "~/components/navigation/NavLink.vue";
 export default {
   name: "AdminNavDrawer",
-  components: { LargeAvatar, NavLink },
+  components: { UserAvatar, NavLink },
   data() {
     return {
       links: [
@@ -70,12 +70,7 @@ export default {
         {
           icon: "mdi-note-plus",
           title: "Applications",
-          button: true
-        },
-        {
-          icon: "mdi-form-select",
-          title: "Forms",
-          button: true
+          to: "/admin/applications"
         },
         {
           icon: "mdi-calendar-range",
@@ -88,10 +83,10 @@ export default {
   computed: {
     show: {
       get() {
-        return this.$store.getters[PAGE.getters.ACPANEL];
+        return this.$store.getters[page.getters.ACPANEL];
       },
       set(value) {
-        this.$store.commit(PAGE.mutations.TOGGLE_ACPANEL, value);
+        this.$store.commit(page.mutations.TOGGLE_ACPANEL, value);
       }
     }
   }

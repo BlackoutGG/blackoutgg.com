@@ -1,4 +1,4 @@
-import { _snackbar as types } from "~/utilities/types/snackbar.js";
+import { _snackbar as types } from "~/utilities/ns/snackbar.js";
 
 const defaultOptions = {
   x: null,

@@ -1,5 +1,5 @@
-import { _roles as types } from "~/utilities/types/roles.js";
-import { snackbar } from "~/utilities/types/snackbar.js";
+import { _roles as types } from "~/utilities/ns/roles.js";
+import { snackbar } from "~/utilities/ns/snackbar.js";
 
 const state = () => ({
   roles: [],

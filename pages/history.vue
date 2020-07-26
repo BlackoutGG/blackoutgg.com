@@ -3,7 +3,6 @@
 </template>
 
 <script>
-import { PAGE } from "~/utilities/types";
 import setTitle from "~/middleware/setPageTitle.js";
 export default {
   name: "History",

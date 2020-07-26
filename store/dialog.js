@@ -1,18 +1,15 @@
-import { DIALOG } from "~/utilities/types";
-import removeNamespace from "~/utilities/removeNamespace";
-
-const Types = removeNamespace("dialog/", DIALOG);
+import { _dialogs as types } from "~/utilities/ns/dialogs.js";
 
 const state = () => ({
   dialog: ""
 });
 
 const getters = {
-  [Types.getters.SHOW]: state => value => state.dialog === value
+  [types.getters.SHOW]: state => value => state.dialog === value
 };
 
 const mutations = {
-  [Types.mutations.TOGGLE](state, dialog) {
+  [types.mutations.TOGGLE](state, dialog) {
     state.dialog = dialog;
   }
 };

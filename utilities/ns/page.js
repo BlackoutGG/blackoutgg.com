@@ -1,4 +1,6 @@
-export default {
+import removeNamespace from "../removeNamespace";
+
+export const page = {
   getters: {
     TITLE: "page/title",
     MOBILE: "page/mobile",
@@ -10,3 +12,5 @@ export default {
     TOGGLE_ACPANEL: "page/TOGGLE_ACPANEL"
   }
 };
+
+export const _page = removeNamespace("page/", page);

@@ -1,7 +1,7 @@
 <template>
   <v-menu class="hidden-sm-and-down" v-model="menu" :close-on-content-click="false" offset-y>
     <template v-slot:activator="{ on }">
-      <v-avatar color="primary" v-on="on" class="hidden-sm-and-down">
+      <v-avatar class="user-panel-avatar hidden-sm-and-down" color="grey" v-on="on">
         <span class="white--text headline">{{initials}}</span>
       </v-avatar>
     </template>
@@ -71,3 +71,9 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+.user-panel-avatar {
+  cursor: pointer;
+}
+</style>

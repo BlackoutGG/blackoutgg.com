@@ -24,7 +24,7 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex";
-import { LISTS } from "~/utilities/types.js";
+import { lists } from "~/utilities/ns/lists.js";
 
 const { mapGetters, mapActions } = createNamespacedHelpers("lists");
 

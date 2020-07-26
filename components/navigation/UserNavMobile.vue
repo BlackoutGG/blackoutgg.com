@@ -7,16 +7,10 @@
     <template v-else>
       <v-list>
         <nav-link
-          :title="'Sign Up'"
+          :title="'Sign In'"
           :icon="'mdi-account-circle'"
           :button="true"
-          @click.native="toggleDialog('login')"
-        ></nav-link>
-        <nav-link
-          :title="'Register'"
-          :icon="'mdi-account-plus'"
-          :button="true"
-          @click.native="toggleDialog('register')"
+          @click.native="$emit('toggle')"
         ></nav-link>
       </v-list>
       <v-divider></v-divider>
@@ -45,33 +39,32 @@
 </template>
 
 <script>
-import { PAGE, DIALOG } from "~/utilities/types";
+import { page } from "~/utilities/ns/page.js";
+import { dialogs } from "~/utilities/ns/dialogs.js";
 import UserPanelMobile from "./UserPanelMobile.vue";
 import NavLink from "./NavLink.vue";
 export default {
   name: "UserNavMobile",
   components: { UserPanelMobile, NavLink },
-  data() {
-    return {
-      links: [
-        { icon: "mdi-home", title: "Home", to: "/" },
-        { icon: "mdi-book", title: "Guides", to: "/guides" },
-        { icon: "mdi-information", title: "History", to: "/history" }
-      ]
-    };
-  },
-  methods: {
-    toggleDialog(value) {
-      this.$store.commit(DIALOG.mutations.TOGGLE, value);
+
+  props: {
+    value: {
+      type: Boolean,
+      default: false
+    },
+    links: {
+      type: Array,
+      default: () => []
     }
   },
+
   computed: {
     show: {
       get() {
-        return this.$store.getters[PAGE.getters.MOBILE];
+        return this.value;
       },
-      set(value) {
-        this.$store.commit(PAGE.mutations.SET_MOBILE, value);
+      set(val) {
+        this.$emit("input", val);
       }
     }
   }

@@ -14,8 +14,6 @@ export default {
     }
   },
 
-  created() {},
-
   computed: {
     initials() {
       const initials = this.item.username.match(/\b\w/g) || [];

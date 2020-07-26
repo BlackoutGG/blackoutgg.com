@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import RoleTable from "~/components/table/RoleTable.vue";
+import RoleTable from "~/components/roles/RoleTable.vue";
 import hasScope from "~/middleware/auth.hasScope.js";
 import setPageTitle from "~/middleware/setPageTitle.js";
 export default {

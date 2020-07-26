@@ -59,12 +59,11 @@
 </template>
 
 <script>
-import DialogInput from "./DialogInput.vue";
-import RoleSelect from "./RoleSelect.vue";
-import avatar from "~/mixins/avatar.js";
+import DialogInput from "~/components/dialogs/DialogInput.vue";
+import RoleSelect from "./UserRoleSelect.vue";
 
 import { createNamespacedHelpers } from "vuex";
-import { users as types } from "~/utilities/types/users.js";
+import { users as types } from "~/utilities/ns/users.js";
 import pick from "lodash/pick";
 
 const { mapGetters } = createNamespacedHelpers("users");
@@ -215,6 +214,7 @@ export default {
     username() {
       return this.inputs.username.value;
     },
+
     initials() {
       const username = this.username ? this.username.match(/\b\w/g) : null;
       const initials = username

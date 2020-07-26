@@ -1,7 +1,7 @@
 import CalendarEvent from "~/components/calender/Event.js";
 import pick from "lodash/pick";
-import { snackbar } from "~/utilities/types/snackbar.js";
-import { _events as types } from "~/utilities/types/events.js";
+import { snackbar } from "~/utilities/ns/snackbar.js";
+import { _events as types } from "~/utilities/ns/events.js";
 
 const props = [
   "name",

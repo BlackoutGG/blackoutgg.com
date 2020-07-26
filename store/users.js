@@ -1,5 +1,5 @@
-import { _users as types } from "~/utilities/types/users.js";
-import { snackbar } from "~/utilities/types/snackbar.js";
+import { _users as types } from "~/utilities/ns/users.js";
+import { snackbar } from "~/utilities/ns/snackbar.js";
 
 const state = () => ({
   users: [],

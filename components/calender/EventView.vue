@@ -47,19 +47,22 @@ export default {
 
   props: {
     event: {
-      type: Object
+      type: Object,
+      required: true
     }
   },
 
-  start() {
-    return this.$dateFns.parseISO(
-      event.start || event.startDate + " " + event.startTime
-    );
-  },
-  end() {
-    return this.$dateFns.parseISO(
-      event.end || event.endDate + " " + event.endTime
-    );
+  computed: {
+    start() {
+      return this.$dateFns.parseISO(
+        this.event.start || this.event.startDate + " " + this.event.startTime
+      );
+    },
+    end() {
+      return this.$dateFns.parseISO(
+        this.event.end || this.event.endDate + " " + this.event.endTime
+      );
+    }
   }
 };
 </script>

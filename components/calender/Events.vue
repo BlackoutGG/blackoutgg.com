@@ -62,13 +62,17 @@
 </template>
 
 <script>
-import { lists } from "~/utilities/types/lists.js";
+import { lists } from "~/utilities/ns/lists.js";
 import EventListItem from "./EventListItem.vue";
 import EventDialog from "./EventDialog.vue";
 import EventPopover from "./EventPopover.vue";
 import { createNamespacedHelpers } from "vuex";
 
 const { mapGetters, mapActions } = createNamespacedHelpers("events");
+
+const toTimestamp = str => {
+  return Math.round(new Date(str).replace(/-/g, "/").getTime() / 1000);
+};
 
 export default {
   name: "EventsCalendar",
@@ -107,7 +111,7 @@ export default {
     },
 
     showEvent({ nativeEvent, event }) {
-      this.$refs.popover.toggle(event.id, nativeEvent.target);
+      this.$refs.popover.toggle(event, nativeEvent.target);
       nativeEvent.stopPropagation();
     },
 
@@ -117,20 +121,22 @@ export default {
     },
 
     next() {
+      // this.$refs.popover.closeOnUpdate();
+      // this.$nextTick(() => this.$refs.event.next());
       this.$refs.event.next();
     },
 
     prev() {
+      // this.$refs.popover.closeOnUpdate();
+      // this.$nextTick(() => this.$refs.event.prev());
       this.$refs.event.prev();
     },
 
     fetch({ start, end }) {
-      console.log(start, end);
       this.month = start.month;
       this.year = start.year;
+
       this.fetchEvents({
-        month: start.month,
-        year: start.year,
         start: start.date,
         end: end.date
       });
@@ -140,7 +146,8 @@ export default {
   computed: {
     ...mapGetters(["events", "eventColors"]),
     categories() {
-      return this.$store.getters[lists.getters.ITEMS]("categories");
+      const cats = this.$store.getters[lists.getters.ITEMS]("categories");
+      return [{ id: 0, name: "all" }, ...cats];
     }
   }
 };

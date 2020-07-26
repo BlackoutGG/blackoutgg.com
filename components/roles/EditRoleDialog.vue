@@ -49,11 +49,11 @@
 </template>
 
 <script>
-import DialogInput from "./DialogInput.vue";
+import DialogInput from "~/components/dialogs/DialogInput.vue";
 import RolePerms from "./RolePermList.vue";
 
 import { createNamespacedHelpers } from "vuex";
-import { roles as types } from "~/utilities/types/roles.js";
+import { roles } from "~/utilities/ns/roles.js";
 
 const { mapGetters, mapActions } = createNamespacedHelpers("roles");
 
@@ -127,7 +127,7 @@ export default {
         }
 
         if (this.mode === "edit") {
-          await this.$store.dispatch(types.actions.EDIT_ROLE, {
+          await this.$store.dispatch(roles.actions.EDIT_ROLE, {
             id: this.roleId,
             payload: data
           });
@@ -135,7 +135,7 @@ export default {
           this.startingValues = this.setStartingValues(this._role.permissions);
           this.startingTitle = this._role.name;
         } else {
-          this.$store.dispatch(types.actions.ADD_ROLE, data);
+          this.$store.dispatch(roles.actions.ADD_ROLE, data);
 
           this.title = "";
           this.startingTitle = "";

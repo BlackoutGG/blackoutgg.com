@@ -1,9 +1,10 @@
-import { _lists as types } from "~/utilities/types/lists.js";
-import { snackbar } from "~/utilities/types/snackbar.js";
+import { _lists as types } from "~/utilities/ns/lists.js";
+import { snackbar } from "~/utilities/ns/snackbar.js";
 
 const state = () => ({
   items: {
     categories: [],
+    forms: [],
     tags: []
   },
   selected: [],
@@ -46,10 +47,10 @@ const actions = {
       // const list = data[type].results;
       // const value = data[type].total;
 
-      const list =
-        type === "categories"
-          ? [{ id: 0, name: "all" }, ...data[type]]
-          : data[type];
+      // const list =
+      //   type === "categories"
+      //     ? [{ id: 0, name: "all" }, ...data[type]]
+      //     : data[type];
 
       commit(types.mutations.SET_LIST, { type, list });
       // commit(types.mutations.SET_PARAM, { param: "total", value });

@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center">
-    <v-btn color="#7289da" large @click="oauth2">
+    <v-btn :color="color" large @click="oauth2">
       <v-icon>mdi-discord</v-icon>
       <span class="pl-2">{{label}}</span>
     </v-btn>
@@ -22,6 +22,7 @@ export default {
   data() {
     return {
       name: "authorize",
+      color: "#7289da",
       specs: {
         width: "600px",
         directories: false,

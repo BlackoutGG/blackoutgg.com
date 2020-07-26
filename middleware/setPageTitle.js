@@ -1,3 +1,3 @@
-import { PAGE } from "~/utilities/types";
+import { page } from "~/utilities/ns/page.js";
 export default title => ({ store }) =>
-  store.commit(PAGE.mutations.SET_TITLE, title);
+  store.commit(page.mutations.SET_TITLE, title);

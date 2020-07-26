@@ -46,15 +46,15 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex";
-import { roles } from "~/utilities/types/roles.js";
+import { roles } from "~/utilities/ns/roles.js";
 
 const { mapGetters, mapActions, mapMutations } = createNamespacedHelpers(
   "roles"
 );
 
-import TableActions from "./TableActions.vue";
-import TableInput from "./TableInput.vue";
-import EditRole from "~/components/dialogs/EditRoleDialog.vue";
+import TableActions from "~/components/table/TableActions.vue";
+import TableInput from "~/components/table/TableInput.vue";
+import EditRole from "./EditRoleDialog.vue";
 
 export default {
   name: "RoleTable",
