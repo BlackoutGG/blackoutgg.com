@@ -1,11 +1,8 @@
 <template>
   <v-app dark>
-    <user-navbar />
-
-    <video-banner />
-    <v-main>
-      <nuxt />
-    </v-main>
+    <user-navbar keep-alive />
+    <nuxt v-if="!$slots.default" />
+    <slot />
     <v-footer />
     <snack-bar />
   </v-app>

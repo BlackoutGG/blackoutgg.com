@@ -44,13 +44,8 @@ const actions = {
         params: { ...state.queryParams }
       });
 
-      // const list = data[type].results;
+      const list = data[type];
       // const value = data[type].total;
-
-      // const list =
-      //   type === "categories"
-      //     ? [{ id: 0, name: "all" }, ...data[type]]
-      //     : data[type];
 
       commit(types.mutations.SET_LIST, { type, list });
       // commit(types.mutations.SET_PARAM, { param: "total", value });

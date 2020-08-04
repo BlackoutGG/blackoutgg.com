@@ -1,5 +1,5 @@
 <script>
-import { VSelect, VTextField, VTextarea, VCheckbox, VRadio } from "vuetify/lib";
+import { VTextField, VTextarea } from "vuetify/lib";
 
 const propFilter = {
   textfield: ["value", "outlined", "fill", "label", "readonly"],
@@ -54,18 +54,12 @@ export default {
   },
 
   methods: {
-    renderComponent() {
+    getComponent() {
       switch (this.type) {
         case "textfield":
           return VTextField;
         case "textarea":
           return VTextarea;
-        case "select":
-          return VSelect;
-        case "multiple":
-          return VRadioGroup;
-        case "checkbox":
-          return VCheckbox;
         default:
           break;
       }
@@ -92,7 +86,7 @@ export default {
       }
     };
 
-    const Component = this.renderComponent();
+    const Component = this.getComponent();
 
     return h(Component, options);
   }

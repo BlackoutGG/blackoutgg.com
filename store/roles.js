@@ -72,11 +72,12 @@ const mutations = {
 
 const actions = {
   async [types.actions.FETCH]({ commit, dispatch, state }, msg) {
-    const url = state.perms.length ? "/api/roles" : "/api/admin/roles";
     try {
-      const { data } = await this.$axios.get(url, {
+      const { data } = await this.$axios.get("/api/roles", {
         params: { ...state.queryParams }
       });
+
+      console.log(data.perms);
 
       if (data.perms && data.perms.length) {
         commit(types.mutations.SET_PERM_LIST, data.perms);

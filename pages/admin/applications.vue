@@ -5,7 +5,8 @@
 </template>
 
 <script>
-import { lists as categories } from "~/utilities/ns/lists.js";
+import { lists } from "~/utilities/ns/lists.js";
+import { forms } from "~/utilities/ns/forms.js";
 import setPageTitle from "~/middleware/setPageTitle.js";
 import FormTemplateTable from "~/components/applications/FormTemplateTable.vue";
 export default {
@@ -20,7 +21,11 @@ export default {
     "auth",
     setPageTitle("View Applications"),
     ({ store }) => {
-      store.dispatch(categories.actions.FETCH, "categories");
+      const categories = store.getters[lists.getters.ITEMS]("categories");
+      if (!categories.length) {
+        store.dispatch(lists.actions.FETCH, "categories");
+      }
+      store.dispatch(forms.actions.FETCH);
     }
   ]
 };

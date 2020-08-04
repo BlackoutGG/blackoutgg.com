@@ -1,23 +1,27 @@
 <template>
-  <v-container fluid>
-    <event-calendar />
-  </v-container>
+  <v-main>
+    <parallax-banner></parallax-banner>
+    <v-container fluid>
+      <event-calender />
+    </v-container>
+  </v-main>
 </template>
 
 <script>
-import EventCalendar from "~/components/events/Events.vue";
+import EventCalender from "~/components/events/Events.vue";
+import ParallaxBanner from "~/components/Parallax.vue";
 import setPageTitle from "~/middleware/setPageTitle.js";
 import hasScope from "~/middleware/auth.hasScope.js";
 import { lists } from "~/utilities/ns/lists.js";
 export default {
   name: "Events",
-  layout: "admin",
+  layout: "default",
 
-  components: { EventCalendar },
+  components: { EventCalender, ParallaxBanner },
   middleware: [
     "auth",
     hasScope("events:view"),
-    setPageTitle("View Events"),
+    setPageTitle("Events"),
     ({ store }) => {
       const categories = store.getters[lists.getters.ITEMS]("categories");
       if (!categories.length) {

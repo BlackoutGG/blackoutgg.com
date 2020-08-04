@@ -1,4 +1,4 @@
-import CalendarEvent from "~/components/calender/Event.js";
+import CalendarEvent from "~/components/events/CalendarEvent.js";
 import pick from "lodash/pick";
 import { snackbar } from "~/utilities/ns/snackbar.js";
 import { _events as types } from "~/utilities/ns/events.js";

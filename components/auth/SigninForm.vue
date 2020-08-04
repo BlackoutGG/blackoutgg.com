@@ -52,6 +52,9 @@
       <v-btn text color="dark darken-1" :disabled="isDisabled" @click.prevent="signIn">Submit</v-btn>
       <v-btn text color="dark darken-1" @click="reset">Reset</v-btn>
     </v-card-actions>
+    <v-overlay absolute v-model="isSending">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </v-tab-item>
 </template>
 

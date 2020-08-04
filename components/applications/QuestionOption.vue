@@ -1,5 +1,5 @@
 <template>
-  <v-col md="8">
+  <v-col cols="8">
     <v-text-field @focus="addOption" v-model="computedValue" :placeholder="label" :label="label">
       <template #append-outer>
         <slot />

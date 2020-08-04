@@ -1,19 +1,24 @@
 <template>
-  <v-container dark id="home" class="pa-0" fluid>
-    <div v-for="(block, idx) in blocks" :key="idx + 1">
-      <div class="py-12"></div>
-      <info-block :idx="idx" :data="block" />
-      <div class="py-12" v-if="idx === blocks.length - 1"></div>
-    </div>
-  </v-container>
+  <v-main>
+    <video-banner />
+    <v-container dark id="home" class="pa-0" fluid>
+      <div v-for="(block, idx) in blocks" :key="idx + 1">
+        <div class="py-12"></div>
+        <info-block :idx="idx" :data="block" />
+        <div class="py-12" v-if="idx === blocks.length - 1"></div>
+      </div>
+    </v-container>
+  </v-main>
 </template>
 
 <script>
 import InfoBlock from "~/components/frontpage/InfoBlock.vue";
+import VideoBanner from "~/components/frontpage/VideoBanner.vue";
 export default {
   name: "Home",
-  layout: "frontpage",
-  components: { InfoBlock },
+  layout: "default",
+
+  components: { InfoBlock, VideoBanner },
   data() {
     return {
       blocks: [

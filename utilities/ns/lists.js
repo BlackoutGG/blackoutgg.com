@@ -8,7 +8,8 @@ export const lists = {
   },
   mutations: {
     SET_LIST: "lists/SET_LIST",
-    SET_SELECTED: "lists/SET_SELECTED"
+    SET_SELECTED: "lists/SET_SELECTED",
+    SET_PARAM: "lists/SET_PARAM"
   },
   actions: {
     FETCH: "lists/fetchList"

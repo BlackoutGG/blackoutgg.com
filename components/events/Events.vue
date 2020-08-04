@@ -2,7 +2,7 @@
   <v-row>
     <v-col>
       <v-sheet height="64">
-        <v-toolbar flat color="white">
+        <v-toolbar flat>
           <event-dialog ref="dialog" v-if="$auth.hasScope('events:add')"></event-dialog>
           <v-btn outlined class="mr-4" color="grey darken-2">Today</v-btn>
           <v-btn fab text small color="grey darken-2" @click="prev">
@@ -44,7 +44,7 @@
       </v-sheet>
       <v-sheet height="600">
         <v-calendar
-          ref="event"
+          ref="events"
           v-model="focus"
           color="primary"
           :events="events"
@@ -81,8 +81,6 @@ export default {
     return {
       category: "All",
       focus: "",
-      month: null,
-      year: null,
       types: ["day", "week", "month", "4day"],
       type: "month",
       typeToLabel: {
@@ -95,7 +93,7 @@ export default {
   },
 
   mounted() {
-    this.$refs.event.checkChange();
+    this.$refs.events.checkChange();
     this.$auth.hasScope("events:add");
   },
 
@@ -121,21 +119,14 @@ export default {
     },
 
     next() {
-      // this.$refs.popover.closeOnUpdate();
-      // this.$nextTick(() => this.$refs.event.next());
-      this.$refs.event.next();
+      this.$refs.events.next();
     },
 
     prev() {
-      // this.$refs.popover.closeOnUpdate();
-      // this.$nextTick(() => this.$refs.event.prev());
-      this.$refs.event.prev();
+      this.$refs.events.prev();
     },
 
     fetch({ start, end }) {
-      this.month = start.month;
-      this.year = start.year;
-
       this.fetchEvents({
         start: start.date,
         end: end.date

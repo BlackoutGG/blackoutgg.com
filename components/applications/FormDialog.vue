@@ -10,7 +10,7 @@
     <v-card :max-width="maxWidth">
       <v-toolbar dark>
         <v-toolbar-title>
-          <span>Form Template</span>
+          <span>Create A Form</span>
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn icon @click="open = false">
@@ -39,8 +39,11 @@
       </v-tabs-items>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn text :disabled="isDisabled">
+        <v-btn text :disabled="isDisabled" @click="save">
           <span>Save</span>
+        </v-btn>
+        <v-btn text :disabled="isDisabled">
+          <span>Reset</span>
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -48,6 +51,7 @@
 </template>
 
 <script>
+import { forms } from "~/utilities/ns/forms.js";
 import FormTemplate from "./FormTemplate.vue";
 import FormPreview from "./FormPreview.vue";
 export default {
@@ -60,13 +64,22 @@ export default {
       valid: false,
       open: false,
       tab: null,
-      maxWidth: "800px"
+      maxWidth: "800px",
+
+      startingValues: null,
+      mode: "new"
     };
+  },
+
+  methods: {
+    save() {
+      this.$store.dispatch(forms.actions.ADD_FORM);
+    }
   },
 
   computed: {
     isDisabled() {
-      return !this.tab || !this.valid;
+      return this.tab > 0 || !this.valid;
     }
   }
 };

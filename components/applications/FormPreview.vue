@@ -1,21 +1,28 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols="12" md="12" sm="12">
-        <v-select :items="categoryList" :item-text="'name'" label="Category" :item-value="'id'"></v-select>
+      <v-col cols="12">
+        <v-select
+          :form="categoryList"
+          :item-text="'name'"
+          label="Category"
+          :item-value="'id'"
+          v-model="category"
+        ></v-select>
       </v-col>
-      <v-col cols="12" md="12" sm="12">
-        <v-textarea readonly v-model="questions.description" outlined label="Description" counter></v-textarea>
+      <v-col cols="12">
+        <v-textarea readonly v-model="description" outlined label="Description" counter></v-textarea>
       </v-col>
     </v-row>
     <v-row v-for="(question, idx) in questions" :key="idx">
-      <v-col md="12" sm="12">
+      <v-col cols="12">
         <div class="text--subtitle-1 font-weight-medium">
-          <span>Question {{idx+1}}</span>
+          <span>Question {{ idx + 1 }}</span>
         </div>
-        <p class="text--white">{{question.value}}</p>
+        <p class="text--white">{{ question.value }}</p>
         <template v-if="!question.options.length">
-          <field :type="question.type" />
+          <v-text-field v-if="question.type === 'textfield'"></v-text-field>
+          <v-textarea v-else></v-textarea>
         </template>
         <template v-else>
           <template v-if="question.type === 'multiple'">
@@ -33,7 +40,7 @@
             ></v-checkbox>
           </template>
           <template v-else>
-            <v-select :items="question.options" :item-text="'value'" :item-value="'value'"></v-select>
+            <v-select :form="question.options" :item-text="'value'" :item-value="'value'"></v-select>
           </template>
         </template>
       </v-col>
@@ -42,13 +49,17 @@
 </template>
 
 <script>
-import Field from "./Field.vue";
+import { lists } from "~/utilities/ns/lists.js";
 import { forms } from "~/utilities/ns/forms.js";
-import { lists as categories } from "~/utilities/ns/lists.js";
+
 export default {
   name: "FormPreview",
 
-  components: { Field },
+  props: {
+    form: {
+      type: [Array, Object]
+    }
+  },
 
   data() {
     return {
@@ -56,15 +67,42 @@ export default {
     };
   },
 
+  methods: {
+    getter(getter) {
+      return this.$store.getters[getter];
+    }
+  },
+
   computed: {
     questions() {
-      return this.$store.getters[forms.getters.QUESTIONS];
+      return this.form
+        ? this.form.fields
+        : this.getter(forms.getters.QUESTIONS);
     },
-    description() {
-      return this.$store.getters[forms.getters.DESCRIPTION];
+    description: {
+      get() {
+        return this.form
+          ? this.form.description
+          : this.getter(forms.getters.QUESTIONS);
+      },
+      set(value) {
+        if (this.form) this.$emit("input", value);
+        else this.$store.commit(forms.mutations.SET_DESCRIPTION, value);
+      }
     },
     categoryList() {
-      return this.$store.getters[categories.getters.ITEMS]("categories");
+      return this.getter(lists.getters.ITEMS)("categories");
+    },
+    category: {
+      get() {
+        return this.form
+          ? this.form.category.id
+          : this.getter(forms.getters.CATEGORY);
+      },
+      set(value) {
+        if (this.form) this.$emit("input", value);
+        else this.$store.commit(forms.mutations.SET_CATEGORY, value);
+      }
     }
   }
 };

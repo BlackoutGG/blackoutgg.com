@@ -6,6 +6,9 @@
           <v-select :items="categoryList" :item-text="'name'" label="Category" :item-value="'id'"></v-select>
         </v-col>
         <v-col cols="12" md="12" sm="12">
+          <v-text-field v-model="name" label="Name"></v-text-field>
+        </v-col>
+        <v-col cols="12" md="12" sm="12">
           <v-textarea v-model="description" outlined label="Description" counter></v-textarea>
         </v-col>
       </v-row>
@@ -37,8 +40,7 @@ export default {
   data() {
     return {
       valid: false,
-      open: false,
-      description: ""
+      open: false
     };
   },
 
@@ -54,6 +56,22 @@ export default {
     },
     questions() {
       return this.$store.getters[forms.getters.QUESTIONS];
+    },
+    name: {
+      get() {
+        return this.$store.getters[forms.getters.NAME];
+      },
+      set(value) {
+        this.$store.commit(forms.mutations.SET_NAME, value);
+      }
+    },
+    description: {
+      get() {
+        return this.$store.getters[forms.getters.DESCRIPTION];
+      },
+      set(value) {
+        this.$store.commit(forms.mutations.SET_DESCRIPTION, value);
+      }
     },
     isValid: {
       get() {

@@ -46,8 +46,11 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn text color="dark darken-1" :disabled="isDisabled">Submit</v-btn>
+      <v-btn text color="dark darken-1" :disabled="isDisabled" @click="signUp">Submit</v-btn>
     </v-card-actions>
+    <v-overlay absolute v-model="isSending">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </v-tab-item>
 </template>
 
@@ -65,10 +68,6 @@ export default {
   components: { Divider, DiscordButton, VueRecaptcha },
 
   mixins: [recaptcha],
-
-  mounted() {
-    console.log(this.$refs);
-  },
 
   data() {
     return {
@@ -142,7 +141,7 @@ export default {
     },
 
     async signUp() {
-      const { confirm, ...data } = Object.entries(this.inputs).reduce(
+      const { confirm, ...creds } = Object.entries(this.inputs).reduce(
         (obj, [key, item]) => {
           obj[key] = item.value;
           return obj;
@@ -152,14 +151,16 @@ export default {
       try {
         const {
           data: { user }
-        } = await this.$axios.post("/users", data);
+        } = await this.$axios.post("/api/users/register", creds);
 
         this.reset();
 
         const text = `Thank you, ${user.username} an email has been dispatched to ${user.email}.`;
 
         this.$store.dispatch(snackbar.actions.TOGGLE_BAR, { text });
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
     }
   },
 

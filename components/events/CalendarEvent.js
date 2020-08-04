@@ -40,9 +40,9 @@ export default class CalendarEvent {
     this.day = day || parseInt(dates[2], 10);
     this.name = name;
     this.color = color || "#000000";
-    this.startDate = startDate;
+    this.startDate = startDate.split("T")[0];
     this.startTime = startTime;
-    this.endDate = endDate || startDate;
+    this.endDate = endDate.split("T")[0] || startDate;
     this.endTime = endTime || startTime;
     this.description = description;
     this.rvsp = rvsp || false;

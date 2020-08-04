@@ -2,7 +2,6 @@
   <v-data-table
     id="forms"
     show-select
-    class="elevaton-1"
     v-model="selected"
     :items="forms"
     :headers="headers"
@@ -11,20 +10,26 @@
   >
     <template #top>
       <v-toolbar>
-        <v-toolbar-title>
-          <span>Form Templates</span>
-        </v-toolbar-title>
         <v-spacer></v-spacer>
         <form-dialog ref="formDialog"></form-dialog>
       </v-toolbar>
     </template>
+    <!-- <template #item.status="{ item }">
+      <v-btn icon @click.native="setFormStatus(item)">
+        <v-icon v-if="item.status">mdi-check-bold</v-icon>
+        <v-icon v-else>mdi-close-thick</v-icon>
+      </v-btn>
+    </template>-->
   </v-data-table>
 </template>
 
 <script>
 import { createNamespacedHelpers } from "vuex";
+import { _forms as forms } from "~/utilities/ns/forms.js";
 
-const { mapGetters, mapActions } = createNamespacedHelpers("lists");
+const { mapGetters, mapMutations, mapActions } = createNamespacedHelpers(
+  "forms"
+);
 
 import FormDialog from "./FormDialog.vue";
 export default {
@@ -34,23 +39,40 @@ export default {
 
   data() {
     return {
-      headers: [],
-      selected: []
+      headers: [
+        // { text: "name", align: "start", value: "name" },
+        // { text: "category", sortable: true, value: "category" },
+        // { text: "status", sortable: true, value: "status" },
+        // { text: "created_at", sortable: true, value: "created_at" },
+        // { text: "updated_at", sortable: true, value: "updated_at" },
+        // { text: "" }
+      ]
     };
   },
 
   methods: {
-    ...mapActions(["setParam"])
+    /**
+     * this.setParam()
+     */
+    ...mapMutations([forms.mutations.SET_PARAM]),
+    /**
+     * this.fetchForms()
+     * this.setFormStatus()
+     */
+    ...mapActions([forms.actions.FETCH, forms.actions.SET_STATUS])
   },
 
   computed: {
-    ...mapGetters(["queryParams", "items"]),
-    forms() {
-      return this.items("forms");
-    },
-    categoryList() {
-      return this.items("categories");
-    }
+    /**
+     * this.queryParams()
+     * this.forms()
+     * this.selected()
+     */
+    ...mapGetters([
+      forms.getters.QUERY_PARAMS,
+      forms.getters.FORMS,
+      forms.getters.SELECTED
+    ])
   }
 };
 </script>

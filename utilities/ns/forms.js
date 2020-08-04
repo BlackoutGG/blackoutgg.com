@@ -5,7 +5,11 @@ export const forms = {
     QUESTIONS: "forms/questions",
     DESCRIPTION: "forms/description",
     CATEGORY: "forms/category",
-    GET_OPTION: "forms/getOption"
+    NAME: "forms/name",
+    VALID_FIELDS: "forms/validFields",
+    QUERY_PARAMS: "forms/queryParams",
+    SELECTED: "forms/selected",
+    FORMS: "forms/forms"
   },
   mutations: {
     ADD_QUESTION: "forms/addQuestion",
@@ -18,7 +22,16 @@ export const forms = {
     REMOVE_QUESTION: "forms/removeQuestion",
     REMOVE_OPTION: "forms/removeOption",
     SET_DESCRIPTION: "forms/setDescription",
-    SET_CATEGORY: "forms/setCategory"
+    SET_NAME: "forms/setName",
+    SET_CATEGORY: "forms/setCategory",
+    SET_FORMS: "forms/setForms",
+    SET_PARAM: "forms/setParam",
+    SET_FORM_STATUS: "forms/setFormStatus"
+  },
+  actions: {
+    ADD_FORM: "forms/addForm",
+    SET_STATUS: "forms/setStatus",
+    FETCH: "forms/fetchForms"
   }
 };
 
