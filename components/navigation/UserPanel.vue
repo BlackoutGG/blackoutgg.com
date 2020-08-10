@@ -19,7 +19,12 @@
       </v-list>
       <v-list>
         <nav-link v-for="(l, idx) in links" :title="l.title" :icon="l.icon" :key="idx" />
-        <nav-link :title="'Admin'" :icon="'mdi-shield'" :to="'/admin'" />
+        <nav-link
+          :title="'Admin'"
+          :icon="'mdi-shield'"
+          :to="'/admin'"
+          v-if="$auth.hasScope('admin:view')"
+        />
         <v-divider></v-divider>
         <nav-link :title="'Logout'" :icon="'mdi-logout'" :button="true" @click.native="logout" />
       </v-list>

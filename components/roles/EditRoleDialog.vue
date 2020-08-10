@@ -53,7 +53,7 @@ import DialogInput from "~/components/dialogs/DialogInput.vue";
 import RolePerms from "./RolePermList.vue";
 
 import { createNamespacedHelpers } from "vuex";
-import { roles } from "~/utilities/ns/roles.js";
+import roles from "~/utilities/ns/public/roles.js";
 
 const { mapGetters, mapActions } = createNamespacedHelpers("roles");
 

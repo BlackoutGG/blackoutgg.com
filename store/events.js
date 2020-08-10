@@ -1,7 +1,7 @@
 import CalendarEvent from "~/components/events/CalendarEvent.js";
 import pick from "lodash/pick";
-import { snackbar } from "~/utilities/ns/snackbar.js";
-import { _events as types } from "~/utilities/ns/events.js";
+import snackbar from "~/utilities/ns/public/snackbar.js";
+import NS from "~/utilities/ns/private/events.js";
 
 const props = [
   "name",
@@ -22,21 +22,20 @@ const state = () => ({
 });
 
 const getters = {
-  [types.getters.EVENTS]: state => state.events,
-  [types.getters.EVENT_COLORS]: state => state.colors,
-  [types.getters.GET_EVENT]: state => id =>
-    state.events.find(evt => evt.id === id)
+  [NS.getters.EVENTS]: state => state.events,
+  [NS.getters.EVENT_COLORS]: state => state.colors,
+  [NS.getters.GET_EVENT]: state => id => state.events.find(evt => evt.id === id)
 };
 
 const mutations = {
-  [types.mutations.SET_EVENTS](state, events) {
+  [NS.mutations.SET_EVENTS](state, events) {
     state.events = events;
   },
-  [types.mutations.ADD_EVENT](state, event) {
+  [NS.mutations.ADD_EVENT](state, event) {
     const idx = state.events.findIndex(evt => evt.id === event.id);
     if (idx === -1) state.events.push(event);
   },
-  [types.mutations.EDIT_EVENT](state, { id, event }) {
+  [NS.mutations.EDIT_EVENT](state, { id, event }) {
     let e = state.events.find(evt => evt.id === id);
     Object.keys(event).forEach(key => {
       if (typeof e[key] !== undefined) {
@@ -44,18 +43,18 @@ const mutations = {
       }
     });
   },
-  [types.mutations.EDIT_EVENT_CATEGORY](state, { id, category }) {
+  [NS.mutations.EDIT_EVENT_CATEGORY](state, { id, category }) {
     let event = state.events.find(event => event.id === id);
     if (event && event.category) event.category = category;
   },
-  [types.mutations.REMOVE_EVENT](state, event) {
+  [NS.mutations.REMOVE_EVENT](state, event) {
     const idx = state.events.findIndex(evt => evt.id === event.id);
     if (idx !== -1) state.events.splice(idx, 1);
   }
 };
 
 const actions = {
-  async [types.actions.FETCH_EVENTS]({ commit, dispatch }, params) {
+  async [NS.actions.FETCH_EVENTS]({ commit, dispatch }, params) {
     try {
       const {
         data: { events }
@@ -64,7 +63,7 @@ const actions = {
       console.log(events);
 
       commit(
-        types.mutations.SET_EVENTS,
+        NS.mutations.SET_EVENTS,
         events.map(event => new CalendarEvent(event))
       );
     } catch (err) {
@@ -74,10 +73,7 @@ const actions = {
     }
   },
 
-  async [types.actions.ADD_EVENT](
-    { commit, dispatch },
-    { category_id, event }
-  ) {
+  async [NS.actions.ADD_EVENT]({ commit, dispatch }, { category_id, event }) {
     const params = pick(event, props);
     params.category_id = category_id;
     console.log(params);
@@ -87,7 +83,7 @@ const actions = {
         data: { event }
       } = await this.$axios.post("/api/events", params);
       const text = `Saved Event: ${event.name}`;
-      commit(types.mutations.ADD_EVENT, new CalendarEvent(event));
+      commit(NS.mutations.ADD_EVENT, new CalendarEvent(event));
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
     } catch (err) {
       console.log(err);
@@ -96,21 +92,22 @@ const actions = {
     }
   },
 
-  async [types.actions.EDIT_EVENT]({ commit, dispatch }, evt) {
+  async [NS.actions.EDIT_EVENT]({ commit, dispatch }, evt) {
     const { id, ...payload } = evt;
     try {
       const {
         data: { event }
       } = await this.$axios.put(`/api/events/${id}`, payload);
+
       const e = pick(event, props);
 
       if (event.category) {
         let { category, ...evt } = event;
-        commit(types.mutations.EDIT_EVENT_CATEGORY, category);
+        commit(NS.mutations.EDIT_EVENT_CATEGORY, category);
       }
 
       if (e && Object.keys(e).length) {
-        commit(types.mutations.EDIT_EVENT, { id, event: e });
+        commit(NS.mutations.EDIT_EVENT, { id, event: e });
       }
 
       dispatch(snackbar.actions.SUCCESS, null, { root: true });

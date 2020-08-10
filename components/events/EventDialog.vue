@@ -46,12 +46,13 @@
 </template>
 
 <script>
-import { events } from "~/utilities/ns/events.js";
+import events from "~/utilities/ns/public/events.js";
 import EventForm from "./EventForm.vue";
+import EventOptions from "./EventDialogOptions.vue";
+
 import pickBy from "lodash/pickBy";
 import cloneDeep from "lodash/cloneDeep";
 
-import EventOptions from "./EventDialogOptions.vue";
 export default {
   name: "EventDialog",
   components: { EventForm, EventOptions },
@@ -85,19 +86,6 @@ export default {
       },
 
       startingValues: null
-
-      // startingValues: {
-      //   id: null,
-      //   category_id: 1,
-      //   name: "",
-      //   color: "",
-      //   startDate: "",
-      //   endDate: "",
-      //   startTime: "",
-      //   endTime: "",
-      //   description: "",
-      //   rvsp: false
-      // }
     };
   },
 
@@ -129,15 +117,6 @@ export default {
     },
     reset() {
       if (this.mode === "edit") {
-        //   Object.keys(this.startingValues).forEach(key => {
-        //     if (typeof this.details[key] === "boolean") {
-        //       this.startingValues[key] = false;
-        //     } else if (typeof this.details[key] === "object") {
-        //       this.startingValues[key] = null;
-        //     } else {
-        //       this.startingValues[key] = "";
-        //     }
-        //   });
         this.startingValues = null;
       }
       this.$refs.form.reset();
@@ -161,11 +140,6 @@ export default {
       const picked = prop =>
         typeof prop !== "object" || typeof prop !== undefined;
       this.startingValues = Object.assign({}, pickBy(cloneDeep(obj), picked));
-      // Object.keys(obj).forEach(key => {
-      //   if (typeof obj[key] !== undefined || typeof obj[key] !== "object") {
-      //     this.startingValues[key] = obj[key];
-      //   }
-      // });
     },
 
     setEditableContent({ id }) {
@@ -175,7 +149,6 @@ export default {
       Object.keys(this.details).forEach(key => {
         if (typeof event[key] !== undefined || typeof event[key] !== "object") {
           this.details[key] = event[key];
-          // this.startingValues[key] = event[key];
         }
       });
       this.setStartingValues(this.details);

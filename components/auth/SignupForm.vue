@@ -1,56 +1,61 @@
 <template>
   <v-tab-item eager>
-    <v-card-text>
-      <v-form v-model="valid" ref="signUpForm">
-        <v-container>
-          <v-row>
-            <v-col cols="12">
-              <discord-button :label="'Register with Discord'"></discord-button>
-              <divider></divider>
-            </v-col>
-            <v-col cols="12" v-for="(input, key) in inputs" :key="key">
-              <v-text-field
-                v-if="input.type === 'password'"
-                filled
-                v-model="input.value"
-                @click:append="input.show = !input.show"
-                :append-icon="input.show ? 'mdi-eye' : 'mdi-eye-off'"
-                :label="input.label"
-                :type="input.show ? 'text' : input.type"
-                :rules="input.rules"
-              ></v-text-field>
-              <v-text-field
-                v-else
-                :label="input.label"
-                filled
-                v-model="input.value"
-                :type="input.type"
-                :rules="input.rules"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12">
-              <vue-recaptcha
-                :loadRecaptchaScript="true"
-                :sitekey="siteKey"
-                :theme="'dark'"
-                ref="recaptcha"
-                @render="onRender"
-                @verify="onVerfiy"
-                @expired="resetRecaptcha"
-                @error="onError"
-              ></vue-recaptcha>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-form>
-    </v-card-text>
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn text color="dark darken-1" :disabled="isDisabled" @click="signUp">Submit</v-btn>
-    </v-card-actions>
-    <v-overlay absolute v-model="isSending">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
-    </v-overlay>
+    <template v-if="!successful">
+      <v-card-text>
+        <v-form v-model="valid" ref="signUpForm">
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <discord-button :label="'Register with Discord'"></discord-button>
+                <divider></divider>
+              </v-col>
+              <v-col cols="12" v-for="(input, key) in inputs" :key="key">
+                <v-text-field
+                  v-if="input.type === 'password'"
+                  filled
+                  v-model="input.value"
+                  @click:append="input.show = !input.show"
+                  :append-icon="input.show ? 'mdi-eye' : 'mdi-eye-off'"
+                  :label="input.label"
+                  :type="input.show ? 'text' : input.type"
+                  :rules="input.rules"
+                ></v-text-field>
+                <v-text-field
+                  v-else
+                  :label="input.label"
+                  filled
+                  v-model="input.value"
+                  :type="input.type"
+                  :rules="input.rules"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <vue-recaptcha
+                  :loadRecaptchaScript="true"
+                  :sitekey="siteKey"
+                  :theme="'dark'"
+                  ref="recaptcha"
+                  @render="onRender"
+                  @verify="onVerfiy"
+                  @expired="resetRecaptcha"
+                  @error="onError"
+                ></vue-recaptcha>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-form>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn text color="dark darken-1" :disabled="isDisabled" @click="signUp">Submit</v-btn>
+      </v-card-actions>
+      <v-overlay absolute v-model="isSending">
+        <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </v-overlay>
+    </template>
+    <template v-else>
+      <success />
+    </template>
   </v-tab-item>
 </template>
 
@@ -60,14 +65,22 @@ const pattern = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 import Divider from "./Divider.vue";
 import isAlphanumeric from "~/utilities/isAlphanumeric.js";
 import DiscordButton from "~/components/dialogs/DiscordButton.vue";
+import Success from "~/components/Success.vue";
 import VueRecaptcha from "vue-recaptcha";
 import recaptcha from "~/mixins/recaptcha.js";
-import { snackbar } from "~/utilities/ns/snackbar.js";
+import snackbar from "~/utilities/ns/public/snackbar.js";
 export default {
   name: "SignUpForm",
-  components: { Divider, DiscordButton, VueRecaptcha },
+  components: { Divider, DiscordButton, VueRecaptcha, Success },
 
   mixins: [recaptcha],
+
+  props: {
+    successful: {
+      type: Boolean,
+      default: false
+    }
+  },
 
   data() {
     return {
@@ -155,9 +168,11 @@ export default {
 
         this.reset();
 
-        const text = `Thank you, ${user.username} an email has been dispatched to ${user.email}.`;
+        // const text = `Thank you, ${user} an email has been dispatched to ${user.email}.`;
 
-        this.$store.dispatch(snackbar.actions.TOGGLE_BAR, { text });
+        this.$emit("update:success", true);
+
+        // this.$store.dispatch(snackbar.actions.TOGGLE_BAR, { text });
       } catch (err) {
         console.log(err);
       }

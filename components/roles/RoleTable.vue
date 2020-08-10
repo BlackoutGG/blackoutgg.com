@@ -46,7 +46,7 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex";
-import { roles } from "~/utilities/ns/roles.js";
+import roles from "~/utilities/ns/public/roles.js";
 
 const { mapGetters, mapActions, mapMutations } = createNamespacedHelpers(
   "roles"
@@ -60,13 +60,6 @@ export default {
   name: "RoleTable",
 
   components: { TableActions, TableInput, EditRole },
-
-  // props: {
-  //   perms: {
-  //     type: Array,
-  //     default: () => []
-  //   }
-  // },
 
   data() {
     return {

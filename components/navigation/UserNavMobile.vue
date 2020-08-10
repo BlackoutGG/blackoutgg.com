@@ -39,8 +39,6 @@
 </template>
 
 <script>
-import { page } from "~/utilities/ns/page.js";
-import { dialogs } from "~/utilities/ns/dialogs.js";
 import UserPanelMobile from "./UserPanelMobile.vue";
 import NavLink from "./NavLink.vue";
 export default {

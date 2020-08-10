@@ -33,29 +33,34 @@
 </template>
 
 <script>
-import VideoBanner from "~/components/frontpage/VideoBanner.vue";
 import AuthDialog from "~/components/auth/AuthDialog.vue";
 import UserPanel from "~/components/navigation/UserPanel.vue";
 import UserNavMobile from "./UserNavMobile.vue";
-import { page } from "~/utilities/ns/page.js";
+import menu from "~/utilities/ns/public/menu.js";
 
 export default {
   name: "NavHeader",
-  components: { VideoBanner, UserPanel, AuthDialog, UserNavMobile },
+  components: { UserPanel, AuthDialog, UserNavMobile },
 
   data() {
     return {
       color: "#1E1E1E",
       showMobile: false,
       showAuth: false,
-      tabs: null,
-      links: [
-        { icon: "mdi-home", title: "Home", to: "/" },
-        { icon: "mdi-book", title: "Guides", to: "/guides" },
-        { icon: "mdi-information", title: "History", to: "/history" },
-        { icon: "mdi-calendar", title: "Events", to: "/events" }
-      ]
+      tabs: null
+      // links: [
+      //   { icon: "mdi-home", title: "Home", to: "/" },
+      //   { icon: "mdi-book", title: "Guides", to: "/guides" },
+      //   { icon: "mdi-information", title: "History", to: "/history" },
+      //   { icon: "mdi-calendar", title: "Events", to: "/events" }
+      // ]
     };
+  },
+
+  computed: {
+    links() {
+      return this.$store.getters[menu.getters.LINKS];
+    }
   }
 };
 </script>

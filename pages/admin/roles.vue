@@ -16,7 +16,7 @@ export default {
     "auth",
     hasScope("roles:view"),
     setPageTitle("View Roles"),
-    "admin.roles.getList"
+    "getRoles"
   ],
   components: { RoleTable }
 };

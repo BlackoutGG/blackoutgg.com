@@ -22,7 +22,7 @@
       </v-toolbar>
       <v-tabs-items v-model="tab">
         <sign-in ref="signin"></sign-in>
-        <sign-up ref="signup"></sign-up>
+        <sign-up ref="signup" :success.sync="success"></sign-up>
       </v-tabs-items>
     </v-card>
   </v-dialog>
@@ -31,7 +31,6 @@
 <script>
 import SignIn from "./SigninForm.vue";
 import SignUp from "./SignupForm.vue";
-import { dialog } from "~/utilities/ns/dialogs.js";
 export default {
   name: "AuthDialog",
 
@@ -47,6 +46,7 @@ export default {
   data() {
     return {
       tab: null,
+      success: false,
       open: false
     };
   },
@@ -57,7 +57,8 @@ export default {
         this.tab = null;
         this.$refs.signup.reset();
         this.$refs.signin.reset();
-        this.$emit("input", false);
+        this.show = false;
+        this.success = false;
       }
     }
   },
@@ -69,7 +70,7 @@ export default {
       },
       set(value) {
         this.open = value;
-        this.$emit("input", false);
+        this.$emit("input", value);
       }
     }
   }

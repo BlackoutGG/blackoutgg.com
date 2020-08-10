@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { PAGE } from "~/utilities/types.js";
+import page from "~/utilities/ns/public/page.js";
 import setTitle from "~/middleware/setPageTitle.js";
 import hasScope from "~/middleware/auth.hasScope.js";
 export default {

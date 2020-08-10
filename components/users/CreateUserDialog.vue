@@ -46,7 +46,7 @@
 <script>
 import UserInput from "~/components/dialogs/DialogInput.vue";
 import RoleSelect from "./UserRoleSelect.vue";
-import { users } from "~/utilities/ns/users.js";
+import users from "~/utilities/ns/public/users.js";
 import { createNamespacedHelpers } from "vuex";
 
 const { mapGetters } = createNamespacedHelpers("users");

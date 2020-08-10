@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { page } from "~/utilities/ns/page.js";
+import page from "~/utilities/ns/public/page.js";
 import AdminUserMenu from "./AdminUserMenu";
 export default {
   name: "AdminNavbar",

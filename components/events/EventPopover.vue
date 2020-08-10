@@ -34,7 +34,7 @@
 <script>
 import EventForm from "./EventForm.vue";
 import EventView from "./EventView.vue";
-import { events } from "~/utilities/ns/events.js";
+import events from "~/utilities/ns/public/events.js";
 export default {
   name: "EventPopover",
 

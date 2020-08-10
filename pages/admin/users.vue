@@ -21,7 +21,7 @@ export default {
     "auth",
     hasScope("users:view"),
     setPageTitle("View Users"),
-    "admin.users.getList"
+    "getUsers"
   ]
 };
 </script>

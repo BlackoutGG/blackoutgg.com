@@ -1,6 +1,6 @@
-import { _forms as forms } from "~/utilities/ns/forms.js";
-import { lists } from "~/utilities/ns/lists.js";
-import { snackbar } from "~/utilities/ns/snackbar.js";
+import ns from "~/utilities/ns/private/forms.js";
+import lists from "~/utilities/ns/public/lists.js";
+import snackbar from "~/utilities/ns/public/snackbar.js";
 import filter from "lodash/filter";
 
 const state = () => ({
@@ -22,12 +22,12 @@ const state = () => ({
 });
 
 const getters = {
-  [forms.getters.QUESTIONS]: state => state.questions,
+  [ns.getters.QUESTIONS]: state => state.questions,
 
-  [forms.getters.QUERY_PARAMS]: state => key =>
+  [ns.getters.QUERY_PARAMS]: state => key =>
     typeof key !== undefined ? state.queryParams[key] : state.queryParams,
 
-  [forms.getters.VALID_FIELDS]: state => {
+  [ns.getters.VALID_FIELDS]: state => {
     const originalValues = { ...state.questions };
     return state.questions
       .map((qs, idx) => {
@@ -43,15 +43,15 @@ const getters = {
       .filter((qs, idx) => !!qs.value);
   },
 
-  [forms.getters.DESCRIPTION]: state => state.description,
+  [ns.getters.DESCRIPTION]: state => state.description,
 
-  [forms.getters.SELECTED]: state => state.selected,
+  [ns.getters.SELECTED]: state => state.selected,
 
-  [forms.getters.FORMS]: state => state.forms
+  [ns.getters.FORMS]: state => state.forms
 };
 
 const mutations = {
-  [forms.mutations.ADD_QUESTION](state) {
+  [ns.mutations.ADD_QUESTION](state) {
     state.questions.push({
       value: "",
       type: "textfield",
@@ -59,50 +59,50 @@ const mutations = {
       options: []
     });
   },
-  [forms.mutations.ADD_OPTION](state, idx) {
+  [ns.mutations.ADD_OPTION](state, idx) {
     const q = state.questions[idx];
     if (q) q.options.push({ value: "" });
   },
-  [forms.mutations.CLEAR_OPTIONS](state, idx) {
+  [ns.mutations.CLEAR_OPTIONS](state, idx) {
     const q = state.questions[idx];
     if (q) q.options = [];
   },
-  [forms.mutations.CHANGE_QUESTION_VALUE](state, { idx, value }) {
+  [ns.mutations.CHANGE_QUESTION_VALUE](state, { idx, value }) {
     // const q = state.questions.find((qs => qs.id === id);
     // if (q) q.value = value;
     const q = state.questions[idx];
     if (q) q.value = value;
   },
-  [forms.mutations.CHANGE_OPTION_VALUE](state, { question, option, value }) {
+  [ns.mutations.CHANGE_OPTION_VALUE](state, { question, option, value }) {
     const q = state.questions[question];
     if (q) {
       const o = q.options[option];
       if (o) o.value = value;
     }
   },
-  [forms.mutations.CHANGE_QUESTION_TYPE](state, { idx, type }) {
+  [ns.mutations.CHANGE_QUESTION_TYPE](state, { idx, type }) {
     const q = state.questions[idx];
     if (q) q.type = type;
   },
-  [forms.mutations.TOGGLE_OPTIONAL](state, { idx, bool }) {
+  [ns.mutations.TOGGLE_OPTIONAL](state, { idx, bool }) {
     // const q = getById(id);
     // if (q) q.optional = !q.optional;
     const q = state.questions[idx];
     q.optional = bool;
   },
-  [forms.mutations.REMOVE_QUESTION](state, idx) {
+  [ns.mutations.REMOVE_QUESTION](state, idx) {
     state.questions.splice(idx, 1);
   },
-  [forms.mutations.REMOVE_OPTION](state, { question, option }) {
+  [ns.mutations.REMOVE_OPTION](state, { question, option }) {
     const q = state.questions[question];
     if (q && q.options && q.options.length) {
       q.options.splice(option, 1);
     }
   },
-  [forms.mutations.SET_PARAM](state, { param, value }) {
+  [ns.mutations.SET_PARAM](state, { param, value }) {
     state.queryParams[param] = value;
   },
-  [forms.mutations.SET_FORM_STATUS](state, { id, category_id, status }) {
+  [ns.mutations.SET_FORM_STATUS](state, { id, category_id, status }) {
     const forms = state.forms.filter(form => form.category_id === category_id);
     forms.forEach(form => {
       if (form.id !== id) form.status = false;
@@ -110,23 +110,26 @@ const mutations = {
     const form = forms.find(f => f.id === id);
     if (form) form.status = status;
   },
-  [forms.mutations.SET_DESCRIPTION](state, description) {
-    state.desription = description;
+  [ns.mutations.SET_DESCRIPTION](state, description) {
+    state.description = description;
   },
-  [forms.mutations.SET_NAME](state, name) {
+  [ns.mutations.SET_NAME](state, name) {
     state.name = name;
   },
-  [forms.mutations.SET_CATEGORY](state, category) {
+  [ns.mutations.SET_CATEGORY](state, category) {
     state.category_id = category;
+  },
+  [ns.mutations.SET_FORMS](state, forms) {
+    state.forms = forms;
   }
 };
 
 const actions = {
-  async [forms.actions.FETCH]({ commit, state }) {
+  async [ns.actions.FETCH]({ commit, state }) {
     try {
       const {
         data: { forms, categories }
-      } = await this.$axios.get(`/api/forms`, {
+      } = await this.$axios.get("/api/forms", {
         params: { ...state.queryParams }
       });
 
@@ -134,16 +137,16 @@ const actions = {
         type: "categories",
         list: categories
       });
-      commit(forms.mutations.SET_FORMS, forms.results);
-      commit(forms.mutations.SET_PARAM, { param: "total", value: forms.total });
+      commit(ns.mutations.SET_FORMS, forms.results);
+      commit(ns.mutations.SET_PARAM, { param: "total", value: forms.total });
     } catch (err) {
       console.log(err);
     }
   },
 
-  async [forms.actions.SET_EDITABLE_FORM]({ commit }, id) {},
+  async [ns.actions.SET_EDITABLE_FORM]({ commit }, id) {},
 
-  async [forms.actions.SET_STATUS]({ commit }, { id, category_id, status }) {
+  async [ns.actions.SET_STATUS]({ commit }, { id, category_id, status }) {
     try {
       const {
         data: { form }
@@ -153,30 +156,29 @@ const actions = {
         status
       });
 
-      commit(forms.mutations.SET_FORM_STATUS, form);
+      commit(ns.mutations.SET_FORM_STATUS, form);
     } catch (err) {
       console.log(err);
     }
   },
 
-  async [forms.actions.ADD_FORM]({ commit, state, getters }) {
+  async [ns.actions.ADD_FORM]({ commit, state, getters }) {
     const params = {
       form: {
         name: state.name,
         description: state.description,
-        category: state.category_id
+        category_id: state.category_id
       },
-      fields: getters[forms.getters.VALID_FIELDS]
+      fields: getters[ns.getters.VALID_FIELDS],
+      ...state.queryParams
     };
     try {
       const {
         data: { forms }
       } = await this.$axios.post("/api/forms/template", params);
 
-      console.log(forms);
-
-      // commit(forms.mutations.SET_FORMS, forms.results);
-      // commit(forms.mutations.SET_PARAM, { param: "total", value: forms.total });
+      commit(ns.mutations.SET_FORMS, forms.results);
+      commit(ns.mutations.SET_PARAM, { param: "total", value: forms.total });
     } catch (err) {
       console.log(err);
     }

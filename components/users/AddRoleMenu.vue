@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { roles } from "~/utilities/ns/roles.js";
+import roles from "~/utilities/ns/public/roles.js";
 export default {
   name: "AddRoleMenu",
 

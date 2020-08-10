@@ -62,11 +62,10 @@
 const pattern = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
 import VueRecaptcha from "vue-recaptcha";
-import Divider from "./Divider";
+import Divider from "./Divider.vue";
 import DiscordButton from "~/components/dialogs/DiscordButton";
 import recaptcha from "~/mixins/recaptcha.js";
-
-import { snackbar } from "~/utilities/ns/snackbar.js";
+import snackbar from "~/utilities/ns/public/snackbar.js";
 
 export default {
   name: "SigninForm",

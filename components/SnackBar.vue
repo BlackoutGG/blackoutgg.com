@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { snackbar } from "~/utilities/ns/snackbar.js";
+import snackbar from "~/utilities/ns/public/snackbar.js";
 export default {
   name: "snackbar",
   computed: {

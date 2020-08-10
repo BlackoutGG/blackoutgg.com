@@ -1,5 +1,5 @@
-import { _lists as types } from "~/utilities/ns/lists.js";
-import { snackbar } from "~/utilities/ns/snackbar.js";
+import lists from "~/utilities/ns/private/lists.js";
+import snackbar from "~/utilities/ns/public/snackbar.js";
 
 const state = () => ({
   items: {
@@ -19,26 +19,26 @@ const state = () => ({
 });
 
 const getters = {
-  [types.getters.ITEMS]: state => type => state.items[type],
-  [types.getters.SELECTED]: state => state.selected,
-  [types.getters.QUERY_PARAMS]: state => key =>
+  [lists.getters.ITEMS]: state => type => state.items[type],
+  [lists.getters.SELECTED]: state => state.selected,
+  [lists.getters.QUERY_PARAMS]: state => key =>
     typeof key !== undefined ? state.queryParams[key] : state.queryParams
 };
 
 const mutations = {
-  [types.mutations.SET_LIST](state, { type, list }) {
+  [lists.mutations.SET_LIST](state, { type, list }) {
     state.items[type] = list;
   },
-  [types.mutations.SET_SELECTED](state, selected) {
+  [lists.mutations.SET_SELECTED](state, selected) {
     state.selected = selected;
   },
-  [types.mutations.SET_PARAM](state, { param, value }) {
+  [lists.mutations.SET_PARAM](state, { param, value }) {
     state.queryParams[param] = value;
   }
 };
 
 const actions = {
-  async [types.actions.FETCH]({ commit, dispatch, state }, type) {
+  async [lists.actions.FETCH]({ commit, dispatch, state }, type) {
     try {
       const { data } = await this.$axios.get(`/api/${type}`, {
         params: { ...state.queryParams }
@@ -47,8 +47,8 @@ const actions = {
       const list = data[type];
       // const value = data[type].total;
 
-      commit(types.mutations.SET_LIST, { type, list });
-      // commit(types.mutations.SET_PARAM, { param: "total", value });
+      commit(lists.mutations.SET_LIST, { type, list });
+      // commit(lists.mutations.SET_PARAM, { param: "total", value });
     } catch (err) {
       console.log(err);
     }

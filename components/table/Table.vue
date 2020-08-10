@@ -6,7 +6,7 @@
     v-model="selected"
     :items="items"
     :headers="headers"
-    :server-items-length="queryParams.total"
+    :server-items-length="queryParams('total')"
     :item-key="'id'"
     @update:page="page"
     @update:sort="sortBy"
@@ -24,28 +24,22 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex";
-import { lists } from "~/utilities/ns/lists.js";
+import lists from "~/utilities/ns/public/lists.js";
 
-const { mapGetters, mapActions } = createNamespacedHelpers("lists");
+const { mapGetters, mapActions, mapMutations } = createNamespacedHelpers(
+  "lists"
+);
 
 export default {
   name: "DataTable",
+  methods: {
+    ...mapMutations(["setParam"])
+  },
   computed: {
     ...mapGetters(["getItems", "type", "queryParams"]),
 
-    isUserList() {
-      return this.$route.params.type === "users";
-    },
-
     items() {
-      return this.isUserList
-        ? this.getItems("users").map(
-            ({ id, avatar, roles, username, created_at, updated_at }) => {
-              roles = roles.map(role => role.name);
-              return { id, avatar, username, roles, created_at, updated_at };
-            }
-          )
-        : this.getItems(this.$route.params.type);
+      return this.getItems(this.$route.params.type);
     },
 
     headers() {
@@ -70,7 +64,7 @@ export default {
         return this.queryParams("page");
       },
       set(value) {
-        this.$store.commit(LISTS.mutations.SET_PAGE, value);
+        this.setParam({ param: "page", value });
       }
     },
     sortBy: {
@@ -78,11 +72,16 @@ export default {
         return this.queryParams("sortBy");
       },
       set(value) {
-        return this.$store.commit(LISTS.mutations.SORT, value);
+        this.setParam({ param: "sortBy", value });
       }
     },
-    limit() {
-      return this.queryParams("limit");
+    limit: {
+      get() {
+        return this.queryParams("limit");
+      },
+      set(value) {
+        this.setParam({ param: "limit", value });
+      }
     }
   }
 };

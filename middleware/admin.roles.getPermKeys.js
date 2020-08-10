@@ -1,4 +1,4 @@
-import { roles } from "~/utilities/ns/roles.js";
+import roles from "~/utilities/ns/public/roles.js";
 
 export default ({ store }) => {
   const perms = store.getters[roles.getters.PERM_KEYS];

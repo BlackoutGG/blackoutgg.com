@@ -63,7 +63,6 @@ import DialogInput from "~/components/dialogs/DialogInput.vue";
 import RoleSelect from "./UserRoleSelect.vue";
 
 import { createNamespacedHelpers } from "vuex";
-import { users as types } from "~/utilities/ns/users.js";
 import pick from "lodash/pick";
 
 const { mapGetters } = createNamespacedHelpers("users");

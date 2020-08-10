@@ -56,8 +56,8 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex";
-import { users } from "~/utilities/ns/users.js";
-import { roles } from "~/utilities/ns/roles.js";
+import users from "~/utilities/ns/public/users.js";
+import roles from "~/utilities/ns/public/roles.js";
 import UserTableAvatar from "./UserTableAvatar.vue";
 import UserTableRoles from "./UserRoles.vue";
 import TableInput from "~/components/table/TableInput.vue";

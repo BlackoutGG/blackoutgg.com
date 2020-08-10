@@ -1,5 +1,5 @@
-import { _roles as types } from "~/utilities/ns/roles.js";
-import { snackbar } from "~/utilities/ns/snackbar.js";
+import NS from "~/utilities/ns/private/roles.js";
+import snackbar from "~/utilities/ns/public/snackbar.js";
 
 const state = () => ({
   roles: [],
@@ -16,50 +16,50 @@ const state = () => ({
 });
 
 const getters = {
-  [types.getters.ROLES]: state => state.roles,
-  [types.getters.PERM_LIST]: state => state.perms,
-  [types.getters.SELECTED]: state => state.selected,
-  [types.getters.SELECTED_IDS]: (state, getters) =>
-    getters[types.getters.SELECTED].map(({ id }) => id),
-  [types.getters.GET_ROLE]: state => id =>
+  [NS.getters.ROLES]: state => state.roles,
+  [NS.getters.PERM_LIST]: state => state.perms,
+  [NS.getters.SELECTED]: state => state.selected,
+  [NS.getters.SELECTED_IDS]: (state, getters) =>
+    getters[NS.getters.SELECTED].map(({ id }) => id),
+  [NS.getters.GET_ROLE]: state => id =>
     state.roles.find(role => role.id === id),
-  [types.getters.QUERY_PARAMS]: state => key =>
+  [NS.getters.QUERY_PARAMS]: state => key =>
     typeof key !== undefined ? state.queryParams[key] : state.queryParams
 };
 
 const mutations = {
-  [types.mutations.SET_ROLES](state, payload) {
+  [NS.mutations.SET_ROLES](state, payload) {
     state.roles = payload;
   },
 
-  [types.mutations.SET_SELECTED](state, selected) {
+  [NS.mutations.SET_SELECTED](state, selected) {
     state.selected = selected;
   },
 
-  [types.mutations.SET_PARAM](state, { param, value }) {
+  [NS.mutations.SET_PARAM](state, { param, value }) {
     state.queryParams[param] = value;
   },
 
-  [types.mutations.SET_PERM_LIST](state, perms) {
+  [NS.mutations.SET_PERM_LIST](state, perms) {
     state.perms = perms;
   },
 
-  [types.mutations.SET_PERMISSIONS](state, { roleId, perms }) {
+  [NS.mutations.SET_PERMISSIONS](state, { roleId, perms }) {
     const role = state.roles.find(role => role.id === roleId);
     if (role) role.permissions = perms;
   },
 
-  [types.mutations.SET_NAME](state, { roleId, name }) {
+  [NS.mutations.SET_NAME](state, { roleId, name }) {
     const role = state.roles.find(({ id }) => id === roleId);
     if (role) role.name = name;
   },
 
-  [types.mutations.SET_STATUS](state, { roleId, status }) {
+  [NS.mutations.SET_STATUS](state, { roleId, status }) {
     const role = state.roles.find(({ id }) => id === roleId);
     if (role) role.is_disabled = status;
   },
 
-  [types.mutations.CHANGE_ROLE_PERMISSION](state, { roleId, name, value }) {
+  [NS.mutations.CHANGE_ROLE_PERMISSION](state, { roleId, name, value }) {
     const role = state.roles.find(role => role.id === roleId);
     if (role && role.permissions) {
       const perms = role.permissions.find(perm => perm.name === name);
@@ -71,7 +71,7 @@ const mutations = {
 };
 
 const actions = {
-  async [types.actions.FETCH]({ commit, dispatch, state }, msg) {
+  async [NS.actions.FETCH]({ commit, dispatch, state }, msg) {
     try {
       const { data } = await this.$axios.get("/api/roles", {
         params: { ...state.queryParams }
@@ -80,11 +80,11 @@ const actions = {
       console.log(data.perms);
 
       if (data.perms && data.perms.length) {
-        commit(types.mutations.SET_PERM_LIST, data.perms);
+        commit(NS.mutations.SET_PERM_LIST, data.perms);
       }
 
-      commit(types.mutations.SET_ROLES, data.roles.results);
-      commit(types.mutations.SET_PARAM, {
+      commit(NS.mutations.SET_ROLES, data.roles.results);
+      commit(NS.mutations.SET_PARAM, {
         param: "total",
         value: data.roles.total
       });
@@ -100,13 +100,13 @@ const actions = {
     }
   },
 
-  async [types.actions.FETCH_PERMS]({ commit, getters, dispatch }, id) {
+  async [NS.actions.FETCH_PERMS]({ commit, getters, dispatch }, id) {
     try {
       const {
         data: { permissions }
       } = await this.$axios.get(`/api/roles/perms/${id}`);
 
-      commit(types.mutations.SET_PERMISSIONS, {
+      commit(NS.mutations.SET_PERMISSIONS, {
         roleId: id,
         perms: permissions
       });
@@ -117,34 +117,35 @@ const actions = {
     }
   },
 
-  async [types.actions.ADD_ROLE]({ state, commit, dispatch }, _data) {
-    _data = { ..._data, ...state.queryParams };
+  async [NS.actions.ADD_ROLE]({ state, commit, dispatch }, _data) {
+    const params = { ..._data, ...state.queryParams };
     try {
       const {
         data: { roles }
-      } = await this.$axios.post("/api/roles", _data);
+      } = await this.$axios.post("/api/roles", params);
 
-      const text = `Added Role: ${_data.name}`;
+      const text = `Added Role: ${param.name}`;
 
       console.log(roles);
 
-      commit(types.mutations.SET_ROLES, roles.results);
-      commit(types.mutations.SET_PARAM, { param: "total", value: roles.total });
+      commit(NS.mutations.SET_ROLES, roles.results);
+      commit(NS.mutations.SET_PARAM, { param: "total", value: roles.total });
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
     } catch (err) {
+      console.error(err);
       const text = "Encountered a problem. Please contact the administrator.";
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
     }
   },
 
-  async [types.actions.EDIT_ROLE]({ commit, dispatch }, { id, payload }) {
+  async [NS.actions.EDIT_ROLE]({ commit, dispatch }, { id, payload }) {
     try {
       const {
         data: { role }
       } = await this.$axios.put(`/api/roles/${id}`, payload);
 
       if (role.name) {
-        commit(types.mutations.SET_NAME, {
+        commit(NS.mutations.SET_NAME, {
           roleId: role.id,
           name: role.name
         });
@@ -152,7 +153,7 @@ const actions = {
 
       if (role.permissions && role.permissions.length) {
         role.permissions.forEach(r =>
-          commit(types.mutations.CHANGE_ROLE_PERMISSION, {
+          commit(NS.mutations.CHANGE_ROLE_PERMISSION, {
             roleId: role.id,
             name: r.name,
             value: r.value
@@ -161,31 +162,33 @@ const actions = {
       }
 
       if (role.is_disabled) {
-        commit(types.mutations.SET_STATUS, role.is_disabled);
+        commit(NS.mutations.SET_STATUS, role.is_disabled);
       }
 
       const text = "Your changes have been saved.";
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
     } catch (err) {
+      console.log(err);
       const text = "Encountered a problem. Please contact the administrator.";
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
     }
   },
 
-  async [types.actions.REMOVE_ROLE]({ commit, state, getters }, id) {
+  async [NS.actions.REMOVE_ROLE]({ commit, state, getters }, id) {
     try {
-      const ids = id || getters[types.getters.SELECTED_IDS];
+      const ids = id || getters[NS.getters.SELECTED_IDS];
       const data = { ids, ...state.queryparams };
       const roles = await this.$axios.delete("/api/roles", { data });
 
-      commit(types.mutations.SET_ROLES, roles.data.results);
-      commit(types.mutations.SET_PARAM, {
+      commit(NS.mutations.SET_ROLES, roles.data.results);
+      commit(NS.mutations.SET_PARAM, {
         param: "total",
         value: roles.data.total
       });
       const text = `Removed roles with the following ids: ${ids}`;
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
     } catch (err) {
+      console.log(err);
       const text = err.response;
       dispatch(snackbar.actions.TOGGLE_BAR, { text }, { root: true });
     }

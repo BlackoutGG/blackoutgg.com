@@ -1,4 +1,4 @@
-import { _page as types } from "~/utilities/ns/page.js";
+import page from "~/utilities/ns/private/page.js";
 
 const state = () => ({
   title: "",
@@ -7,19 +7,19 @@ const state = () => ({
 });
 
 const getters = {
-  [types.getters.TITLE]: state => state.title,
-  [types.getters.MOBILE]: state => state.mobile,
-  [types.getters.ACPANEL]: state => state.adminPanel
+  [page.getters.TITLE]: state => state.title,
+  [page.getters.MOBILE]: state => state.mobile,
+  [page.getters.ACPANEL]: state => state.adminPanel
 };
 
 const mutations = {
-  [types.mutations.SET_TITLE](state, title) {
+  [page.mutations.SET_TITLE](state, title) {
     state.title = title;
   },
-  [types.mutations.SET_MOBILE](state, mobile) {
+  [page.mutations.SET_MOBILE](state, mobile) {
     state.mobile = mobile;
   },
-  [types.mutations.TOGGLE_ACPANEL](state, bool) {
+  [page.mutations.TOGGLE_ACPANEL](state, bool) {
     state.adminPanel = bool;
   }
 };

@@ -8,7 +8,7 @@
           <v-btn fab text small color="grey darken-2" @click="prev">
             <v-icon small>mdi-chevron-left</v-icon>
           </v-btn>
-          <v-toolbar-title v-if="$refs.event">{{$refs.event.title}}</v-toolbar-title>
+          <v-toolbar-title v-if="$refs.events">{{$refs.events.title}}</v-toolbar-title>
           <v-btn fab text small color="grey darken-2" @click="next">
             <v-icon small>mdi-chevron-right</v-icon>
           </v-btn>
@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { lists } from "~/utilities/ns/lists.js";
+import lists from "~/utilities/ns/public/lists.js";
 import EventListItem from "./EventListItem.vue";
 import EventDialog from "./EventDialog.vue";
 import EventPopover from "./EventPopover.vue";

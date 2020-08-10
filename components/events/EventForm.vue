@@ -110,8 +110,8 @@
 </template>
 
 <script>
-import { lists } from "~/utilities/ns/lists.js";
-import { events } from "~/utilities/ns/events.js";
+import lists from "~/utilities/ns/public/lists.js";
+import events from "~/utilities/ns/public/events.js";
 import isAlphanumeric from "~/utilities/isAlphanumeric.js";
 import EventTimeDate from "./EventTimeDatePicker.vue";
 

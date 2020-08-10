@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { page } from "~/utilities/ns/page.js";
+import page from "~/utilities/ns/public/page.js";
 import UserAvatar from "~/components/avatar/UserAvatar.vue";
 import NavLink from "~/components/navigation/NavLink.vue";
 export default {
@@ -69,8 +69,17 @@ export default {
         },
         {
           icon: "mdi-note-plus",
-          title: "Applications",
-          to: "/admin/applications"
+          title: "Recruitment",
+          children: [
+            {
+              title: "Templates",
+              to: "/admin/forms/templates"
+            },
+            {
+              title: "Applications",
+              to: "/admin/forms/applications"
+            }
+          ]
         },
         {
           icon: "mdi-calendar-range",

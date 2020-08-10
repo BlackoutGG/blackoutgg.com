@@ -12,7 +12,7 @@ import EventCalender from "~/components/events/Events.vue";
 import ParallaxBanner from "~/components/Parallax.vue";
 import setPageTitle from "~/middleware/setPageTitle.js";
 import hasScope from "~/middleware/auth.hasScope.js";
-import { lists } from "~/utilities/ns/lists.js";
+import lists from "~/utilities/ns/public/lists.js";
 export default {
   name: "Events",
   layout: "default",
