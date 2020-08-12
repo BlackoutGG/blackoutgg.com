@@ -77,6 +77,12 @@ export default {
     }
   },
 
+  watch: {
+    category(id) {
+      this.$store.dispatch(forms.actions.GET_FORM, { key: "category", id });
+    }
+  },
+
   computed: {
     questions() {
       return this.form

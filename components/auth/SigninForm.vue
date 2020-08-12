@@ -34,7 +34,6 @@
             <v-col cols="12">
               <vue-recaptcha
                 ref="recaptcha"
-                :loadRecaptchaScript="true"
                 :sitekey="siteKey"
                 :theme="'dark'"
                 @render="onRender"
@@ -76,6 +75,8 @@ export default {
 
   data() {
     return {
+      recaptchaId: null,
+
       valid: false,
       isSending: false,
       showPassword: false,
@@ -117,6 +118,10 @@ export default {
       this.recaptcha = null;
     },
 
+    onRender(id) {
+      this.recaptchaId = id;
+    },
+
     setSnackbar(text, options = null) {
       this.$store.dispatch(snackbar.actions.TOGGLE_BAR, { text, options });
     },
@@ -153,6 +158,11 @@ export default {
         await this.$auth.loginWith("local", {
           data
         });
+
+        if (window && window.grecaptcha) {
+          window.grecaptcha.reset(this.recaptchaId);
+        }
+
         this.setSnackbar(`You've successfully logged in!`);
       } catch (err) {
         this.onError(err);

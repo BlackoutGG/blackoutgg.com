@@ -102,13 +102,14 @@ const mutations = {
   [ns.mutations.SET_PARAM](state, { param, value }) {
     state.queryParams[param] = value;
   },
-  [ns.mutations.SET_FORM_STATUS](state, { id, category_id, status }) {
-    const forms = state.forms.filter(form => form.category_id === category_id);
-    forms.forEach(form => {
-      if (form.id !== id) form.status = false;
-    });
-    const form = forms.find(f => f.id === id);
-    if (form) form.status = status;
+  [ns.mutations.SET_FORM_STATUS](state, { id, category_id }) {
+    state.forms = state.forms
+      .filter(form => form.category_id === category_id)
+      .map(form => {
+        if (form.id !== id) form.status = false;
+        else form.status = true;
+        return form;
+      });
   },
   [ns.mutations.SET_DESCRIPTION](state, description) {
     state.description = description;
@@ -121,6 +122,9 @@ const mutations = {
   },
   [ns.mutations.SET_FORMS](state, forms) {
     state.forms = forms;
+  },
+  [ns.mutations.SET_FIELDS](state, fields) {
+    state.questions = fields;
   }
 };
 
@@ -133,10 +137,16 @@ const actions = {
         params: { ...state.queryParams }
       });
 
-      commit(lists.mutations.SET_LIST, {
-        type: "categories",
-        list: categories
-      });
+      console.log(forms);
+
+      commit(
+        lists.mutations.SET_LIST,
+        {
+          type: "categories",
+          list: categories
+        },
+        { root: true }
+      );
       commit(ns.mutations.SET_FORMS, forms.results);
       commit(ns.mutations.SET_PARAM, { param: "total", value: forms.total });
     } catch (err) {
@@ -146,17 +156,33 @@ const actions = {
 
   async [ns.actions.SET_EDITABLE_FORM]({ commit }, id) {},
 
-  async [ns.actions.SET_STATUS]({ commit }, { id, category_id, status }) {
+  async [ns.actions.SET_STATUS]({ commit }, { id, category_id }) {
     try {
       const {
         data: { form }
-      } = await this.$axios.put("/api/forms/status", {
-        id,
-        category_id,
-        status
+      } = await this.$axios.put(`/api/forms/status/${id}`, {
+        category_id
       });
 
+      console.log(form);
+
       commit(ns.mutations.SET_FORM_STATUS, form);
+    } catch (err) {
+      console.log(err);
+    }
+  },
+
+  async [ns.actions.GET_FORM_FIELDS]({ commit }, params) {
+    try {
+      const {
+        data: { form }
+      } = await this.$axios.get(`/api/forms/single`, params);
+
+      console.log(form);
+      commit(ns.mutations.SET_NAME, form.name);
+      commit(ns.mutations.SET_DESCRIPTION, form.description);
+      commit(ns.mutations.SET_CATEGORY, form.category.id);
+      commit(ns.mutations.SET_FIELDS, form.fields);
     } catch (err) {
       console.log(err);
     }

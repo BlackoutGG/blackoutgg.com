@@ -31,7 +31,6 @@
               </v-col>
               <v-col cols="12">
                 <vue-recaptcha
-                  :loadRecaptchaScript="true"
                   :sitekey="siteKey"
                   :theme="'dark'"
                   ref="recaptcha"
@@ -86,6 +85,8 @@ export default {
     return {
       isSending: false,
       valid: false,
+
+      recaptchaId: null,
 
       inputs: {
         email: {
@@ -151,6 +152,10 @@ export default {
       this.$refs.signUpForm.reset();
       this.$refs.recaptcha.reset();
       this.recaptcha = null;
+    },
+
+    onRender(id) {
+      this.recaptchaId = id;
     },
 
     async signUp() {

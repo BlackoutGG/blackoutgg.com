@@ -6,7 +6,7 @@
     <v-card>
       <v-card-title></v-card-title>
       <v-form v-model="valid" ref="userApp">
-        <form-preview :form="form" v-model="valid"></form-preview>
+        <form-preview v-model="valid"></form-preview>
       </v-form>
       <v-card-actions>
         <v-btn text>Submit</v-btn>
@@ -19,9 +19,10 @@
 </template>
 
 <script>
+import forms from "~/utilities/ns/public/forms.js";
 import FormPreview from "~/components/applications/FormPreview.vue";
 export default {
-  name: "UserAppDialog",
+  name: "UserFormDialog",
 
   components: { FormPreview },
 
@@ -33,26 +34,15 @@ export default {
     };
   },
 
-  methods: {
-    async getForm(id) {
-      try {
-        const {
-          data: { form }
-        } = await this.$axios.get(`/api/form/template/${id}`);
+  watch: {
+    categoryId(id) {
+      this.$store.dispatch(forms.actions.GET_FORM, { key: "category", id });
+    }
+  },
 
-        const { questions, ..._form } = form;
-
-        questions.map(question => {
-          question.hasAnswer = true;
-          if (question.type === "checkbox") question.answer = [];
-          else question.answer = "";
-
-          return question;
-        });
-
-        _form.questions = questions;
-        this.form = _form;
-      } catch (err) {}
+  computed: {
+    categoryId() {
+      return this.$store.getters[forms.getters.CATEGORY];
     }
   }
 };

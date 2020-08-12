@@ -17,9 +17,9 @@ export default {
     FormTemplateTable
   },
 
-  middlware: [
+  middleware: [
     "auth",
-    // setPageTitle("View Applications"),
+    setPageTitle("View Forms"),
     ({ store }) => {
       // const categories = store.getters[lists.getters.ITEMS]("categories");
       // if (!categories.length) {

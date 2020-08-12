@@ -14,12 +14,16 @@
         <form-dialog ref="formDialog"></form-dialog>
       </v-toolbar>
     </template>
-    <!-- <template #item.status="{ item }">
-      <v-btn icon @click.native="setFormStatus(item)">
+    <template #item.category="{ item }">{{item.category.name}}</template>
+    <template #item.status="{ item }">
+      <v-btn icon @click.native="setStatus(item)">
         <v-icon v-if="item.status">mdi-check-bold</v-icon>
         <v-icon v-else>mdi-close-thick</v-icon>
       </v-btn>
-    </template>-->
+    </template>
+    <template v-slot:item.actions="{ item }">
+      <table-actions @edit="setEditableContent(item)" :item="item" edit reset delete disable></table-actions>
+    </template>
   </v-data-table>
 </template>
 
@@ -32,20 +36,21 @@ const { mapGetters, mapMutations, mapActions } = createNamespacedHelpers(
 );
 
 import FormDialog from "./FormDialog.vue";
+import TableActions from "~/components/table/TableActions.vue";
 export default {
   name: "FormTemplateTable",
 
-  components: { FormDialog },
+  components: { FormDialog, TableActions },
 
   data() {
     return {
       headers: [
-        // { text: "name", align: "start", value: "name" },
-        // { text: "category", sortable: true, value: "category" },
-        // { text: "status", sortable: true, value: "status" },
-        // { text: "created_at", sortable: true, value: "created_at" },
-        // { text: "updated_at", sortable: true, value: "updated_at" },
-        // { text: "" }
+        { text: "name", align: "start", value: "name" },
+        { text: "category", sortable: true, value: "category" },
+        { text: "status", sortable: true, value: "status" },
+        { text: "created_at", sortable: true, value: "created_at" },
+        { text: "updated_at", sortable: true, value: "updated_at" },
+        { text: "", align: "end", value: "actions" }
       ]
     };
   },
@@ -54,12 +59,12 @@ export default {
     /**
      * this.setParam()
      */
-    ...mapMutations([forms.mutations.SET_PARAM]),
+    ...mapMutations(["setParam"]),
     /**
      * this.fetchForms()
      * this.setFormStatus()
      */
-    ...mapActions([forms.actions.FETCH, forms.actions.SET_STATUS])
+    ...mapActions(["fetchForms", "setStatus"])
   },
 
   computed: {
@@ -68,11 +73,7 @@ export default {
      * this.forms()
      * this.selected()
      */
-    ...mapGetters([
-      forms.getters.QUERY_PARAMS,
-      forms.getters.FORMS,
-      forms.getters.SELECTED
-    ])
+    ...mapGetters(["queryParams", "forms", "selected"])
   }
 };
 </script>
