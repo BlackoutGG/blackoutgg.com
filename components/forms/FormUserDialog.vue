@@ -6,7 +6,7 @@
     <v-card>
       <v-card-title></v-card-title>
       <v-form v-model="valid" ref="userApp">
-        <form-preview v-model="valid"></form-preview>
+        <form-preview></form-preview>
       </v-form>
       <v-card-actions>
         <v-btn text>Submit</v-btn>
@@ -28,15 +28,20 @@ export default {
 
   data() {
     return {
+      open: false,
+      valid: false,
       isSending: false,
-      form: null,
-      valid: false
+      form: null
     };
   },
 
   watch: {
     categoryId(id) {
-      this.$store.dispatch(forms.actions.GET_FORM, { key: "category", id });
+      this.$store.dispatch(forms.actions.GET_FORM, {
+        key: "category_id",
+        id,
+        status: true
+      });
     }
   },
 

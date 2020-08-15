@@ -21,13 +21,20 @@ export default {
   middleware: [
     "auth",
     hasScope("events:view"),
-    setPageTitle("Events"),
-    ({ store }) => {
-      const categories = store.getters[lists.getters.ITEMS]("categories");
-      if (!categories.length) {
-        store.dispatch(lists.actions.FETCH, "categories");
-      }
-    }
-  ]
+    setPageTitle("Events")
+    // ({ store }) => {
+    //   const categories = store.getters[lists.getters.ITEMS]("categories");
+    //   if (!categories.length) {
+    //     store.dispatch(lists.actions.FETCH, "categories");
+    //   }
+    // }
+  ],
+
+  async fetch() {
+    const categories = this.$store.getters[lists.getters.ITEMS]("categories");
+    if (categories.length) return;
+
+    this.$store.dispatch(lists.actions.FETCH, "categories");
+  }
 };
 </script>

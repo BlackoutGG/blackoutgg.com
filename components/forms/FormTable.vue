@@ -11,7 +11,7 @@
     <template #top>
       <v-toolbar>
         <v-spacer></v-spacer>
-        <form-dialog ref="formDialog"></form-dialog>
+        <form-dialog ref="dialog"></form-dialog>
       </v-toolbar>
     </template>
     <template #item.category="{ item }">{{item.category.name}}</template>
@@ -22,7 +22,7 @@
       </v-btn>
     </template>
     <template v-slot:item.actions="{ item }">
-      <table-actions @edit="setEditableContent(item)" :item="item" edit reset delete disable></table-actions>
+      <table-actions @edit="$refs.dialog.setEditableContent(item.id)" :item="item" edit delete></table-actions>
     </template>
   </v-data-table>
 </template>
@@ -59,12 +59,12 @@ export default {
     /**
      * this.setParam()
      */
-    ...mapMutations(["setParam"]),
+    ...mapMutations([forms.mutations.SET_PARAM]),
     /**
      * this.fetchForms()
-     * this.setFormStatus()
+     * this.setStatus()
      */
-    ...mapActions(["fetchForms", "setStatus"])
+    ...mapActions([forms.actions.FETCH, forms.actions.SET_STATUS])
   },
 
   computed: {
@@ -73,7 +73,11 @@ export default {
      * this.forms()
      * this.selected()
      */
-    ...mapGetters(["queryParams", "forms", "selected"])
+    ...mapGetters([
+      forms.getters.QUERY_PARAMS,
+      forms.getters.FORMS,
+      forms.getters.SELECTED
+    ])
   }
 };
 </script>

@@ -18,9 +18,9 @@
         </v-btn>
       </div>
       <v-switch label="Optional" v-model="optional"></v-switch>
-      <v-row class="pl-12" v-if="question.options && question.options.length">
+      <v-row class="pl-12" v-if="options && options.length">
         <question-option
-          v-for="(option, i) in question.options"
+          v-for="(option, i) in options"
           :item="option"
           :idx="i"
           :key="i"
@@ -99,9 +99,9 @@ export default {
   watch: {
     type(v) {
       if (this.hasOptions) {
+        if (!this.question.options) this.setOptions(this.index);
         if (!this.question.options.length) this.addOption(this.index);
-      } else if (this.question.options.length) {
-        // this.question.options = [];
+      } else if (this.question.options && this.question.options.length) {
         this.clearOptions(this.index);
       }
     }
@@ -119,6 +119,7 @@ export default {
      */
     ...mapMutations([
       forms.mutations.ADD_OPTION,
+      forms.mutations.SET_OPTIONS,
       forms.mutations.CLEAR_OPTIONS,
       forms.mutations.CHANGE_QUESTION_TYPE,
       forms.mutations.CHANGE_QUESTION_VALUE,
@@ -141,6 +142,11 @@ export default {
     },
     hasOptions() {
       return this.types.some(item => item.type === this.type && item.options);
+    },
+    options() {
+      return this.question.options && this.question.options.length
+        ? this.question.options
+        : [];
     },
     type: {
       get() {

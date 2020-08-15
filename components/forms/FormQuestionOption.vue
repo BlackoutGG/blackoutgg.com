@@ -44,7 +44,6 @@ export default {
         return this.item.value;
       },
       set(value) {
-        console.log(value);
         this.$store.commit(forms.mutations.CHANGE_OPTION_VALUE, {
           question: this.parentIdx,
           option: this.idx,

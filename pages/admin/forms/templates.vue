@@ -19,14 +19,14 @@ export default {
 
   middleware: [
     "auth",
-    setPageTitle("View Forms"),
-    ({ store }) => {
-      // const categories = store.getters[lists.getters.ITEMS]("categories");
-      // if (!categories.length) {
-      //   store.dispatch(lists.actions.FETCH, "categories");
-      // }
-      store.dispatch(forms.actions.FETCH);
-    }
-  ]
+    setPageTitle("View Forms")
+    // ({ store }) => {
+    //   store.dispatch(forms.actions.FETCH);
+    // }
+  ],
+
+  async fetch() {
+    this.$store.dispatch(forms.actions.FETCH);
+  }
 };
 </script>

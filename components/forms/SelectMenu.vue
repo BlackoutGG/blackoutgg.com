@@ -81,7 +81,13 @@ export default {
   created() {
     const itemText = this.itemText;
     const first = this.items[0];
-    this.innerValue = first[itemText];
+    if (this.value) {
+      const v = this.items.find(item => item.type === this.value);
+      if (v) this.innerValue = v.name;
+      this.$emit("input", this.value);
+    } else {
+      this.innerValue = first[itemText];
+    }
   },
 
   methods: {

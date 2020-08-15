@@ -24,10 +24,14 @@ export default {
     SET_CATEGORY: "forms/setCategory",
     SET_FORMS: "forms/setForms",
     SET_PARAM: "forms/setParam",
-    SET_FORM_STATUS: "forms/setFormStatus"
+    SET_FORM_STATUS: "forms/setFormStatus",
+    SET_FIELDS: "forms/setFields",
+    SET_OPTIONS: "forms/setOptions"
   },
   actions: {
     ADD_FORM: "forms/addForm",
+    GET_FORM: "forms/getForm",
+    CLEAR_FORM: "forms/clearForm",
     SET_STATUS: "forms/setStatus",
     FETCH: "forms/fetchForms"
   }

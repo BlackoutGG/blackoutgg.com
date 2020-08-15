@@ -33,7 +33,7 @@ import forms from "~/utilities/ns/public/forms.js";
 import Question from "./FormQuestion.vue";
 import AddQuestion from "./FormQuestionButton.vue";
 export default {
-  name: "FormDialog",
+  name: "FormTemplate",
 
   components: { AddQuestion, Question },
 
