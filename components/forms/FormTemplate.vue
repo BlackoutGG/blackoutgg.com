@@ -3,7 +3,13 @@
     <v-container>
       <v-row>
         <v-col cols="12" md="12" sm="12">
-          <v-select :items="categoryList" :item-text="'name'" label="Category" :item-value="'id'"></v-select>
+          <v-select
+            :items="categoryList"
+            :item-text="'name'"
+            label="Category"
+            :item-value="'id'"
+            v-model="category"
+          ></v-select>
         </v-col>
         <v-col cols="12" md="12" sm="12">
           <v-text-field v-model="name" label="Name"></v-text-field>
@@ -54,9 +60,11 @@ export default {
     categoryList() {
       return this.$store.getters[lists.getters.ITEMS]("categories");
     },
+
     questions() {
       return this.$store.getters[forms.getters.QUESTIONS];
     },
+
     name: {
       get() {
         return this.$store.getters[forms.getters.NAME];
@@ -65,6 +73,7 @@ export default {
         this.$store.commit(forms.mutations.SET_NAME, value);
       }
     },
+
     description: {
       get() {
         return this.$store.getters[forms.getters.DESCRIPTION];
@@ -73,6 +82,16 @@ export default {
         this.$store.commit(forms.mutations.SET_DESCRIPTION, value);
       }
     },
+
+    category: {
+      get() {
+        return this.$store.getters[forms.getters.CATEGORY];
+      },
+      set(value) {
+        this.$store.commit(forms.mutations.SET_CATEGORY, value);
+      }
+    },
+
     isValid: {
       get() {
         return this.valid;

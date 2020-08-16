@@ -81,6 +81,12 @@ export default {
     }
   },
 
+  beforeDestroy() {
+    if (window && window.grecaptcha) {
+      window.grecaptcha.reset(this.recaptchaId);
+    }
+  },
+
   data() {
     return {
       isSending: false,

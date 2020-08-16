@@ -48,6 +48,8 @@ const getters = {
 
   [ns.getters.DESCRIPTION]: state => state.description,
 
+  [ns.getters.NAME]: state => state.name,
+
   [ns.getters.SELECTED]: state => state.selected,
 
   [ns.getters.FORMS]: state => state.forms,
@@ -188,7 +190,7 @@ const actions = {
 
       commit(ns.mutations.SET_NAME, form.name);
       commit(ns.mutations.SET_DESCRIPTION, form.description);
-      commit(ns.mutations.SET_CATEGORY, form.category.id);
+      commit(ns.mutations.SET_CATEGORY, form.category_id);
       commit(ns.mutations.SET_FIELDS, form.fields);
 
       return form;
@@ -226,11 +228,14 @@ const actions = {
     }
   },
 
-  async [ns.actions.EDIT_FORM]({ commit }, { id, payload }) {
+  async [ns.actions.EDIT_FORM]({ state, commit }, { id, payload }) {
     try {
       const {
         data: { form }
       } = await this.$axios.put(`/${id}`, payload);
+
+      if (form.name) commit(ns.mutations.SET_NAME, form.name);
+      if (form.category_id) commit(ns.mutations.SET_CATEGORY, form.category_id);
     } catch (err) {}
   }
 };

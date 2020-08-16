@@ -20,7 +20,7 @@
           <span>Question {{ idx + 1 }}</span>
         </div>
         <p class="text--white">{{ field.value }}</p>
-        <template v-if="!field.options.length">
+        <template v-if="!field.options">
           <v-text-field v-if="field.type === 'textfield'"></v-text-field>
           <v-textarea v-else></v-textarea>
         </template>
@@ -100,11 +100,11 @@ export default {
       forms.getters.CATEGORY
     ]),
     fields() {
-      return this.form ? this.form.fields : this.questions();
+      return this.form ? this.form.fields : this.questions;
     },
     _description: {
       get() {
-        return this.form ? this.form.description : this.description();
+        return this.form ? this.form.description : this.description;
       },
       set(value) {
         if (this.form) this.$emit("input", value);
@@ -116,7 +116,7 @@ export default {
     },
     _category: {
       get() {
-        return this.form ? this.form.category.id : this.category();
+        return this.form ? this.form.category.id : this.category;
       },
       set(value) {
         if (this.form) this.$emit("input", value);

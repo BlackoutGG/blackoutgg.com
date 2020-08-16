@@ -73,6 +73,12 @@ export default {
 
   components: { Divider, DiscordButton, VueRecaptcha },
 
+  beforeDestroy() {
+    if (window && window.grecaptcha) {
+      window.grecaptcha.reset(this.recaptchaId);
+    }
+  },
+
   data() {
     return {
       recaptchaId: null,
@@ -158,10 +164,6 @@ export default {
         await this.$auth.loginWith("local", {
           data
         });
-
-        if (window && window.grecaptcha) {
-          window.grecaptcha.reset(this.recaptchaId);
-        }
 
         this.setSnackbar(`You've successfully logged in!`);
       } catch (err) {

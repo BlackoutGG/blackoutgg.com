@@ -59,21 +59,9 @@ import cloneDeep from "lodash/cloneDeep";
 import pickBy from "lodash/pickBy";
 import pick from "lodash/pick";
 import isEqual from "lodash/isEqual";
+import filter from "lodash/filter";
 
 const { mapGetters, mapActions } = createNamespacedHelpers("forms");
-
-const objectsAreSame = (x, y) => {
-  const same = true;
-  for (const propName of x) {
-    if (propName !== "isNew") {
-      if (x[propName] !== y[propName]) {
-        same = false;
-        break;
-      }
-    }
-  }
-  return same;
-};
 
 export default {
   name: "FormDialog",
@@ -116,26 +104,38 @@ export default {
       if (this.mode === "new") {
         this.addForm();
       } else {
-        const payload = {};
+        const data = {};
 
-        if (Object.keys(this.markedFormPropsForChange).length) {
-          payload.form = this.markedFormPropsForChange;
+        if (this.markedFormPropsForChange) {
+          data.form = this.markedFormPropsForChange;
         }
 
         if (this.newFields.length) {
-          payload.created = this.newFields;
+          data.create = this.newFields.map(field => {
+            delete field.isNew;
+            field.options = filter(field.options, "value").map(o => ({
+              value: o.value
+            }));
+            return field;
+          });
+
+          data.create = this.newFields;
         }
 
         if (this.markedFieldsForChange.length) {
-          payload.patch = this.markedFieldsForChange;
+          // data.patch = this.markedFieldsForChange.map(field => {
+          //   field.options = filter("field.option");
+          //   return field;
+          // });
+
+          data.patch = this.markedFieldsForChange;
         }
 
         if (this.markedFieldsForDeletion.length) {
-          payload.delete = this.markedFieldsForDeletion;
+          data.remove = this.markedFieldsForDeletion;
         }
-
         try {
-          await this.editForm(payload);
+          await this.editForm({ id: this.form.id, payload: this.altered });
           this.open = false;
         } catch (err) {
           console.log(err);
@@ -145,10 +145,12 @@ export default {
     reset() {
       this.form = null;
       this.tab = null;
+      this.mode = "new";
       this.clearForm();
     },
 
     async setEditableContent(id) {
+      this.mode = "edit";
       this.open = true;
       this.isSending = true;
       try {
@@ -162,15 +164,22 @@ export default {
   },
 
   computed: {
+    ...mapGetters([
+      forms.getters.QUESTIONS,
+      forms.getters.NAME,
+      forms.getters.DESCRIPTION,
+      forms.getters.CATEGORY
+    ]),
+
     fields() {
-      return this.$store.getters["forms/questions"];
+      return this.questions;
     },
 
-    baseFormProperties() {
+    formProperties() {
       return {
-        name: this.$store.getters[form.getters.NAME],
-        description: this.$store.getters[form.getters.description],
-        category_id: this.$store.getters[form.getters.CATEGORY]
+        name: this.name,
+        description: this.description,
+        category_id: this.category
       };
     },
 
@@ -179,19 +188,29 @@ export default {
     },
 
     newFields() {
+      // return this.form && this.fields && this.fields.length
+      //   ? this.fields.filter(field => field.isNew && field.value)
+      //   : [];
+
       return this.form && this.fields && this.fields.length
-        ? this.fields.filter(field => field.isNew && field.value)
+        ? this.fields.reduce((arr, field) => {
+            const idx = this.form.fields.findIndex(
+              f => f.id && f.value && f.id === field.id
+            );
+            if (idx === -1) arr.push(field);
+            return arr;
+          }, [])
         : [];
     },
 
     markedFormPropsForChange() {
       return this.form
         ? pickBy(
-            this.baseFormProperties,
+            this.formProperties,
             () =>
               !isEqual(
                 pick(this.form, ["name", "description", "category_id"]),
-                this.baseFormProperties
+                this.formProperties
               )
           )
         : null;
@@ -203,15 +222,19 @@ export default {
             const field = this.fields.find(fs => !fs.isNew && fs.id === f.id);
 
             if (field) {
-              const changed = pickBy(field, (value, key) => {
-                // return f[key] !== value;
+              let changed = pickBy(field, (value, key) => {
                 return !isEqual(f[key], value);
               });
+
+              const { options, ...ignore } = changed;
+
+              const validOptions =
+                options && options.length ? filter(options, "value") : null;
 
               const numOfChanged = Object.keys(changed).length;
 
               if (numOfChanged) {
-                arr.push({ id: field.id, ...changed });
+                arr.push({ id: field.id, ...changed, options: validOptions });
               }
             }
 
