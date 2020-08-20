@@ -30,6 +30,7 @@ export default {
   },
   actions: {
     ADD_FORM: "forms/addForm",
+    EDIT_FORM: "forms/editForm",
     GET_FORM: "forms/getForm",
     CLEAR_FORM: "forms/clearForm",
     SET_STATUS: "forms/setStatus",

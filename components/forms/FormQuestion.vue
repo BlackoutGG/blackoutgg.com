@@ -18,9 +18,9 @@
         </v-btn>
       </div>
       <v-switch label="Optional" v-model="optional"></v-switch>
-      <v-row class="pl-12" v-if="options && options.length">
+      <v-row class="pl-12" v-if="question.options && question.options.length">
         <question-option
-          v-for="(option, i) in options"
+          v-for="(option, i) in question.options"
           :item="option"
           :idx="i"
           :key="i"
@@ -48,8 +48,11 @@ import { createNamespacedHelpers } from "vuex";
 import SelectMenu from "./SelectMenu.vue";
 import QuestionOption from "./FormQuestionOption.vue";
 import forms from "~/utilities/ns/private/forms.js";
+import isAlphanumeric from "~/utilities/isAlphanumeric.js";
+import isEqual from "lodash/isEqual";
 
 const { mapGetters, mapMutations } = createNamespacedHelpers("forms");
+
 export default {
   name: "Question",
 
@@ -71,6 +74,8 @@ export default {
   data() {
     return {
       icon: "mdi-menu",
+      optionCache: [],
+      isRequired: v => (v.length && isAlphanumeric(v)) || "Field is required.",
       types: [
         { icon: "mdi-form-textbox", type: "textfield", name: "Short answer" },
         { icon: "mdi-form-textarea", type: "textarea", name: "Long answer" },
@@ -97,12 +102,27 @@ export default {
   },
 
   watch: {
+    options(newValue, oldValue) {
+      if (
+        !Array.isArray(newValue) &&
+        Array.isArray(oldValue) &&
+        oldValue.length
+      ) {
+        this.optionCache = oldValue;
+      }
+    },
     type(v) {
       if (this.hasOptions) {
-        if (!this.question.options) this.setOptions(this.index);
-        if (!this.question.options.length) this.addOption(this.index);
-      } else if (this.question.options && this.question.options.length) {
-        this.clearOptions(this.index);
+        if (!this.question.options || !this.question.options.length) {
+          if (!this.optionCache.length) {
+            this.setOptions({ idx: this.index, value: [] });
+            this.addOption(this.index);
+          } else {
+            this.setOptions({ idx: this.index, value: this.optionCache });
+          }
+        }
+      } else {
+        this.setOptions({ idx: this.index, value: null });
       }
     }
   },
@@ -144,9 +164,7 @@ export default {
       return this.types.some(item => item.type === this.type && item.options);
     },
     options() {
-      return this.question.options && this.question.options.length
-        ? this.question.options
-        : [];
+      return this.question.options;
     },
     type: {
       get() {

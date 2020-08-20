@@ -8,44 +8,51 @@
     </template>
 
     <v-card :max-width="maxWidth">
-      <v-toolbar dark>
-        <v-toolbar-title>
-          <span>Create A Form</span>
-        </v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-btn icon @click="open = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </v-toolbar>
-      <v-tabs fixed-tabs v-model="tab">
-        <v-tab>
-          <span>Form</span>
-        </v-tab>
-        <v-tab>
-          <span>Preview</span>
-        </v-tab>
-      </v-tabs>
-      <v-tabs-items v-model="tab">
-        <v-tab-item>
-          <v-card-text>
-            <form-template v-model="valid"></form-template>
-          </v-card-text>
-        </v-tab-item>
-        <v-tab-item>
-          <v-card-text>
-            <form-preview></form-preview>
-          </v-card-text>
-        </v-tab-item>
-      </v-tabs-items>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn text :disabled="isDisabled" @click="save">
-          <span>Save</span>
-        </v-btn>
-        <v-btn text :disabled="isDisabled">
-          <span>Reset</span>
-        </v-btn>
-      </v-card-actions>
+      <template v-if="!success">
+        <v-toolbar dark>
+          <v-toolbar-title>
+            <span>Create A Form</span>
+          </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon @click="open = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-toolbar>
+
+        <v-tabs fixed-tabs v-model="tab">
+          <v-tab>
+            <span>Form</span>
+          </v-tab>
+          <v-tab>
+            <span>Preview</span>
+          </v-tab>
+        </v-tabs>
+        <v-tabs-items v-model="tab">
+          <v-tab-item>
+            <v-card-text>
+              <form-template v-model="valid"></form-template>
+            </v-card-text>
+          </v-tab-item>
+          <v-tab-item>
+            <v-card-text>
+              <form-preview></form-preview>
+            </v-card-text>
+          </v-tab-item>
+        </v-tabs-items>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text :disabled="isDisabled" @click="save">
+            <span>Save</span>
+          </v-btn>
+          <v-btn text :disabled="isDisabled">
+            <span>Reset</span>
+          </v-btn>
+        </v-card-actions>
+      </template>
+      <template v-else>
+        <success-card @ok="ok" />
+      </template>
     </v-card>
   </v-dialog>
 </template>
@@ -53,8 +60,11 @@
 <script>
 import { createNamespacedHelpers } from "vuex";
 import forms from "~/utilities/ns/private/forms.js";
+
 import FormTemplate from "./FormTemplate.vue";
 import FormPreview from "./FormPreview.vue";
+import SuccessCard from "~/components/Success.vue";
+
 import cloneDeep from "lodash/cloneDeep";
 import pickBy from "lodash/pickBy";
 import pick from "lodash/pick";
@@ -66,12 +76,13 @@ const { mapGetters, mapActions } = createNamespacedHelpers("forms");
 export default {
   name: "FormDialog",
 
-  components: { FormTemplate, FormPreview },
+  components: { FormTemplate, FormPreview, SuccessCard },
 
   data() {
     return {
       valid: false,
       open: false,
+      success: false,
       tab: null,
       maxWidth: "800px",
 
@@ -97,6 +108,7 @@ export default {
      */
     ...mapActions([
       forms.actions.ADD_FORM,
+      forms.actions.EDIT_FORM,
       forms.actions.CLEAR_FORM,
       forms.actions.GET_FORM
     ]),
@@ -104,44 +116,40 @@ export default {
       if (this.mode === "new") {
         this.addForm();
       } else {
-        const data = {};
+        const payload = {};
 
-        if (this.markedFormPropsForChange) {
-          data.form = this.markedFormPropsForChange;
+        if (
+          this.markedFormPropsForChange &&
+          Object.keys(this.markedFormPropsForChange)
+        ) {
+          payload.form = this.markedFormPropsForChange;
         }
 
         if (this.newFields.length) {
-          data.create = this.newFields.map(field => {
-            delete field.isNew;
-            field.options = filter(field.options, "value").map(o => ({
-              value: o.value
-            }));
-            return field;
-          });
-
-          data.create = this.newFields;
+          payload.create = this.newFields;
         }
 
         if (this.markedFieldsForChange.length) {
-          // data.patch = this.markedFieldsForChange.map(field => {
-          //   field.options = filter("field.option");
-          //   return field;
-          // });
-
-          data.patch = this.markedFieldsForChange;
+          payload.patch = this.markedFieldsForChange;
         }
 
         if (this.markedFieldsForDeletion.length) {
-          data.remove = this.markedFieldsForDeletion;
+          payload.remove = this.markedFieldsForDeletion;
         }
         try {
-          await this.editForm({ id: this.form.id, payload: this.altered });
-          this.open = false;
+          await this.editForm({ id: this.form.id, payload });
+          this.success = true;
         } catch (err) {
           console.log(err);
         }
       }
     },
+
+    ok() {
+      this.open = false;
+      this.$nextTick(() => (this.success = false));
+    },
+
     reset() {
       this.form = null;
       this.tab = null;
@@ -188,45 +196,47 @@ export default {
     },
 
     newFields() {
-      // return this.form && this.fields && this.fields.length
-      //   ? this.fields.filter(field => field.isNew && field.value)
-      //   : [];
-
       return this.form && this.fields && this.fields.length
         ? this.fields.reduce((arr, field) => {
-            const idx = this.form.fields.findIndex(
-              f => f.id && f.value && f.id === field.id
-            );
-            if (idx === -1) arr.push(field);
+            const idx = this.form.fields.findIndex(f => f.id === field.id);
+            if (idx === -1 && field.value.length) {
+              const { options, ...content } = field;
+
+              const validOptions =
+                options && options.length ? filter(options, "value") : options;
+
+              arr.push({ ...content, options: validOptions });
+            }
             return arr;
           }, [])
         : [];
     },
 
     markedFormPropsForChange() {
-      return this.form
-        ? pickBy(
-            this.formProperties,
-            () =>
-              !isEqual(
-                pick(this.form, ["name", "description", "category_id"]),
-                this.formProperties
-              )
-          )
-        : null;
+      const form = pick(this.form, ["name", "description", "category_id"]);
+      const diff = pickBy(
+        this.formProperties,
+        (value, key) => !isEqual(form[key], value)
+      );
+      return Object.keys(diff).length ? diff : null;
     },
 
     markedFieldsForChange() {
       return this.form && this.fields
         ? this.form.fields.reduce((arr, f) => {
-            const field = this.fields.find(fs => !fs.isNew && fs.id === f.id);
+            const field = this.fields.find(
+              fs => fs.hasOwnProperty("id") && fs.id === f.id
+            );
 
             if (field) {
-              let changed = pickBy(field, (value, key) => {
-                return !isEqual(f[key], value);
-              });
+              const result = { id: field.id };
 
-              const { options, ...ignore } = changed;
+              let changed = pickBy(
+                field,
+                (value, key) => !isEqual(f[key], value)
+              );
+
+              const { options, ...content } = changed;
 
               const validOptions =
                 options && options.length ? filter(options, "value") : null;
@@ -234,7 +244,14 @@ export default {
               const numOfChanged = Object.keys(changed).length;
 
               if (numOfChanged) {
-                arr.push({ id: field.id, ...changed, options: validOptions });
+                // arr.push({ id: field.id, ...content });
+                Object.assign(result, content);
+
+                if (validOptions && validOptions.length) {
+                  Object.assign(result, { options: validOptions });
+                }
+
+                arr.push(result);
               }
             }
 

@@ -7,6 +7,8 @@ export default function isAlphanumeric(str) {
       !(code > 96 && code < 123)
     ) {
       return false;
+    } else if (code === 32) {
+      return true;
     }
   }
   return true;

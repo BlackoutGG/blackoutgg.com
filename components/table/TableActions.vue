@@ -1,5 +1,5 @@
 <template>
-  <v-menu>
+  <v-menu v-model="open">
     <template v-slot:activator="{ on }">
       <v-icon v-on="on">mdi-dots-vertical</v-icon>
     </template>
@@ -66,6 +66,12 @@ export default {
       type: Boolean,
       default: false
     }
+  },
+
+  data() {
+    return {
+      open: false
+    };
   },
 
   computed: {

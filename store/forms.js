@@ -32,12 +32,7 @@ const getters = {
       .map((qs, idx) => {
         const { isNew, options, ...field } = qs;
         const validOptions =
-          options && options.length
-            ? filter(options, "value").map(o => {
-                const { isNew, ...options } = o;
-                return options;
-              })
-            : [];
+          options && options.length ? filter(options, "value") : [];
         return {
           ...field,
           options: validOptions
@@ -63,13 +58,12 @@ const mutations = {
       value: "",
       type: "textfield",
       optional: true,
-      options: [],
-      isNew: true
+      options: []
     });
   },
   [ns.mutations.ADD_OPTION](state, idx) {
     const q = state.questions[idx];
-    if (q) q.options.push({ value: "", isNew: true });
+    if (q) q.options.push({ value: "" });
   },
   [ns.mutations.CLEAR_OPTIONS](state, idx) {
     const q = state.questions[idx];
@@ -134,9 +128,20 @@ const mutations = {
   [ns.mutations.SET_FIELDS](state, fields) {
     state.questions = fields;
   },
-  [ns.mutations.SET_OPTIONS](state, idx) {
+  [ns.mutations.SET_OPTIONS](state, { idx, value }) {
     const q = state.questions[idx];
-    if (q && !q.options) q.options = [];
+    if (q) q.options = value;
+  },
+  [ns.mutations.SET_NAME_IN_LIST](state, { id, name }) {
+    const form = state.forms.find(f => f.id === id);
+    if (form) form.name = name;
+  },
+  [ns.mutations.SET_CATEGORY_IN_LIST](state, { id, category_id, name }) {
+    const form = state.forms.find(f => f.id === id);
+    if (form && form.category) {
+      form.category.name = name;
+      form.category.id = category_id;
+    }
   }
 };
 
@@ -148,8 +153,6 @@ const actions = {
       } = await this.$axios.get("/api/forms", {
         params: { ...state.queryParams }
       });
-
-      console.log(forms);
 
       commit(
         lists.mutations.SET_LIST,
@@ -228,14 +231,24 @@ const actions = {
     }
   },
 
-  async [ns.actions.EDIT_FORM]({ state, commit }, { id, payload }) {
+  async [ns.actions.EDIT_FORM]({ commit }, { id, payload }) {
+    console.log(id, payload);
     try {
       const {
         data: { form }
-      } = await this.$axios.put(`/${id}`, payload);
+      } = await this.$axios.put(`/api/forms/edit/${id}`, payload);
 
-      if (form.name) commit(ns.mutations.SET_NAME, form.name);
-      if (form.category_id) commit(ns.mutations.SET_CATEGORY, form.category_id);
+      if (form.name) {
+        commit(ns.mutations.SET_NAME_IN_LIST, { id, name: form.name });
+      }
+
+      if (form.category) {
+        commit(ns.mutation.SET_CATEGORY_IN_LIST, {
+          id: form.id,
+          category_id: form.category.id,
+          name: form.category.name
+        });
+      }
     } catch (err) {}
   }
 };

@@ -6,7 +6,7 @@
     <v-card>
       <v-card-title></v-card-title>
       <v-form v-model="valid" ref="userApp">
-        <form-preview></form-preview>
+        <form-user-application></form-user-application>
       </v-form>
       <v-card-actions>
         <v-btn text>Submit</v-btn>

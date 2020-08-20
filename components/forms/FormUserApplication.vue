@@ -3,9 +3,9 @@
     <v-row>
       <v-col cols="12">
         <v-select
+          label="Category"
           :form="categoryList"
           :item-text="'name'"
-          label="Category"
           :item-value="'id'"
           :value="category"
         ></v-select>
@@ -21,12 +21,15 @@
         </div>
         <p class="text--white">{{ field.value }}</p>
         <template v-if="!field.options">
-          <v-text-field v-if="field.type === 'textfield'"></v-text-field>
-          <v-textarea v-else></v-textarea>
+          <v-text-field
+            v-model="textfield[`textfield_${field.id}`]"
+            v-if="field.type === 'textfield'"
+          ></v-text-field>
+          <v-textarea v-model="textarea[`textarea_${field.id}`]" v-else></v-textarea>
         </template>
         <template v-else>
           <template v-if="field.type === 'multiple'">
-            <v-radio-group v-model="radioGroup">
+            <v-radio-group v-model="multiple[`multiple_${field.id}`]">
               <template v-for="(option, i) in field.options">
                 <v-radio :label="option.value" :key="i" v-if="option.value"></v-radio>
               </template>
@@ -36,7 +39,7 @@
             <template v-for="(option, i) in field.options">
               <v-checkbox
                 class="my-0 py-0"
-                :value="option.value"
+                v-model="checkbox[`checkbox_${field.id}`]"
                 :label="option.value"
                 :key="i"
                 v-if="option.value"
@@ -45,7 +48,12 @@
             </template>
           </template>
           <template v-else>
-            <v-select :items="field.options" :item-text="'value'" :item-value="'value'"></v-select>
+            <v-select
+              v-model="select[`select_${field.id}`]"
+              :items="field.options"
+              :item-text="'value'"
+              :item-value="'value'"
+            ></v-select>
           </template>
         </template>
       </v-col>
@@ -61,12 +69,32 @@ import { createNamespacedHelpers } from "vuex";
 const { mapGetters, mapMutations } = createNamespacedHelpers("forms");
 
 export default {
-  name: "FormPreview",
+  name: "FormUserApplication",
+
+  props: {
+    form: {
+      type: Object
+    }
+  },
 
   data() {
     return {
-      radioGroup: ""
+      textfield: null,
+      textarea: null,
+      checkbox: null,
+      select: null,
+      multiple: null
     };
+  },
+
+  created() {
+    this.form.fields.forEach(field => {
+      if (!this[field.type]) this[field.type] = {};
+      Object.assign(this[field.type], {
+        [`${this.field.type}_${this.field.id}`]:
+          this.field.type === "checkbox" ? [] : ""
+      });
+    });
   },
 
   methods: {
@@ -90,17 +118,25 @@ export default {
      * category()
      */
     ...mapGetters([
-      forms.getters.VALID_FIELDS,
+      forms.getters.QUESTIONS,
       forms.getters.DESCRIPTION,
       forms.getters.CATEGORY
     ]),
 
     fields() {
-      return this.validFields;
+      return this.questions;
     },
 
     categoryList() {
       return this.getter(lists.getters.ITEMS)("categories");
+    },
+    _category: {
+      get() {
+        return this.category;
+      },
+      set(value) {
+        this.setCategory(value);
+      }
     }
   }
 };
