@@ -61,7 +61,7 @@
 import { createNamespacedHelpers } from "vuex";
 import forms from "~/utilities/ns/private/forms.js";
 
-import FormTemplate from "./FormTemplate.vue";
+import FormTemplate from "./FormTemplateWithDnD.vue";
 import FormPreview from "./FormPreview.vue";
 import SuccessCard from "~/components/Success.vue";
 
@@ -69,7 +69,6 @@ import cloneDeep from "lodash/cloneDeep";
 import pickBy from "lodash/pickBy";
 import pick from "lodash/pick";
 import isEqual from "lodash/isEqual";
-import filter from "lodash/filter";
 
 const { mapGetters, mapActions } = createNamespacedHelpers("forms");
 
@@ -147,7 +146,7 @@ export default {
 
     ok() {
       this.open = false;
-      this.$nextTick(() => (this.success = false));
+      this.$nextTick(() => setTimeout(() => (this.success = false)), 10);
     },
 
     reset() {
@@ -161,8 +160,12 @@ export default {
       this.mode = "edit";
       this.open = true;
       this.isSending = true;
+
+      const params = { key: "id", id };
+      const editable = true;
+
       try {
-        this.form = cloneDeep(await this.getForm({ key: "id", id }));
+        this.form = cloneDeep(await this.getForm({ params, editable }));
       } catch (err) {
         console.log(err);
       } finally {
@@ -180,7 +183,11 @@ export default {
     ]),
 
     fields() {
-      return this.questions;
+      return this.questions.map((q, idx) => {
+        const { order, ...question } = q;
+        question.order = idx;
+        return question;
+      });
     },
 
     formProperties() {
@@ -200,10 +207,10 @@ export default {
         ? this.fields.reduce((arr, field) => {
             const idx = this.form.fields.findIndex(f => f.id === field.id);
             if (idx === -1 && field.value.length) {
-              const { options, ...content } = field;
+              const { options, cache, ...content } = field;
 
               const validOptions =
-                options && options.length ? filter(options, "value") : options;
+                options && options.length ? options.filter(o => !!o) : options;
 
               arr.push({ ...content, options: validOptions });
             }
@@ -224,8 +231,9 @@ export default {
     markedFieldsForChange() {
       return this.form && this.fields
         ? this.form.fields.reduce((arr, f) => {
-            const field = this.fields.find(
-              fs => fs.hasOwnProperty("id") && fs.id === f.id
+            const field = pick(
+              this.fields.find(fs => fs.hasOwnProperty("id") && fs.id === f.id),
+              ["id", "value", "optional", "options", "type", "order"]
             );
 
             if (field) {
@@ -239,7 +247,7 @@ export default {
               const { options, ...content } = changed;
 
               const validOptions =
-                options && options.length ? filter(options, "value") : null;
+                options && options.length ? options.filter(o => !!o) : null;
 
               const numOfChanged = Object.keys(changed).length;
 

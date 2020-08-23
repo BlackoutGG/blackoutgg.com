@@ -8,11 +8,18 @@
         <div class="flex-grow-1 pr-5">
           <v-text-field v-model="computedValue" :label="label" :placeholder="label">
             <template #prepend>
-              <v-icon class="draggable" small>{{icon}}</v-icon>
+              <v-icon class="handle" small v-text="icon"></v-icon>
             </template>
           </v-text-field>
         </div>
-        <select-menu small outlined :medium="false" v-model="type" :items="types"></select-menu>
+        <select-menu
+          small
+          outlined
+          v-model="type"
+          @change="onChange"
+          :medium="false"
+          :items="types"
+        ></select-menu>
         <v-btn icon @click="removeQuestion(index)">
           <v-icon>mdi-close</v-icon>
         </v-btn>
@@ -68,13 +75,16 @@ export default {
     },
     num: {
       type: Number
+    },
+    isDrag: {
+      type: Boolean,
+      default: false
     }
   },
 
   data() {
     return {
       icon: "mdi-menu",
-      optionCache: [],
       isRequired: v => (v.length && isAlphanumeric(v)) || "Field is required.",
       types: [
         { icon: "mdi-form-textbox", type: "textfield", name: "Short answer" },
@@ -103,26 +113,14 @@ export default {
 
   watch: {
     options(newValue, oldValue) {
-      if (
-        !Array.isArray(newValue) &&
-        Array.isArray(oldValue) &&
-        oldValue.length
-      ) {
-        this.optionCache = oldValue;
-      }
-    },
-    type(v) {
-      if (this.hasOptions) {
-        if (!this.question.options || !this.question.options.length) {
-          if (!this.optionCache.length) {
-            this.setOptions({ idx: this.index, value: [] });
-            this.addOption(this.index);
-          } else {
-            this.setOptions({ idx: this.index, value: this.optionCache });
-          }
+      if (!this.isDrag) {
+        if (
+          !Array.isArray(newValue) &&
+          Array.isArray(oldValue) &&
+          oldValue.length
+        ) {
+          this.optionCache = oldValue;
         }
-      } else {
-        this.setOptions({ idx: this.index, value: null });
       }
     }
   },
@@ -136,6 +134,7 @@ export default {
      * toggleOptional()
      * removeQuestion()
      * removeOption()
+     * setOptionsCache()
      */
     ...mapMutations([
       forms.mutations.ADD_OPTION,
@@ -145,11 +144,31 @@ export default {
       forms.mutations.CHANGE_QUESTION_VALUE,
       forms.mutations.TOGGLE_OPTIONAL,
       forms.mutations.REMOVE_QUESTION,
-      forms.mutations.REMOVE_OPTION
+      forms.mutations.REMOVE_OPTION,
+      forms.mutations.SET_OPTIONS_CACHE
     ]),
 
     _removeOption(i) {
       this.removeOption({ question: this.index, option: i });
+    },
+
+    onChange() {
+      if (this.hasOptions) {
+        if (!this.question.options || !this.question.options.length) {
+          if (!this.optionCache.length) {
+            this.setOptions({ idx: this.index, value: [] });
+            this.addOption(this.index);
+          } else {
+            this.setOptions({
+              idx: this.index,
+              value: [...this.optionCache]
+            });
+            this.setOptionsCache({ idx: this.index, value: [] });
+          }
+        }
+      } else {
+        this.setOptions({ idx: this.index, value: null });
+      }
     }
   },
 
@@ -165,6 +184,14 @@ export default {
     },
     options() {
       return this.question.options;
+    },
+    optionCache: {
+      get() {
+        return this.question.cache;
+      },
+      set(value) {
+        this.setOptionsCache({ idx: this.index, value });
+      }
     },
     type: {
       get() {

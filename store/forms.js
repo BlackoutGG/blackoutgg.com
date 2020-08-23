@@ -1,7 +1,6 @@
 import ns from "~/utilities/ns/private/forms.js";
 import lists from "~/utilities/ns/public/lists.js";
 import snackbar from "~/utilities/ns/public/snackbar.js";
-import filter from "lodash/filter";
 
 const state = () => ({
   name: "",
@@ -9,6 +8,7 @@ const state = () => ({
   description: "",
 
   questions: [],
+
   forms: [],
   selected: [],
 
@@ -30,9 +30,9 @@ const getters = {
   [ns.getters.VALID_FIELDS]: state => {
     return state.questions
       .map((qs, idx) => {
-        const { isNew, options, ...field } = qs;
+        const { options, cache, ...field } = qs;
         const validOptions =
-          options && options.length ? filter(options, "value") : [];
+          options && options.length ? options.filter(o => !!o) : null;
         return {
           ...field,
           options: validOptions
@@ -58,28 +58,26 @@ const mutations = {
       value: "",
       type: "textfield",
       optional: true,
-      options: []
+      options: [],
+      cache: []
     });
   },
   [ns.mutations.ADD_OPTION](state, idx) {
     const q = state.questions[idx];
-    if (q) q.options.push({ value: "" });
+    if (q) q.options.push("");
   },
   [ns.mutations.CLEAR_OPTIONS](state, idx) {
     const q = state.questions[idx];
     if (q) q.options = [];
   },
   [ns.mutations.CHANGE_QUESTION_VALUE](state, { idx, value }) {
-    // const q = state.questions.find((qs => qs.id === id);
-    // if (q) q.value = value;
     const q = state.questions[idx];
     if (q) q.value = value;
   },
   [ns.mutations.CHANGE_OPTION_VALUE](state, { question, option, value }) {
     const q = state.questions[question];
     if (q) {
-      const o = q.options[option];
-      if (o) o.value = value;
+      q.options.splice(option, 1, value);
     }
   },
   [ns.mutations.CHANGE_QUESTION_TYPE](state, { idx, type }) {
@@ -87,8 +85,6 @@ const mutations = {
     if (q) q.type = type;
   },
   [ns.mutations.TOGGLE_OPTIONAL](state, { idx, bool }) {
-    // const q = getById(id);
-    // if (q) q.optional = !q.optional;
     const q = state.questions[idx];
     q.optional = bool;
   },
@@ -105,13 +101,20 @@ const mutations = {
     state.queryParams[param] = value;
   },
   [ns.mutations.SET_FORM_STATUS](state, { id, category_id, status }) {
-    state.forms = state.forms
-      .filter(form => form.category_id === category_id)
-      .map(form => {
+    // state.forms
+    //   .filter(form => form.category_id === category_id)
+    //   .forEach(form => {
+    //     if (form.id !== id) form.status = false;
+    //     else form.status = status;
+    //   });
+
+    state.forms.forEach(form => {
+      if (form.category_id === category_id) {
         if (form.id !== id) form.status = false;
         else form.status = status;
-        return form;
-      });
+      }
+      return form;
+    });
   },
   [ns.mutations.SET_DESCRIPTION](state, description) {
     state.description = description;
@@ -131,6 +134,10 @@ const mutations = {
   [ns.mutations.SET_OPTIONS](state, { idx, value }) {
     const q = state.questions[idx];
     if (q) q.options = value;
+  },
+  [ns.mutations.SET_OPTIONS_CACHE](state, { idx, value }) {
+    let q = state.questions[idx];
+    if (q) q.cache = value;
   },
   [ns.mutations.SET_NAME_IN_LIST](state, { id, name }) {
     const form = state.forms.find(f => f.id === id);
@@ -185,7 +192,7 @@ const actions = {
     }
   },
 
-  async [ns.actions.GET_FORM]({ commit }, params) {
+  async [ns.actions.GET_FORM]({ commit }, { params, editable }) {
     try {
       const {
         data: { form }
@@ -194,7 +201,12 @@ const actions = {
       commit(ns.mutations.SET_NAME, form.name);
       commit(ns.mutations.SET_DESCRIPTION, form.description);
       commit(ns.mutations.SET_CATEGORY, form.category_id);
-      commit(ns.mutations.SET_FIELDS, form.fields);
+      commit(
+        ns.mutations.SET_FIELDS,
+        editable
+          ? form.fields.map(field => ({ ...field, cache: [] }))
+          : form.fields
+      );
 
       return form;
     } catch (err) {

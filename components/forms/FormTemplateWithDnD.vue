@@ -18,12 +18,21 @@
           <v-textarea v-model="description" outlined label="Description" counter></v-textarea>
         </v-col>
       </v-row>
-      <question
-        v-for="(question, idx) in questions"
-        :key="idx"
-        :num="idx + 1"
-        :question="question"
-      />
+      <draggable
+        v-model="questions"
+        handle=".handle"
+        group="fields"
+        @start="drag = true"
+        @end="onDragEnd"
+      >
+        <question
+          v-for="(question, idx) in questions"
+          :key="idx"
+          :num="idx + 1"
+          :question="question"
+          :isDrag="drag"
+        />
+      </draggable>
       <v-row>
         <v-col cols="12">
           <add-question @click.native="addQuestion"></add-question>
@@ -36,23 +45,28 @@
 <script>
 import lists from "~/utilities/ns/public/lists.js";
 import forms from "~/utilities/ns/public/forms.js";
-import Question from "./FormQuestion2.vue";
+import Question from "./FormQuestion.vue";
 import AddQuestion from "./FormQuestionButton.vue";
+import draggable from "vuedraggable";
 export default {
   name: "FormTemplate",
 
-  components: { AddQuestion, Question },
+  components: { AddQuestion, Question, draggable },
 
   data() {
     return {
       valid: false,
-      open: false
+      open: false,
+      drag: false
     };
   },
 
   methods: {
     addQuestion() {
       this.$store.commit(forms.mutations.ADD_QUESTION);
+    },
+    onDragEnd() {
+      this.$nextTick(() => setTimeout(() => (this.drag = false)), 10);
     }
   },
 
@@ -61,8 +75,13 @@ export default {
       return this.$store.getters[lists.getters.ITEMS]("categories");
     },
 
-    questions() {
-      return this.$store.getters[forms.getters.QUESTIONS];
+    questions: {
+      get() {
+        return this.$store.getters[forms.getters.QUESTIONS];
+      },
+      set(value) {
+        this.$store.commit(forms.mutations.SET_FIELDS, value);
+      }
     },
 
     name: {

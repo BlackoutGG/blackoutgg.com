@@ -26,7 +26,8 @@ export default {
     SET_PARAM: "forms/setParam",
     SET_FORM_STATUS: "forms/setFormStatus",
     SET_FIELDS: "forms/setFields",
-    SET_OPTIONS: "forms/setOptions"
+    SET_OPTIONS: "forms/setOptions",
+    SET_OPTIONS_CACHE: "forms/setOptionsCache"
   },
   actions: {
     ADD_FORM: "forms/addForm",

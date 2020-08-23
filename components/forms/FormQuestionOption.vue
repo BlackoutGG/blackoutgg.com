@@ -17,7 +17,7 @@ export default {
     parentIdx: Number,
     idx: Number,
     item: {
-      type: Object,
+      type: String,
       required: true
     }
   },
@@ -41,7 +41,7 @@ export default {
     },
     computedValue: {
       get() {
-        return this.item.value;
+        return this.item;
       },
       set(value) {
         this.$store.commit(forms.mutations.CHANGE_OPTION_VALUE, {

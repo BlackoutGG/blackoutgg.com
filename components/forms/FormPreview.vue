@@ -3,11 +3,11 @@
     <v-row>
       <v-col cols="12">
         <v-select
-          :form="categoryList"
+          :items="categoryList"
           :item-text="'name'"
-          label="Category"
-          :item-value="'id'"
           :value="category"
+          :item-value="'id'"
+          label="Category"
         ></v-select>
       </v-col>
       <v-col cols="12">
@@ -22,13 +22,13 @@
         <p class="text--white">{{ field.value }}</p>
         <template v-if="!field.options">
           <v-text-field v-if="field.type === 'textfield'"></v-text-field>
-          <v-textarea v-else></v-textarea>
+          <v-textarea outlined v-else></v-textarea>
         </template>
         <template v-else>
           <template v-if="field.type === 'multiple'">
             <v-radio-group v-model="radioGroup">
               <template v-for="(option, i) in field.options">
-                <v-radio :label="option.value" :key="i" v-if="option.value"></v-radio>
+                <v-radio :label="option" :key="i" v-if="option"></v-radio>
               </template>
             </v-radio-group>
           </template>
@@ -36,16 +36,16 @@
             <template v-for="(option, i) in field.options">
               <v-checkbox
                 class="my-0 py-0"
-                :value="option.value"
-                :label="option.value"
+                :value="option"
+                :label="option"
                 :key="i"
-                v-if="option.value"
+                v-if="option"
                 hide-details
               ></v-checkbox>
             </template>
           </template>
           <template v-else>
-            <v-select :items="field.options" :item-text="'value'" :item-value="'value'"></v-select>
+            <v-select :items="field.options"></v-select>
           </template>
         </template>
       </v-col>
@@ -77,10 +77,7 @@ export default {
     ...mapMutations([
       forms.mutations.SET_DESCRIPTION,
       forms.mutations.SET_CATEGORY
-    ]),
-    getter(getter) {
-      return this.$store.getters[getter];
-    }
+    ])
   },
 
   computed: {
@@ -100,7 +97,7 @@ export default {
     },
 
     categoryList() {
-      return this.getter(lists.getters.ITEMS)("categories");
+      return this.$store.getters[lists.getters.ITEMS]("categories");
     }
   }
 };

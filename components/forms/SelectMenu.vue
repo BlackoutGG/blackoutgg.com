@@ -82,18 +82,31 @@ export default {
     const itemText = this.itemText;
     const first = this.items[0];
     if (this.value) {
-      const v = this.items.find(item => item.type === this.value);
-      if (v) this.innerValue = v.name;
-      this.$emit("input", this.value);
+      this.setAndEmit(this.value);
     } else {
       this.innerValue = first[itemText];
+    }
+  },
+
+  watch: {
+    value(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.setAndEmit(newVal);
+      }
     }
   },
 
   methods: {
     onClick(item) {
       this.$emit("input", item[this.itemValue]);
+      this.$emit("change");
       this.innerValue = item[this.itemText];
+    },
+    setAndEmit(value) {
+      const v = this.items.find(item => item[this.itemValue] === value);
+      if (v) this.innerValue = v[this.itemText];
+      this.$emit("input", v[this.itemValue]);
+      this.$emit("change");
     }
   }
 };
