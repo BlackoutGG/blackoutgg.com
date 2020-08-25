@@ -22,13 +22,14 @@ const state = () => ({
 });
 
 const getters = {
-  [ns.getters.QUESTIONS]: state => state.questions,
+  [ns.getters.QUESTIONS]: state =>
+    state.questions.map((q, idx) => ({ ...q, order: idx })),
 
   [ns.getters.QUERY_PARAMS]: state => key =>
     typeof key !== undefined ? state.queryParams[key] : state.queryParams,
 
-  [ns.getters.VALID_FIELDS]: state => {
-    return state.questions
+  [ns.getters.VALID_FIELDS]: (state, getters) => {
+    return getters.questions
       .map((qs, idx) => {
         const { options, cache, ...field } = qs;
         const validOptions =
@@ -115,6 +116,10 @@ const mutations = {
       }
       return form;
     });
+  },
+  [ns.mutations.SET_FORM_STATUS_DIRECTLY](state, { id, status }) {
+    const form = state.forms.find(form => form.id === id);
+    if (form) form.status = status;
   },
   [ns.mutations.SET_DESCRIPTION](state, description) {
     state.description = description;
@@ -250,6 +255,13 @@ const actions = {
         data: { form }
       } = await this.$axios.put(`/api/forms/edit/${id}`, payload);
 
+      if (typeof form.status !== undefined) {
+        commit(ns.mutations.SET_FORM_STATUS_DIRECTLY, {
+          id: form.id,
+          status: form.status
+        });
+      }
+
       if (form.name) {
         commit(ns.mutations.SET_NAME_IN_LIST, { id, name: form.name });
       }
@@ -259,6 +271,13 @@ const actions = {
           id: form.id,
           category_id: form.category.id,
           name: form.category.name
+        });
+      }
+
+      if (form.updated_at) {
+        commit(ns.mutation.SET_FORM_UPDATED, {
+          id: form.id,
+          date: form.updated_at
         });
       }
     } catch (err) {}

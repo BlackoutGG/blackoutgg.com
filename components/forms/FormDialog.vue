@@ -7,7 +7,7 @@
       </v-btn>
     </template>
 
-    <v-card :max-width="maxWidth">
+    <v-card>
       <template v-if="!success">
         <v-toolbar dark>
           <v-toolbar-title>
@@ -183,11 +183,7 @@ export default {
     ]),
 
     fields() {
-      return this.questions.map((q, idx) => {
-        const { order, ...question } = q;
-        question.order = idx;
-        return question;
-      });
+      return this.questions;
     },
 
     formProperties() {

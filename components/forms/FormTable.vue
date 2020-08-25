@@ -1,30 +1,74 @@
 <template>
-  <v-data-table
-    id="forms"
-    show-select
-    v-model="selected"
-    :items="forms"
-    :headers="headers"
-    :server-item-length="queryParams('total')"
-    :item-key="'id'"
-  >
-    <template #top>
+  <v-row>
+    <v-col md="6" sm="12">
+      <div class="d-flex align-center">
+        <v-pagination v-model="page" :length="pageCount"></v-pagination>
+      </div>
+    </v-col>
+    <v-col md="6" sm="12">
+      <!-- <select-menu
+        :items="optionsPerPage"
+        v-model="limit"
+        class="mx-2"
+        outlined
+        label="Show Per Page:"
+      />-->
+
+      <div class="d-flex align-center">
+        <v-spacer></v-spacer>
+        <v-select
+          :items="optionsPerPage"
+          :full-width="false"
+          class="px-2"
+          v-model="limit"
+          hide-details
+          outlined
+          dense
+          label="Show Per Page"
+        ></v-select>
+        <form-dialog ref="dialog"></form-dialog>
+      </div>
+    </v-col>
+    <v-col cols="12">
+      <v-data-table
+        id="forms"
+        show-select
+        v-model="selected"
+        hide-default-footer
+        @page-count="pageCount = $event"
+        :server-item-length="queryParams('total')"
+        :items-per-page="limit"
+        :items="forms"
+        :headers="headers"
+        :page.sync="page"
+        :item-key="'id'"
+      >
+        <!-- <template #top>
       <v-toolbar>
         <v-spacer></v-spacer>
         <form-dialog ref="dialog"></form-dialog>
       </v-toolbar>
-    </template>
-    <template #item.category="{ item }">{{item.category.name}}</template>
-    <template #item.status="{ item }">
-      <v-btn icon @click.native="setStatus(item)">
-        <v-icon v-if="item.status">mdi-check-bold</v-icon>
-        <v-icon v-else>mdi-close-thick</v-icon>
-      </v-btn>
-    </template>
-    <template v-slot:item.actions="{ item }">
-      <table-actions @edit="$refs.dialog.setEditableContent(item.id)" :item="item" edit delete></table-actions>
-    </template>
-  </v-data-table>
+        </template>-->
+        <template #item.category="{ item }">{{item.category.name}}</template>
+        <template #item.status="{ item }">
+          <v-btn icon @click.native="setStatus(item)">
+            <v-icon v-if="item.status">mdi-check-bold</v-icon>
+            <v-icon v-else>mdi-close-thick</v-icon>
+          </v-btn>
+        </template>
+        <template v-slot:item.actions="{ item }">
+          <div class="text-right">
+            <table-actions
+              @edit="$refs.dialog.setEditableContent(item.id)"
+              :item="item"
+              edit
+              remove
+            ></table-actions>
+          </div>
+        </template>
+      </v-data-table>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
@@ -37,13 +81,16 @@ const { mapGetters, mapMutations, mapActions } = createNamespacedHelpers(
 
 import FormDialog from "./FormDialog.vue";
 import TableActions from "~/components/table/TableActions.vue";
+import SelectMenu from "~/components/SelectMenu2.vue";
 export default {
   name: "FormTemplateTable",
 
-  components: { FormDialog, TableActions },
+  components: { FormDialog, TableActions, SelectMenu },
 
   data() {
     return {
+      pageCount: 0,
+      optionsPerPage: [25, 50, 75, 100],
       headers: [
         { text: "name", align: "start", value: "name" },
         { text: "category", sortable: true, value: "category" },
@@ -59,7 +106,7 @@ export default {
     /**
      * this.setParam()
      */
-    ...mapMutations([forms.mutations.SET_PARAM]),
+    ...mapMutations([forms.mutations.SET_PARAM, forms.mutations.SET_SELECTED]),
     /**
      * this.fetchForms()
      * this.setStatus()
@@ -77,7 +124,34 @@ export default {
       forms.getters.QUERY_PARAMS,
       forms.getters.FORMS,
       forms.getters.SELECTED
-    ])
+    ]),
+
+    page: {
+      get() {
+        return this.queryParams("page");
+      },
+      set(value) {
+        this.setParam({ param: "page", value });
+        this.fetchForms();
+      }
+    },
+    limit: {
+      get() {
+        return this.queryParams("limit");
+      },
+      set(value) {
+        this.setParam({ param: "limit", value });
+        this.fetchForms();
+      }
+    },
+    selectedItems: {
+      get() {
+        return this.selected;
+      },
+      set(value) {
+        return this.setSelected(value);
+      }
+    }
   }
 };
 </script>

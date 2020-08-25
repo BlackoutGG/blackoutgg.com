@@ -32,15 +32,17 @@
               <v-checkbox v-model="rememberMe" :label="'Remember Me'"></v-checkbox>
             </v-col>
             <v-col cols="12">
-              <vue-recaptcha
-                ref="recaptcha"
-                :sitekey="siteKey"
-                :theme="'dark'"
-                @render="onRender"
-                @verify="onVerfiy"
-                @expired="resetRecaptcha"
-                @error="onError"
-              ></vue-recaptcha>
+              <no-ssr>
+                <vue-recaptcha
+                  ref="recaptcha"
+                  :sitekey="siteKey"
+                  :theme="'dark'"
+                  @render="onRender"
+                  @verify="onVerfiy"
+                  @expired="resetRecaptcha"
+                  @error="onError"
+                ></vue-recaptcha>
+              </no-ssr>
             </v-col>
           </v-row>
         </v-container>

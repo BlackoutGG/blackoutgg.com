@@ -30,15 +30,17 @@
                 ></v-text-field>
               </v-col>
               <v-col cols="12">
-                <vue-recaptcha
-                  :sitekey="siteKey"
-                  :theme="'dark'"
-                  ref="recaptcha"
-                  @render="onRender"
-                  @verify="onVerfiy"
-                  @expired="resetRecaptcha"
-                  @error="onError"
-                ></vue-recaptcha>
+                <no-ssr>
+                  <vue-recaptcha
+                    :sitekey="siteKey"
+                    :theme="'dark'"
+                    ref="recaptcha"
+                    @render="onRender"
+                    @verify="onVerfiy"
+                    @expired="resetRecaptcha"
+                    @error="onError"
+                  ></vue-recaptcha>
+                </no-ssr>
               </v-col>
             </v-row>
           </v-container>
