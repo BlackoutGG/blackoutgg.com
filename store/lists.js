@@ -4,14 +4,14 @@ import snackbar from "~/utilities/ns/public/snackbar.js";
 const state = () => ({
   items: {
     categories: [],
-    forms: [],
-    tags: []
+    userApplications: []
   },
+
   selected: [],
 
   queryParams: {
     page: 1,
-    limit: 20,
+    limit: 25,
     total: 0,
     orderBy: "DESC",
     sortBy: "id"
@@ -38,17 +38,17 @@ const mutations = {
 };
 
 const actions = {
-  async [lists.actions.FETCH]({ commit, dispatch, state }, type) {
+  async [lists.actions.FETCH]({ commit, state }, type) {
     try {
       const { data } = await this.$axios.get(`/api/${type}`, {
         params: { ...state.queryParams }
       });
 
-      const list = data[type];
-      // const value = data[type].total;
-
-      commit(lists.mutations.SET_LIST, { type, list });
-      // commit(lists.mutations.SET_PARAM, { param: "total", value });
+      commit(lists.mutations.SET_LIST, { type, list: data[type].results });
+      commit(lists.mutations.SET_PARAM, {
+        param: "total",
+        value: data[type].total
+      });
     } catch (err) {
       console.log(err);
     }

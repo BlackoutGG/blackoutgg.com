@@ -8,7 +8,7 @@ const state = () => ({
 
   queryParams: {
     page: 1,
-    limit: 20,
+    limit: 25,
     total: 0,
     orderBy: "DESC",
     sortBy: "id"

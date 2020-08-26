@@ -19,7 +19,7 @@
         <v-select
           :items="optionsPerPage"
           :full-width="false"
-          class="px-2"
+          class="mx-2"
           v-model="limit"
           hide-details
           outlined
@@ -35,7 +35,6 @@
         show-select
         v-model="selected"
         hide-default-footer
-        @page-count="pageCount = $event"
         :server-item-length="queryParams('total')"
         :items-per-page="limit"
         :items="forms"
@@ -60,6 +59,7 @@
           <div class="text-right">
             <table-actions
               @edit="$refs.dialog.setEditableContent(item.id)"
+              @remove="removeForm(item.id)"
               :item="item"
               edit
               remove
@@ -74,6 +74,9 @@
 <script>
 import { createNamespacedHelpers } from "vuex";
 import forms from "~/utilities/ns/private/forms.js";
+import formNS from "~/utilities/ns/public/forms.js";
+
+import pagination from "~/mixins/pagination.js";
 
 const { mapGetters, mapMutations, mapActions } = createNamespacedHelpers(
   "forms"
@@ -87,9 +90,11 @@ export default {
 
   components: { FormDialog, TableActions, SelectMenu },
 
+  mixins: [pagination(formNS)],
+
   data() {
     return {
-      pageCount: 0,
+      // pageCount: 0,
       optionsPerPage: [25, 50, 75, 100],
       headers: [
         { text: "name", align: "start", value: "name" },
@@ -111,7 +116,11 @@ export default {
      * this.fetchForms()
      * this.setStatus()
      */
-    ...mapActions([forms.actions.FETCH, forms.actions.SET_STATUS])
+    ...mapActions([
+      forms.actions.FETCH,
+      forms.actions.SET_STATUS,
+      forms.actions.REMOVE_FORM
+    ])
   },
 
   computed: {
@@ -126,24 +135,24 @@ export default {
       forms.getters.SELECTED
     ]),
 
-    page: {
-      get() {
-        return this.queryParams("page");
-      },
-      set(value) {
-        this.setParam({ param: "page", value });
-        this.fetchForms();
-      }
-    },
-    limit: {
-      get() {
-        return this.queryParams("limit");
-      },
-      set(value) {
-        this.setParam({ param: "limit", value });
-        this.fetchForms();
-      }
-    },
+    // page: {
+    //   get() {
+    //     return this.queryParams("page");
+    //   },
+    //   set(value) {
+    //     this.setParam({ param: "page", value });
+    //     this.fetchForms(false);
+    //   }
+    // },
+    // limit: {
+    //   get() {
+    //     return this.queryParams("limit");
+    //   },
+    //   set(value) {
+    //     this.setParam({ param: "limit", value });
+    //     this.fetchForms(false);
+    //   }
+    // },
     selectedItems: {
       get() {
         return this.selected;

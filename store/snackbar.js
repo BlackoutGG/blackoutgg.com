@@ -2,7 +2,7 @@ import snackbar from "~/utilities/ns/private/snackbar.js";
 
 const defaultOptions = {
   x: null,
-  y: "bottom",
+  y: "top",
   mode: null,
   color: "#000",
   timeout: 3000

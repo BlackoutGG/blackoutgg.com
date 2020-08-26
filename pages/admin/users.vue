@@ -1,11 +1,5 @@
 <template>
-  <v-container fluid class="px-5">
-    <v-row>
-      <v-col cols="12">
-        <user-table />
-      </v-col>
-    </v-row>
-  </v-container>
+  <user-table />
 </template>
 
 <script>

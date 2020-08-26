@@ -14,7 +14,7 @@ const state = () => ({
 
   queryParams: {
     page: 1,
-    limit: 20,
+    limit: 25,
     total: 0,
     orderBy: "DESC",
     sortBy: "id"
@@ -158,12 +158,12 @@ const mutations = {
 };
 
 const actions = {
-  async [ns.actions.FETCH]({ commit, state }) {
+  async [ns.actions.FETCH]({ commit, state }, getCategories = true) {
     try {
       const {
         data: { forms, categories }
-      } = await this.$axios.get("/api/forms", {
-        params: { ...state.queryParams }
+      } = await this.$axios.get("/api/forms/templates", {
+        params: { ...state.queryParams, getCategories }
       });
 
       commit(
@@ -185,7 +185,7 @@ const actions = {
     try {
       const {
         data: { form }
-      } = await this.$axios.put(`/api/forms/status/${id}`, {
+      } = await this.$axios.put(`/api/forms/templates/${id}/status`, {
         category_id
       });
 
@@ -201,7 +201,7 @@ const actions = {
     try {
       const {
         data: { form }
-      } = await this.$axios.get(`/api/forms/single`, { params });
+      } = await this.$axios.get(`/api/forms/templates/single`, { params });
 
       commit(ns.mutations.SET_NAME, form.name);
       commit(ns.mutations.SET_DESCRIPTION, form.description);
@@ -239,7 +239,31 @@ const actions = {
     try {
       const {
         data: { forms }
-      } = await this.$axios.post("/api/forms/template", params);
+      } = await this.$axios.post("/api/forms/templates", params);
+
+      commit(ns.mutations.SET_FORMS, forms.results);
+      commit(ns.mutations.SET_PARAM, { param: "total", value: forms.total });
+      commit(
+        snackbar.actions.TOGGLE_BAR,
+        {
+          text: `Form: ${params.name} has been created.`,
+          y: "top"
+        },
+        { root: true }
+      );
+    } catch (err) {
+      console.log(err);
+      commit(snackbar.actions.ERROR, null, { root: true });
+    }
+  },
+
+  async [ns.actions.REMOVE_FORM]({ state, commit }, id) {
+    try {
+      const {
+        data: { forms }
+      } = await this.$axios.delete(`/api/forms/templates/${id}/delete`, {
+        params: { ...state.queryParams }
+      });
 
       commit(ns.mutations.SET_FORMS, forms.results);
       commit(ns.mutations.SET_PARAM, { param: "total", value: forms.total });
@@ -253,7 +277,7 @@ const actions = {
     try {
       const {
         data: { form }
-      } = await this.$axios.put(`/api/forms/edit/${id}`, payload);
+      } = await this.$axios.put(`/api/forms/templates/${id}/edit`, payload);
 
       if (typeof form.status !== undefined) {
         commit(ns.mutations.SET_FORM_STATUS_DIRECTLY, {

@@ -1,17 +1,44 @@
 <template>
-  <v-data-table
-    id="users"
-    show-select
-    class="elevation-1"
-    v-model="selected"
-    :items="users"
-    :headers="headers"
-    :server-items-length="queryParams.total"
-    :item-key="'id'"
-    @update:page="page"
-    @update:sort="sortBy"
-  >
-    <template v-slot:top>
+  <section id="user-table">
+    <v-container fluid>
+      <v-row>
+        <v-col md="6" sm="12">
+          <div class="d-flex align-center">
+            <v-pagination v-model="page" :length="pageCount"></v-pagination>
+          </div>
+        </v-col>
+        <v-col md="6" sm="12">
+          <div class="d-flex align-center">
+            <v-select
+              :items="perPageOptions"
+              v-model="limit"
+              class="mx-2"
+              hide-details
+              outlined
+              dense
+              label="Show Per Page"
+            ></v-select>
+            <create-dialog @open="setRoles"></create-dialog>
+          </div>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="12">
+          <v-data-table
+            id="users"
+            show-select
+            class="elevation-1"
+            v-model="selected"
+            hide-default-footer
+            @page-count="pageCount = $event"
+            :server-item-length="queryParams('total')"
+            :items-per-page="limit"
+            :items="users"
+            :headers="headers"
+            :page.sync="page"
+            :item-key="'id'"
+          >
+            <!-- <template v-slot:top>
       <v-toolbar>
         <v-spacer></v-spacer>
         <v-btn>
@@ -21,43 +48,57 @@
         <create-dialog @open="setRoles"></create-dialog>
         <edit-dialog ref="edit" @open="setRoles"></edit-dialog>
       </v-toolbar>
-    </template>
-    <template v-slot:item.username="{ item }">
-      <table-input
-        :endpoint="usernameEndpoint"
-        :id="item.id"
-        :type="'username'"
-        :value="item.username"
-        :large="true"
-        @save="changeUserInfo"
-      ></table-input>
-    </template>
-    <template v-slot:item.email="{ item }">
-      <table-input
-        :endpoint="emailEndpoint"
-        :id="item.id"
-        :type="'email'"
-        :value="item.email"
-        :large="true"
-        @save="changeUserInfo"
-      ></table-input>
-    </template>
-    <template v-slot:item.avatar="{ item }">
-      <user-table-avatar :item="item"></user-table-avatar>
-    </template>
-    <template v-slot:item.roles="{ item }">
-      <user-table-roles :userId="item.id" :roles="item.roles"></user-table-roles>
-    </template>
-    <template v-slot:item.actions="{ item }">
-      <table-actions @edit="setEditableContent(item)" :item="item" edit reset delete disable></table-actions>
-    </template>
-  </v-data-table>
+            </template>-->
+            <template v-slot:item.username="{ item }">
+              <table-input
+                :endpoint="usernameEndpoint"
+                :id="item.id"
+                :type="'username'"
+                :value="item.username"
+                :large="true"
+                @save="changeUserInfo"
+              ></table-input>
+            </template>
+            <template v-slot:item.email="{ item }">
+              <table-input
+                :endpoint="emailEndpoint"
+                :id="item.id"
+                :type="'email'"
+                :value="item.email"
+                :large="true"
+                @save="changeUserInfo"
+              ></table-input>
+            </template>
+            <template v-slot:item.avatar="{ item }">
+              <user-table-avatar :item="item"></user-table-avatar>
+            </template>
+            <template v-slot:item.roles="{ item }">
+              <user-table-roles :userId="item.id" :roles="item.roles"></user-table-roles>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <table-actions
+                @edit="$refs.edit.setEditableContent(item.id)"
+                @remove="removeUser(item.id)"
+                :item="item"
+                edit
+                reset
+                delete
+                disable
+              ></table-actions>
+            </template>
+          </v-data-table>
+        </v-col>
+      </v-row>
+    </v-container>
+    <edit-dialog ref="edit" @open="setRoles"></edit-dialog>
+  </section>
 </template>
 
 <script>
 import { createNamespacedHelpers } from "vuex";
 import users from "~/utilities/ns/public/users.js";
 import roles from "~/utilities/ns/public/roles.js";
+import pagination from "~/mixins/pagination.js";
 import UserTableAvatar from "./UserTableAvatar.vue";
 import UserTableRoles from "./UserRoles.vue";
 import TableInput from "~/components/table/TableInput.vue";
@@ -70,7 +111,7 @@ const { mapGetters, mapMutations, mapActions } = createNamespacedHelpers(
 );
 
 export default {
-  name: "DataTable",
+  name: "UserTable",
   components: {
     UserTableAvatar,
     UserTableRoles,
@@ -79,6 +120,8 @@ export default {
     CreateDialog,
     EditDialog
   },
+
+  mixins: [pagination(users)],
 
   data() {
     return {
@@ -98,37 +141,47 @@ export default {
   },
 
   methods: {
-    ...mapMutations(["setParam", "setSelected"]),
-    ...mapActions(["changeUserInfo"]),
-    setEditableContent(item) {
-      this.$refs.edit.setEditableContent(item.id);
-    },
+    /**
+     * setParam()
+     * setSelected()
+     */
+    ...mapMutations([users.mutations.SET_PARAM, users.mutations.SET_SELECTED]),
+    /**
+     * changeUserInfo()
+     * removeUser()
+     */
+    ...mapActions([users.actions.CHANGE_USER_INFO, users.actions.REMOVE_USER]),
+
     setRoles() {
       if (this.isRolesPopulated) return;
       this.$store.dispatch(roles.actions.FETCH, false);
     }
   },
   computed: {
-    ...mapGetters(["users", "queryParams"]),
+    /**
+     * this.users,
+     * this.queryParams(),
+     * this.selected
+     */
+    ...mapGetters([
+      users.getters.USERS,
+      users.getters.QUERY_PARAMS,
+      users.getters.SELECTED
+    ]),
+
     isRolesPopulated() {
       return this.$store.getters[roles.getters.ROLES].length;
     },
-    selected: {
+
+    selectedItems: {
       get() {
-        return this.$store.getters[users.getters.SELECTED];
+        return this.selected;
       },
       set(value) {
         this.setSelected(value);
       }
     },
-    page: {
-      get() {
-        return this.queryParams("page");
-      },
-      set(value) {
-        this.setParam({ param: "page", value });
-      }
-    },
+
     sortBy: {
       get() {
         return this.queryParams("sortBy");
@@ -136,9 +189,6 @@ export default {
       set(value) {
         this.setParam({ param: "sortBy", value });
       }
-    },
-    limit() {
-      return this.queryParams("limit");
     }
   }
 };

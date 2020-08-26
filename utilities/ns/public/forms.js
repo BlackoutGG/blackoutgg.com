@@ -33,6 +33,7 @@ export default {
   },
   actions: {
     ADD_FORM: "forms/addForm",
+    REMOVE_FORM: "forms/removeForm",
     EDIT_FORM: "forms/editForm",
     GET_FORM: "forms/getForm",
     CLEAR_FORM: "forms/clearForm",
