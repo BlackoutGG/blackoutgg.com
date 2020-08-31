@@ -1,6 +1,8 @@
 import ns from "~/utilities/ns/private/forms.js";
+import filter from "~/utilities/ns/public/filters.js";
 import lists from "~/utilities/ns/public/lists.js";
 import snackbar from "~/utilities/ns/public/snackbar.js";
+import pickBy from "lodash/pickBy";
 
 const state = () => ({
   name: "",
@@ -40,6 +42,15 @@ const getters = {
         };
       })
       .filter(qs => !!qs.value);
+  },
+
+  [ns.getters.FILTERS]: (state, getters, rootState, rootGetters) => {
+    const filters = rootGetters[filter.getters.GET_FILTER]("forms");
+    const picked = pickBy(filters, (value, key) => {
+      if (Array.isArray(value) && value.length) return true;
+      if (typeof value === "boolean" && value) return true;
+    });
+    return Object.keys(picked).length ? picked : null;
   },
 
   [ns.getters.DESCRIPTION]: state => state.description,
@@ -102,13 +113,6 @@ const mutations = {
     state.queryParams[param] = value;
   },
   [ns.mutations.SET_FORM_STATUS](state, { id, category_id, status }) {
-    // state.forms
-    //   .filter(form => form.category_id === category_id)
-    //   .forEach(form => {
-    //     if (form.id !== id) form.status = false;
-    //     else form.status = status;
-    //   });
-
     state.forms.forEach(form => {
       if (form.category_id === category_id) {
         if (form.id !== id) form.status = false;
@@ -136,6 +140,9 @@ const mutations = {
   [ns.mutations.SET_FIELDS](state, fields) {
     state.questions = fields;
   },
+  [ns.mutations.SET_SELECTED](state, selected) {
+    state.selected = selected;
+  },
   [ns.mutations.SET_OPTIONS](state, { idx, value }) {
     const q = state.questions[idx];
     if (q) q.options = value;
@@ -158,12 +165,21 @@ const mutations = {
 };
 
 const actions = {
-  async [ns.actions.FETCH]({ commit, state }, getCategories = true) {
+  async [ns.actions.FETCH]({ commit, getters, state }, getCategories = true) {
+    const params = {
+      ...state.queryParams,
+      getCategories
+    };
+
+    const filters = getters[ns.getters.FILTERS];
+
+    if (filters) Object.assign(params, { filters });
+
     try {
       const {
         data: { forms, categories }
       } = await this.$axios.get("/api/forms/templates", {
-        params: { ...state.queryParams, getCategories }
+        params
       });
 
       commit(
@@ -226,7 +242,7 @@ const actions = {
     commit(ns.mutations.SET_FIELDS, []);
   },
 
-  async [ns.actions.ADD_FORM]({ commit, state, getters }) {
+  async [ns.actions.ADD_FORM]({ commit, getters, state }) {
     const params = {
       form: {
         name: state.name,
@@ -236,6 +252,11 @@ const actions = {
       fields: getters[ns.getters.VALID_FIELDS],
       ...state.queryParams
     };
+
+    const filters = getters[ns.getters.FILTERS];
+
+    if (filters) Object.assign(params, { filters });
+
     try {
       const {
         data: { forms }
@@ -257,13 +278,20 @@ const actions = {
     }
   },
 
-  async [ns.actions.REMOVE_FORM]({ state, commit }, id) {
+  async [ns.actions.REMOVE_FORMS]({ state, getters, commit }, ids) {
+    const params = {
+      ...state.queryParams,
+      ids
+    };
+
+    const filters = getters[ns.getters.FILTERS];
+
+    if (filters) Object.assign(params, { filters });
+
     try {
       const {
         data: { forms }
-      } = await this.$axios.delete(`/api/forms/templates/${id}/delete`, {
-        params: { ...state.queryParams }
-      });
+      } = await this.$axios.delete(`/api/forms/templates/delete`, { params });
 
       commit(ns.mutations.SET_FORMS, forms.results);
       commit(ns.mutations.SET_PARAM, { param: "total", value: forms.total });
@@ -273,7 +301,6 @@ const actions = {
   },
 
   async [ns.actions.EDIT_FORM]({ commit }, { id, payload }) {
-    console.log(id, payload);
     try {
       const {
         data: { form }

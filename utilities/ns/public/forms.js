@@ -2,6 +2,7 @@ export default {
   getters: {
     QUESTIONS: "forms/questions",
     DESCRIPTION: "forms/description",
+    FILTERS: "forms/filters",
     CATEGORY: "forms/category",
     NAME: "forms/name",
     VALID_FIELDS: "forms/validFields",
@@ -33,7 +34,7 @@ export default {
   },
   actions: {
     ADD_FORM: "forms/addForm",
-    REMOVE_FORM: "forms/removeForm",
+    REMOVE_FORMS: "forms/removeForm",
     EDIT_FORM: "forms/editForm",
     GET_FORM: "forms/getForm",
     CLEAR_FORM: "forms/clearForm",

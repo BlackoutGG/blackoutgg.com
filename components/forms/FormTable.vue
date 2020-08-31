@@ -6,49 +6,41 @@
       </div>
     </v-col>
     <v-col md="6" sm="12">
-      <!-- <select-menu
-        :items="optionsPerPage"
-        v-model="limit"
-        class="mx-2"
-        outlined
-        label="Show Per Page:"
-      />-->
-
       <div class="d-flex align-center">
         <v-spacer></v-spacer>
+        <table-filter-options
+          :filters="filterOptions"
+          :name="filterName"
+          @update="onUpdate"
+          @reset="resetFilters"
+        />
+        <table-delete-all :length="selectedItems.length" @deleteAll="removeForms(selectedItems)"></table-delete-all>
+        <form-dialog ref="dialog"></form-dialog>
         <v-select
-          :items="optionsPerPage"
+          :items="perPageOptions"
           :full-width="false"
-          class="mx-2"
           v-model="limit"
           hide-details
           outlined
           dense
           label="Show Per Page"
         ></v-select>
-        <form-dialog ref="dialog"></form-dialog>
       </div>
     </v-col>
     <v-col cols="12">
       <v-data-table
         id="forms"
         show-select
-        v-model="selected"
+        v-model="selectedItems"
         hide-default-footer
-        :server-item-length="queryParams('total')"
+        :server-items-length="total"
         :items-per-page="limit"
         :items="forms"
         :headers="headers"
         :page.sync="page"
         :item-key="'id'"
       >
-        <!-- <template #top>
-      <v-toolbar>
-        <v-spacer></v-spacer>
-        <form-dialog ref="dialog"></form-dialog>
-      </v-toolbar>
-        </template>-->
-        <template #item.category="{ item }">{{item.category.name}}</template>
+        <template #item.category="{ item }">{{ item.category.name }}</template>
         <template #item.status="{ item }">
           <v-btn icon @click.native="setStatus(item)">
             <v-icon v-if="item.status">mdi-check-bold</v-icon>
@@ -59,7 +51,7 @@
           <div class="text-right">
             <table-actions
               @edit="$refs.dialog.setEditableContent(item.id)"
-              @remove="removeForm(item.id)"
+              @remove="removeForms([item.id])"
               :item="item"
               edit
               remove
@@ -73,8 +65,10 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex";
-import forms from "~/utilities/ns/private/forms.js";
-import formNS from "~/utilities/ns/public/forms.js";
+import _forms from "~/utilities/ns/private/forms.js";
+import form from "~/utilities/ns/public/forms.js";
+import filter from "~/utilities/ns/public/filters.js";
+import lists from "~/utilities/ns/public/lists.js";
 
 import pagination from "~/mixins/pagination.js";
 
@@ -84,18 +78,23 @@ const { mapGetters, mapMutations, mapActions } = createNamespacedHelpers(
 
 import FormDialog from "./FormDialog.vue";
 import TableActions from "~/components/table/TableActions.vue";
-import SelectMenu from "~/components/SelectMenu2.vue";
+import TableDeleteAll from "~/components/table/TableDeleteAll.vue";
+import TableFilterOptions from "~/components/table/TableFilterOptions.vue";
+
 export default {
   name: "FormTemplateTable",
 
-  components: { FormDialog, TableActions, SelectMenu },
+  components: {
+    FormDialog,
+    TableActions,
+    TableDeleteAll,
+    TableFilterOptions
+  },
 
-  mixins: [pagination(formNS)],
+  mixins: [pagination(form)],
 
   data() {
     return {
-      // pageCount: 0,
-      optionsPerPage: [25, 50, 75, 100],
       headers: [
         { text: "name", align: "start", value: "name" },
         { text: "category", sortable: true, value: "category" },
@@ -103,56 +102,65 @@ export default {
         { text: "created_at", sortable: true, value: "created_at" },
         { text: "updated_at", sortable: true, value: "updated_at" },
         { text: "", align: "end", value: "actions" }
-      ]
+      ],
+
+      filterName: "forms"
     };
   },
 
   methods: {
     /**
-     * this.setParam()
+     * this.setSelected()
      */
-    ...mapMutations([forms.mutations.SET_PARAM, forms.mutations.SET_SELECTED]),
+    ...mapMutations([_forms.mutations.SET_SELECTED]),
     /**
      * this.fetchForms()
      * this.setStatus()
      */
     ...mapActions([
-      forms.actions.FETCH,
-      forms.actions.SET_STATUS,
-      forms.actions.REMOVE_FORM
-    ])
+      _forms.actions.FETCH,
+      _forms.actions.SET_STATUS,
+      _forms.actions.REMOVE_FORMS
+    ]),
+
+    onUpdate() {
+      this.fetchForms(false);
+    },
+
+    resetFilters() {
+      this.$store.commit(filter.mutations.RESET_FILTER, "forms");
+      this.fetchForms(false);
+    }
   },
 
   computed: {
     /**
-     * this.queryParams()
      * this.forms()
      * this.selected()
      */
-    ...mapGetters([
-      forms.getters.QUERY_PARAMS,
-      forms.getters.FORMS,
-      forms.getters.SELECTED
-    ]),
+    ...mapGetters([_forms.getters.FORMS, _forms.getters.SELECTED]),
 
-    // page: {
-    //   get() {
-    //     return this.queryParams("page");
-    //   },
-    //   set(value) {
-    //     this.setParam({ param: "page", value });
-    //     this.fetchForms(false);
-    //   }
-    // },
-    // limit: {
-    //   get() {
-    //     return this.queryParams("limit");
-    //   },
-    //   set(value) {
-    //     this.setParam({ param: "limit", value });
-    //     this.fetchForms(false);
-    //   }
-    // },
+    categories() {
+      return;
+    },
+
+    filterOptions() {
+      const categories = this.$store.getters[lists.getters.ITEMS](
+        "categories"
+      ).map(({ id, name }) => ({ id, name }));
+
+      return [
+        {
+          name: "Categories",
+          type: "category_id",
+          itemProp: "id",
+          multiple: true,
+          children: categories
+        },
+        { name: "Status", type: "status" }
+      ];
+    },
+
     selectedItems: {
       get() {
         return this.selected;

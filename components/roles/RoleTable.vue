@@ -11,7 +11,7 @@
           <div class="d-flex align-center">
             <v-spacer></v-spacer>
             <v-select
-              :items="optionsPerPage"
+              :items="perPageOptions"
               :full-width="false"
               class="mx-2"
               v-model="limit"
@@ -34,24 +34,13 @@
           class="elevation-1"
           v-model="selected"
           hide-default-footer
-          @page-count="pageCount = $event"
-          :server-items-length="queryParams('total')"
+          :server-items-length="total"
           :items-per-page="limit"
           :items="roles"
           :headers="headers"
           :page.sync="page"
           :item-key="'id'"
         >
-          <!-- <template v-slot:top>
-      <v-toolbar flat class="transparent">
-        <v-spacer></v-spacer>
-        <v-btn color="primary" @click="$refs.edit.setNewContent()">
-          <v-icon left>mdi-plus</v-icon>
-          <span>Add Role</span>
-        </v-btn>
-        <edit-role ref="edit"></edit-role>
-      </v-toolbar>
-          </template>-->
           <template v-slot:item.name="{ item }">
             <table-input
               :endpoint="endpoint"
@@ -81,6 +70,7 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex";
+import _roles from "~/utilities/ns/private/roles.js";
 import roles from "~/utilities/ns/public/roles.js";
 import pagination from "~/mixins/pagination.js";
 
@@ -111,8 +101,15 @@ export default {
   },
 
   methods: {
-    ...mapMutations([roles.mutations.SET_PARAM, roles.mutations.SET_SELECTED]),
-    ...mapActions([roles.actions.EDIT_ROLE]),
+    /**
+     * this.setSelected()
+     */
+    ...mapMutations([_roles.mutations.SET_SELECTED]),
+    /**
+     * this.editRole()
+     */
+    ...mapActions([_roles.actions.EDIT_ROLE]),
+
     toggleStatus(id, is_disabled) {
       this.editRole({ id, disable: is_disabled });
     }
@@ -121,14 +118,9 @@ export default {
   computed: {
     /**
      * this.roles,
-     * this.queryParams,
      * this.selected
      * */
-    ...mapGetters([
-      roles.getters.roles,
-      roles.getters.queryParams,
-      roles.getters.selected
-    ]),
+    ...mapGetters([_roles.getters.roles, _roles.getters.selected]),
 
     selected: {
       get() {
@@ -136,15 +128,6 @@ export default {
       },
       set(value) {
         this.setSelected(value);
-      }
-    },
-
-    sortBy: {
-      get() {
-        return this.queryParams("sortBy");
-      },
-      set(value) {
-        this.setParam({ param: "sortBy", value });
       }
     }
   }

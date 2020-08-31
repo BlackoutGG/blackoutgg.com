@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="open" :max-width="maxWidth">
     <template #activator="{ on }">
-      <v-btn outlined text v-on="on">
+      <v-btn text v-on="on">
         <v-icon left>mdi-plus</v-icon>
         <span>Add Form</span>
       </v-btn>

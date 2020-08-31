@@ -30,25 +30,13 @@
             class="elevation-1"
             v-model="selected"
             hide-default-footer
-            @page-count="pageCount = $event"
-            :server-item-length="queryParams('total')"
+            :server-items-length="total"
             :items-per-page="limit"
             :items="users"
             :headers="headers"
             :page.sync="page"
             :item-key="'id'"
           >
-            <!-- <template v-slot:top>
-      <v-toolbar>
-        <v-spacer></v-spacer>
-        <v-btn>
-          <v-icon left>mdi-refresh</v-icon>
-          <span>Refresh</span>
-        </v-btn>
-        <create-dialog @open="setRoles"></create-dialog>
-        <edit-dialog ref="edit" @open="setRoles"></edit-dialog>
-      </v-toolbar>
-            </template>-->
             <template v-slot:item.username="{ item }">
               <table-input
                 :endpoint="usernameEndpoint"
@@ -97,6 +85,7 @@
 <script>
 import { createNamespacedHelpers } from "vuex";
 import users from "~/utilities/ns/public/users.js";
+import _users from "~/utilities/ns/private/users.js";
 import roles from "~/utilities/ns/public/roles.js";
 import pagination from "~/mixins/pagination.js";
 import UserTableAvatar from "./UserTableAvatar.vue";
@@ -142,15 +131,17 @@ export default {
 
   methods: {
     /**
-     * setParam()
      * setSelected()
      */
-    ...mapMutations([users.mutations.SET_PARAM, users.mutations.SET_SELECTED]),
+    ...mapMutations([_users.mutations.SET_SELECTED]),
     /**
      * changeUserInfo()
      * removeUser()
      */
-    ...mapActions([users.actions.CHANGE_USER_INFO, users.actions.REMOVE_USER]),
+    ...mapActions([
+      _users.actions.CHANGE_USER_INFO,
+      _users.actions.REMOVE_USER
+    ]),
 
     setRoles() {
       if (this.isRolesPopulated) return;
@@ -160,14 +151,9 @@ export default {
   computed: {
     /**
      * this.users,
-     * this.queryParams(),
      * this.selected
      */
-    ...mapGetters([
-      users.getters.USERS,
-      users.getters.QUERY_PARAMS,
-      users.getters.SELECTED
-    ]),
+    ...mapGetters([_users.getters.USERS, _users.getters.SELECTED]),
 
     isRolesPopulated() {
       return this.$store.getters[roles.getters.ROLES].length;
@@ -179,15 +165,6 @@ export default {
       },
       set(value) {
         this.setSelected(value);
-      }
-    },
-
-    sortBy: {
-      get() {
-        return this.queryParams("sortBy");
-      },
-      set(value) {
-        this.setParam({ param: "sortBy", value });
       }
     }
   }
