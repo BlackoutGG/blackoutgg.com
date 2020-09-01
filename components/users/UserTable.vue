@@ -9,6 +9,12 @@
         </v-col>
         <v-col md="6" sm="12">
           <div class="d-flex align-center">
+            <table-filter-options
+              :filters="filters"
+              :name="name"
+              @update="onUpdate"
+              @reset="resetFilters"
+            ></table-filter-options>
             <v-select
               :items="perPageOptions"
               v-model="limit"
@@ -88,10 +94,12 @@ import users from "~/utilities/ns/public/users.js";
 import _users from "~/utilities/ns/private/users.js";
 import roles from "~/utilities/ns/public/roles.js";
 import pagination from "~/mixins/pagination.js";
+
 import UserTableAvatar from "./UserTableAvatar.vue";
 import UserTableRoles from "./UserRoles.vue";
 import TableInput from "~/components/table/TableInput.vue";
 import TableActions from "~/components/table/TableActions.vue";
+import TableFilterOptions from "~/components/table/TableFilterOptions.vue";
 import CreateDialog from "./CreateUserDialog.vue";
 import EditDialog from "./EditUserDialog.vue";
 
@@ -104,6 +112,7 @@ export default {
   components: {
     UserTableAvatar,
     UserTableRoles,
+    TableFilterOptions,
     TableInput,
     TableActions,
     CreateDialog,
@@ -123,6 +132,8 @@ export default {
         { text: "joined_on", sortable: true, value: "joined_on" },
         { text: "", sortable: false, value: "actions", align: "end" }
       ],
+
+      name: "users",
 
       emailEndpoint: "/api/users/validate/email",
       usernameEndpoint: "/api/users/validate/username"
@@ -146,6 +157,15 @@ export default {
     setRoles() {
       if (this.isRolesPopulated) return;
       this.$store.dispatch(roles.actions.FETCH, false);
+    },
+
+    onUpdate() {
+      this.fetch(false);
+    },
+
+    resetFilters() {
+      this.$store.commit(filter.mutations.RESET_FILTER, "forms");
+      this.fetch(false);
     }
   },
   computed: {
@@ -157,6 +177,22 @@ export default {
 
     isRolesPopulated() {
       return this.$store.getters[roles.getters.ROLES].length;
+    },
+
+    filters() {
+      const list = this.$store.getters[
+        roles.getters.ROLES
+      ].map(({ name, id }) => ({ id, name }));
+
+      return [
+        {
+          name: "Roles",
+          type: "roles.id",
+          multiple: true,
+          itemProp: "id",
+          children: list
+        }
+      ];
     },
 
     selectedItems: {

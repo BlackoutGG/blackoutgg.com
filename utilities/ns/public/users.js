@@ -4,7 +4,8 @@ export default {
     GET_USER: "users/getUser",
     SELECTED: "users/selected",
     ROLE_LIST: "users/roleList",
-    QUERY_PARAMS: "users/queryParams"
+    QUERY_PARAMS: "users/queryParams",
+    FILTERS: "users/filters"
   },
   mutations: {
     SET_USERS: "users/setUsers",

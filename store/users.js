@@ -1,5 +1,7 @@
 import ns from "~/utilities/ns/private/users.js";
 import snackbar from "~/utilities/ns/public/snackbar.js";
+import filter from "~/utilities/ns/public/filters.js";
+import pickBy from "lodash/pickBy";
 
 const state = () => ({
   users: [],
@@ -16,11 +18,23 @@ const state = () => ({
 
 const getters = {
   [ns.getters.USERS]: state => state.users,
+
   [ns.getters.SELECTED]: state => state.selected,
+
   [ns.getters.GET_USER]: state => id =>
     state.users.find(user => user.id === id),
+
   [ns.getters.QUERY_PARAMS]: state => key =>
-    typeof key !== undefined ? state.queryParams[key] : state.queryParams
+    typeof key !== undefined ? state.queryParams[key] : state.queryParams,
+
+  [ns.getters.FILTERS]: (state, getters, rootState, rootGetters) => {
+    const filters = rootGetters[filter.getters.GET_FILTER]("users");
+    const picked = pickBy(filters, (value, key) => {
+      if (Array.isArray(value) && value.length) return true;
+      if (typeof value === "boolean" && value) return true;
+    });
+    return Object.keys(picked).length ? picked : null;
+  }
 };
 
 const mutations = {
@@ -60,11 +74,17 @@ const mutations = {
 };
 
 const actions = {
-  async [ns.actions.FETCH]({ state, commit, dispatch }) {
+  async [ns.actions.FETCH]({ state, getters, commit, dispatch }) {
+    const params = {
+      ...state.queryParams
+    };
+
+    const filters = getters[ns.getters.FILTERS];
+
+    if (filters) Object.assign(params, { filters });
+
     try {
-      const { data } = await this.$axios.get("/api/users", {
-        params: { ...state.queryParams }
-      });
+      const { data } = await this.$axios.get("/api/users", { params });
 
       commit(ns.mutations.SET_USERS, data.users.results);
       commit(ns.mutations.SET_PARAM, {
@@ -72,11 +92,11 @@ const actions = {
         value: data.users.total
       });
       commit(ns.mutations.SET_ROLE_LIST, data.roles);
-      dispatch(
-        snackbar.actions.TOGGLE_BAR,
-        { text: "Content Loaded." },
-        { root: true }
-      );
+      // dispatch(
+      //   snackbar.actions.TOGGLE_BAR,
+      //   { text: "Content Loaded." },
+      //   { root: true }
+      // );
     } catch (err) {
       dispatch(
         snackbar.actions.TOGGLE_BAR,
