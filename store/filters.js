@@ -2,7 +2,7 @@ import ns from "~/utilities/ns/private/filters.js";
 
 const state = () => ({
   users: {
-    "roles.id": []
+    role_id: []
   },
 
   forms: {

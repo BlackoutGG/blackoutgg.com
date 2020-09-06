@@ -2,6 +2,7 @@ export default {
   getters: {
     ITEMS: "lists/items",
     SELECTED: "lists/selected",
+    SELECTED_IDS: "lists/selectedIds",
     QUERY_PARAMS: "lists/queryParams"
   },
   mutations: {

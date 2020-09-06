@@ -15,6 +15,11 @@
               @update="onUpdate"
               @reset="resetFilters"
             ></table-filter-options>
+            <table-delete-all
+              :length="selectedItems.length"
+              @deleteAll="removeUsers(selectedItems)"
+            ></table-delete-all>
+            <create-dialog @open="setRoles"></create-dialog>
             <v-select
               :items="perPageOptions"
               v-model="limit"
@@ -24,7 +29,6 @@
               dense
               label="Show Per Page"
             ></v-select>
-            <create-dialog @open="setRoles"></create-dialog>
           </div>
         </v-col>
       </v-row>
@@ -34,7 +38,7 @@
             id="users"
             show-select
             class="elevation-1"
-            v-model="selected"
+            v-model="selectedItems"
             hide-default-footer
             :server-items-length="total"
             :items-per-page="limit"
@@ -100,6 +104,7 @@ import UserTableRoles from "./UserRoles.vue";
 import TableInput from "~/components/table/TableInput.vue";
 import TableActions from "~/components/table/TableActions.vue";
 import TableFilterOptions from "~/components/table/TableFilterOptions.vue";
+import TableDeleteAll from "~/components/table/TableDeleteAll.vue";
 import CreateDialog from "./CreateUserDialog.vue";
 import EditDialog from "./EditUserDialog.vue";
 
@@ -115,6 +120,7 @@ export default {
     TableFilterOptions,
     TableInput,
     TableActions,
+    TableDeleteAll,
     CreateDialog,
     EditDialog
   },

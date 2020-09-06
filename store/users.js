@@ -21,6 +21,8 @@ const getters = {
 
   [ns.getters.SELECTED]: state => state.selected,
 
+  [ns.getters.SELECTED_IDS]: state => state.selected.map(({ id }) => id),
+
   [ns.getters.GET_USER]: state => id =>
     state.users.find(user => user.id === id),
 

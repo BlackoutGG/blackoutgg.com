@@ -1,6 +1,6 @@
 <template>
   <v-avatar color="primary">
-    <img :src="item.avatar" alt v-if="item.avatar" />
+    <v-img :src="item.avatar" alt v-if="item.avatar" />
     <span class="white--text headline" v-else>{{initials}}</span>
   </v-avatar>
 </template>

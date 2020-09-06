@@ -1,9 +1,9 @@
 <template>
   <v-dialog id="create" v-model="show" max-width="600px">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn color="primary" v-bind="attrs" v-on="on">
+      <v-btn text v-bind="attrs" v-on="on">
         <v-icon left>mdi-plus</v-icon>
-        <span>Create User</span>
+        <span>Add User</span>
       </v-btn>
     </template>
     <v-card>

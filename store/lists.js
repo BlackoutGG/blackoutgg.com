@@ -1,4 +1,4 @@
-import lists from "~/utilities/ns/private/lists.js";
+import ns from "~/utilities/ns/private/lists.js";
 import snackbar from "~/utilities/ns/public/snackbar.js";
 
 const state = () => ({
@@ -19,33 +19,34 @@ const state = () => ({
 });
 
 const getters = {
-  [lists.getters.ITEMS]: state => type => state.items[type],
-  [lists.getters.SELECTED]: state => state.selected,
-  [lists.getters.QUERY_PARAMS]: state => key =>
+  [ns.getters.ITEMS]: state => type => state.items[type],
+  [ns.getters.SELECTED]: state => state.selected,
+  [ns.getters.SELECTED_IDS]: state => state.selected.map(({ id }) => id),
+  [ns.getters.QUERY_PARAMS]: state => key =>
     typeof key !== undefined ? state.queryParams[key] : state.queryParams
 };
 
 const mutations = {
-  [lists.mutations.SET_LIST](state, { type, list }) {
+  [ns.mutations.SET_LIST](state, { type, list }) {
     state.items[type] = list;
   },
-  [lists.mutations.SET_SELECTED](state, selected) {
+  [ns.mutations.SET_SELECTED](state, selected) {
     state.selected = selected;
   },
-  [lists.mutations.SET_PARAM](state, { param, value }) {
+  [ns.mutations.SET_PARAM](state, { param, value }) {
     state.queryParams[param] = value;
   }
 };
 
 const actions = {
-  async [lists.actions.FETCH]({ commit, state }, type) {
+  async [ns.actions.FETCH]({ commit, state }, type) {
     try {
       const { data } = await this.$axios.get(`/api/${type}`, {
         params: { ...state.queryParams }
       });
 
-      commit(lists.mutations.SET_LIST, { type, list: data[type].results });
-      commit(lists.mutations.SET_PARAM, {
+      commit(ns.mutations.SET_LIST, { type, list: data[type].results });
+      commit(ns.mutations.SET_PARAM, {
         param: "total",
         value: data[type].total
       });

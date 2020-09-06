@@ -9,7 +9,11 @@
         </v-col>
         <v-col md="6" sm="12">
           <div class="d-flex align-center">
-            <v-spacer></v-spacer>
+            <table-delete-all :length="selectedItems.length" @deleteAll="removeRole(selectedItems)"></table-delete-all>
+            <v-btn text @click="$refs.edit.setNewContent()">
+              <v-icon left>mdi-plus</v-icon>
+              <span>Add Role</span>
+            </v-btn>
             <v-select
               :items="perPageOptions"
               :full-width="false"
@@ -20,48 +24,46 @@
               dense
               label="Show Per Page"
             ></v-select>
-            <v-btn outlined @click="$refs.edit.setNewContent()">
-              <v-icon left>mdi-plus</v-icon>
-              <span>Add Role</span>
-            </v-btn>
           </div>
         </v-col>
       </v-row>
       <v-row>
-        <v-data-table
-          id="roles"
-          show-select
-          class="elevation-1"
-          v-model="selected"
-          hide-default-footer
-          :server-items-length="total"
-          :items-per-page="limit"
-          :items="roles"
-          :headers="headers"
-          :page.sync="page"
-          :item-key="'id'"
-        >
-          <template v-slot:item.name="{ item }">
-            <table-input
-              :endpoint="endpoint"
-              :id="item.id"
-              :type="'name'"
-              :value="item.name"
-              :large="true"
-            ></table-input>
-          </template>
-          <template v-slot:item.actions="{ item }">
-            <table-actions
-              @edit="$refs.edit.setEditableContent(item.id)"
-              @disable="toggleStatus(item.id, item.is_disabled)"
-              @remove="removeRole(item.id)"
-              edit
-              disable
-              remove
-              :item="item"
-            ></table-actions>
-          </template>
-        </v-data-table>
+        <v-col cols="12">
+          <v-data-table
+            id="roles"
+            show-select
+            class="elevation-1"
+            v-model="selectedItems"
+            hide-default-footer
+            :server-items-length="total"
+            :items-per-page="limit"
+            :items="roles"
+            :headers="headers"
+            :page.sync="page"
+            :item-key="'id'"
+          >
+            <template v-slot:item.name="{ item }">
+              <table-input
+                :endpoint="endpoint"
+                :id="item.id"
+                :type="'name'"
+                :value="item.name"
+                :large="true"
+              ></table-input>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <table-actions
+                @edit="$refs.edit.setEditableContent(item.id)"
+                @disable="toggleStatus(item.id, item.is_disabled)"
+                @remove="removeRole(item.id)"
+                edit
+                disable
+                remove
+                :item="item"
+              ></table-actions>
+            </template>
+          </v-data-table>
+        </v-col>
       </v-row>
     </v-container>
     <edit-role ref="edit"></edit-role>
@@ -76,6 +78,7 @@ import pagination from "~/mixins/pagination.js";
 
 import TableActions from "~/components/table/TableActions.vue";
 import TableInput from "~/components/table/TableInput.vue";
+import TableDeleteAll from "~/components/table/TableDeleteAll.vue";
 import SelectMenu from "~/components/SelectMenu2.vue";
 import EditRole from "./EditRoleDialog.vue";
 
@@ -86,7 +89,13 @@ const { mapGetters, mapActions, mapMutations } = createNamespacedHelpers(
 export default {
   name: "RoleTable",
 
-  components: { TableActions, TableInput, EditRole, SelectMenu },
+  components: {
+    TableActions,
+    TableInput,
+    TableDeleteAll,
+    EditRole,
+    SelectMenu
+  },
 
   mixins: [pagination(roles)],
 
@@ -108,7 +117,7 @@ export default {
     /**
      * this.editRole()
      */
-    ...mapActions([_roles.actions.EDIT_ROLE]),
+    ...mapActions([_roles.actions.EDIT_ROLE, _roles.actions.REMOVE_ROLE]),
 
     toggleStatus(id, is_disabled) {
       this.editRole({ id, disable: is_disabled });
@@ -120,9 +129,13 @@ export default {
      * this.roles,
      * this.selected
      * */
-    ...mapGetters([_roles.getters.roles, _roles.getters.selected]),
+    ...mapGetters([
+      _roles.getters.ROLES,
+      _roles.getters.SELECTED,
+      _roles.getters.SELECTED_IDS
+    ]),
 
-    selected: {
+    selectedItems: {
       get() {
         return this.selected;
       },

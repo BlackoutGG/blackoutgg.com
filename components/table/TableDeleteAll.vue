@@ -8,7 +8,7 @@
     </template>
     <v-card>
       <v-card-text>
-        <p>
+        <p class="text-center">
           You are performing an action that is irrevesiable. Do you wish to
           proceed?
         </p>
@@ -28,7 +28,8 @@ export default {
 
   props: {
     length: {
-      type: Number
+      type: Number,
+      default: 0
     }
   },
 

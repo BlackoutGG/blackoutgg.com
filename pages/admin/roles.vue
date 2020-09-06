@@ -1,7 +1,5 @@
 <template>
-  <v-container fluid>
-    <role-table></role-table>
-  </v-container>
+  <role-table></role-table>
 </template>
 
 <script>

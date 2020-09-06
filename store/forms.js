@@ -59,6 +59,8 @@ const getters = {
 
   [ns.getters.SELECTED]: state => state.selected,
 
+  [ns.getters.SELECTED_IDS]: state => state.selected.map(({ id }) => id),
+
   [ns.getters.FORMS]: state => state.forms,
 
   [ns.getters.CATEGORY]: state => state.category_id

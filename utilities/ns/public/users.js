@@ -3,6 +3,7 @@ export default {
     USERS: "users/users",
     GET_USER: "users/getUser",
     SELECTED: "users/selected",
+    SELECTED_IDS: "users/selectedIDs",
     ROLE_LIST: "users/roleList",
     QUERY_PARAMS: "users/queryParams",
     FILTERS: "users/filters"

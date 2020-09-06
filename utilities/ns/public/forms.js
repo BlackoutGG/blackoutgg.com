@@ -8,6 +8,7 @@ export default {
     VALID_FIELDS: "forms/validFields",
     QUERY_PARAMS: "forms/queryParams",
     SELECTED: "forms/selected",
+    SELECTED_IDS: "forms/selectedIds",
     FORMS: "forms/forms"
   },
   mutations: {
